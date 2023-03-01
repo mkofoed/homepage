@@ -1,0 +1,13 @@
+# Ignore local development files
+.env
+.envrc
+.env.*.local
+*.log
+*.pyc
+__pycache__/
+
+# Ignore Poetry virtual environment
+.venv/
+.poetry/
+
+.idea/

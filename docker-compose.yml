@@ -16,10 +16,12 @@ services:
     links:
       - postgres
     volumes:
-        - static_volume:/homepage/staticfiles
+      - .:/homepage
+      - static_volume:/homepage/staticfiles
 
   nginx:
     image: nginx
+    restart: always
     environment:
       NGINX_PROXY_PASS: ${NGINX_PROXY_PASS}
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME}

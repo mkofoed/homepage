@@ -12,7 +12,7 @@ RUN apt update \
 RUN pip install "poetry==1.4.0"
 
 WORKDIR /homepage
-COPY ./ops/poetry.lock ./ops/pyproject.toml /homepage/ops/
+COPY poetry.lock pyproject.toml /homepage/ops/
 
 # Project initialization:
 RUN poetry config virtualenvs.create false \
@@ -20,5 +20,3 @@ RUN poetry config virtualenvs.create false \
   && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 
 COPY . /homepage/
-
-RUN python manage.py collectstatic --noinput

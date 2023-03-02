@@ -19,6 +19,7 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False),
     SECRET_KEY=(str, "secret"),
+    DB_NAME=(str, "postgres"),
 )
 
 DEBUG = env("DEBUG")

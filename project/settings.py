@@ -17,7 +17,8 @@ import environ
 
 env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
+    DEBUG=(bool, False),
+    SECRET_KEY=(str, "secret"),
 )
 
 DEBUG = env("DEBUG")

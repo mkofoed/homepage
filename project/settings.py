@@ -20,6 +20,9 @@ env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, "secret"),
     DB_NAME=(str, "postgres"),
+    DB_USER=(str, "postgres"),
+    DB_PASSWORD=(str, "postgres"),
+    DB_PORT=(int, 1234),
 )
 
 DEBUG = env("DEBUG")

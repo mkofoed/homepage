@@ -1,0 +1,20 @@
+name: SSH to Droplet
+on: [push]
+
+jobs:
+  ssh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: SSH to Droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ''
+          script: |
+            # run your SSH commands here
+            ls

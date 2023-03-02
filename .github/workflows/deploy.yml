@@ -16,7 +16,7 @@ on:
 #2
 env:
   REGISTRY: "registry.digitalocean.com/homepage"
-  IMAGE_NAME: "mkofoed__"
+  IMAGE_NAME: "mkofoed"
 
 #3
 jobs:

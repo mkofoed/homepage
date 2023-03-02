@@ -50,7 +50,8 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          private_key: ${{ secrets.SSHKEY }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ''
           envs: IMAGE_NAME,DOCKERHUB_USERNAME,DOCKERHUB_PASSWORD,GITHUB_SHA
           script: |
             # Pull the latest image from Docker Hub

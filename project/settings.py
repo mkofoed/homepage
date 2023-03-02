@@ -34,7 +34,9 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 
-ALLOWED_HOSTS = ["*"]  # TODO: CHANGE THIS IN PRODUCTION
+ALLOWED_HOSTS = ["mkofoed.dk"]
+if DEBUG:  # Add local hosts if debug
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000"]  # TODO: CHANGE THIS IN PRODUCTION
 
 

@@ -70,26 +70,6 @@ docs = ["furo (>=2021.8.17b43,<2021.9.0)", "sphinx (>=3.5.0)", "sphinx-notfound-
 testing = ["coverage[toml] (>=5.0a4)", "pytest (>=4.6.11)"]
 
 [[package]]
-name = "django-environ-2"
-version = "2.3.0"
-description = "Configure Django made easy."
-category = "main"
-optional = false
-python-versions = ">=3.6, <4"
-files = [
-    {file = "django-environ-2-2.3.0.tar.gz", hash = "sha256:6795fe26eb01291fad80866d4bfb572bb2966db13a8fab13dee77cc353ea4011"},
-    {file = "django_environ_2-2.3.0-py2.py3-none-any.whl", hash = "sha256:9503cc8d6e8d9d8a87ceb178b66fb717f0d1323e2064595038eae6021ba359a1"},
-]
-
-[package.dependencies]
-django-environ = "*"
-
-[package.extras]
-develop = ["check-manifest (>=0.45)", "coverage[toml] (>=5.4)", "flake8 (>=3.8.4)", "flake8-blind-except (>=0.2.0)", "flake8-import-order (>=0.18.1)", "furo (>=2021.8.17b43,<2021.9.0)", "pylint (>=2.6.0,!=2.6.1)", "pytest (>=6.2.4)", "sphinx (>=3.5.0)", "sphinx-notfound-page"]
-docs = ["furo (>=2021.8.17b43,<2021.9.0)", "sphinx (>=3.5.0)", "sphinx-notfound-page"]
-testing = ["check-manifest (>=0.45)", "coverage[toml] (>=5.4)", "flake8 (>=3.8.4)", "flake8-blind-except (>=0.2.0)", "flake8-import-order (>=0.18.1)", "pylint (>=2.6.0,!=2.6.1)", "pytest (>=6.2.4)"]
-
-[[package]]
 name = "djangorestframework"
 version = "3.14.0"
 description = "Web APIs for Django, made easy."
@@ -343,4 +323,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "a4a60c9487632d064ada22bfc1a5f51e7575bbfc5015245636808b8a3f07420b"
+content-hash = "2db52f1e2bd6c2e89c0288ac48c350091f6ff6dea7ce8add46a7b3be9d5be05b"

@@ -6,17 +6,17 @@ volumes:
 
 services:
   web:
-    build: .
+    build: ..
     command: gunicorn --bind=0.0.0.0:5000 --timeout=0 --reload --workers=2 --access-logfile=- project.wsgi
     env_file:
       - .env
-    working_dir: /homepage/
+    working_dir: /homepage
     ports:
       - "5000:5000"
     links:
       - postgres
     volumes:
-      - .:/homepage
+      - ../.:/homepage
       - static_volume:/homepage/staticfiles
 
   nginx:
@@ -38,6 +38,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "${DB_PORT}:5432"
+      - "${DB_PORT}"
     volumes:
       - postgres:/var/lib/postgresql/data

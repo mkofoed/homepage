@@ -9,20 +9,16 @@ RUN apt update \
         && apt install -y --no-install-recommends postgresql-client-10 postgresql-client-15 \
         && rm -rf /var/lib/apt/lists/*
 
-RUN git config --global --add safe.directory /homepage
-
 RUN pip install "poetry==1.4.0"
 
-# workdir is the repo name
 WORKDIR /homepage
-
-COPY poetry.lock pyproject.toml /homepage/
+COPY ./ops/poetry.lock ./ops/pyproject.toml /homepage/ops/
 
 # Project initialization:
 RUN poetry config virtualenvs.create false \
+  && cd ./ops \
   && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
 
-
-COPY . /homepage
+COPY . /homepage/
 
 RUN python manage.py collectstatic --noinput

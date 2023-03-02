@@ -14,6 +14,7 @@ from pathlib import Path
 
 import environ
 
+environ.Env.read_env("./ops/.env")
 
 env = environ.Env(
     # set casting, default value

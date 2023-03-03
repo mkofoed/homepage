@@ -56,7 +56,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ''
           source: ./ops/docker-compose.production.yml
-          target: /homepage/docker-compose.production.yml
+          target: /homepage/
 
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: appleboy/ssh-action@v0.1.8

@@ -46,14 +46,14 @@ jobs:
 
     steps:
       - name: Copy docker-compose.production.yml to remote machine
-        uses: appleboy/scp-action@master
+        uses: appleboy/scp-action@v0.1.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ''
-          source: docker-compose.production.yml
-          target: /path/to/docker-compose.production.yml
+          source: ./ops/docker-compose.production.yml
+          target: /homepage/docker-compose.production.yml
 
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: appleboy/ssh-action@v0.1.8

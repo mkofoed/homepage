@@ -6,8 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
     command: gunicorn --bind=0.0.0.0:5000 --timeout=0 --workers=2 --access-logfile=- project.wsgi
-    env_file:
-      - .env
     working_dir: /homepage
     volumes:
       - ../.:/homepage

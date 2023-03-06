@@ -92,6 +92,7 @@ jobs:
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
             cd /homepage/ops/
+            mv app.env .env
 
             # Pull latest images and build containers
             docker compose -f docker-compose.production.yml up -d --build

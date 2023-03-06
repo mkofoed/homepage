@@ -50,14 +50,14 @@ jobs:
 
       - name: Copy env vars to .env file
         run: |
-          echo "DB_ENGINE=${{ secrets.DB_ENGINE }}" > .env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
-          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env
-          echo "WEB_PORT=${{ secrets.WEB_PORT }}" >> .env
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "DB_ENGINE=${{ secrets.DB_ENGINE }}" > app.env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> app.env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> app.env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> app.env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> app.env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> app.env
+          echo "WEB_PORT=${{ secrets.WEB_PORT }}" >> app.env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> app.env
 
       - name: Copy .env file to remote machine
         uses: appleboy/scp-action@master
@@ -66,7 +66,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
-          source: .env
+          source: app.env
           target: /homepage/ops/
 
       - name: Copy docker-compose.production.yml to remote machine

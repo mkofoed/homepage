@@ -77,7 +77,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ''
           overwrite: true
-          source: ./ops/docker-compose.production.yml ./ops/nginx.conf
+          source: "./ops/docker-compose.production.yml,./ops/nginx.conf"
           target: /homepage/
 
       - name: Deploy to Digital Ocean droplet via SSH action

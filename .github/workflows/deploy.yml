@@ -67,7 +67,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
           source: app.env
-          target: /homepage/ops/
+          target: /homepage/
 
       - name: Copy docker-compose.production.yml to remote machine
         uses: appleboy/scp-action@v0.1.3
@@ -92,8 +92,8 @@ jobs:
             # Log in to Docker Hub
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
-            # Find the correct directory
-            cd /homepage/ops
+            # Add the env vars to the environment
+            source app.env
 
             # Pull latest images and build containers
             docker compose -f docker-compose.production.yml up -d --build

@@ -77,7 +77,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ''
           overwrite: true
-          source: ./ops/docker-compose.production.yml
+          source: ./ops/docker-compose.production.yml ./ops/nginx.conf
           target: /homepage/
 
       - name: Deploy to Digital Ocean droplet via SSH action
@@ -93,6 +93,9 @@ jobs:
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
             mv /homepage/app.env /homepage/.env
+            mv /homepage/ops/nginx.conf /homepage/nginx.conf
+            mv /homepage/ops/docker-compose.production.yml /homepage/docker-compose.yml
+            rm -r /homepage/ops
 
             # Pull latest images and build containers
             docker compose -f docker-compose.production.yml up -d --build

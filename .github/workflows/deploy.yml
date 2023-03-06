@@ -75,6 +75,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ''
+          overwrite: true
           source: ./ops/docker-compose.production.yml
           target: /homepage/
 

@@ -90,17 +90,5 @@ jobs:
             # Log in to Docker Hub
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
-            # Pull the latest image from Docker Hub
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$GITHUB_SHA
-
-            # Stop running container
-            docker stop $(echo $IMAGE_NAME)
-
-            # Remove old container
-            docker rm $(echo $IMAGE_NAME)
-
-            # Run a new container from the latest image
-            docker run -d \
-            --restart always \
-            --name $(echo $IMAGE_NAME) \
-            ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:$GITHUB_SHA
+            # Pull latest images and build containers
+            docker compose -f docker-compose.production.yml up -d --build

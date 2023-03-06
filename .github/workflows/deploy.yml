@@ -67,7 +67,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           overwrite: true
           source: app.env
-          target: /homepage/
+          target: /homepage/.env
 
       - name: Copy docker-compose.production.yml to remote machine
         uses: appleboy/scp-action@v0.1.3
@@ -78,7 +78,7 @@ jobs:
           passphrase: ''
           overwrite: true
           source: ./ops/docker-compose.production.yml
-          target: /homepage/
+          target: /homepage/docker-compose.yml
 
       - name: Deploy to Digital Ocean droplet via SSH action
         uses: appleboy/ssh-action@v0.1.8

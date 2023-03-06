@@ -21,7 +21,7 @@ env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, "secret"),
     DB_NAME=(str, "postgres"),
-    DB_USER=(str, "postgres"),
+    DB_USERNAME=(str, "postgres"),
     DB_PASSWORD=(str, "postgres"),
     DB_PORT=(int, 1234),
 )
@@ -96,7 +96,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": env.str("DB_NAME"),
-        "USER": env.str("DB_USER"),
+        "USER": env.str("DB_USERNAME"),
         "PASSWORD": env.str("DB_PASSWORD"),
         "HOST": "postgres",
         "PORT": env.str("DB_PORT"),

@@ -1,0 +1,50 @@
+/* Apply dark theme to body */
+body {
+    background-color: #222;
+    color: #ddd;
+}
+
+/* Style for headings */
+h1, h2, h3, h4, h5, h6 {
+    color: #fff;
+}
+
+/* Style for links */
+a {
+    color: #fff;
+}
+
+/* Style for hover links */
+a:hover {
+    color: #ccc;
+}
+
+/* Style for buttons */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Style for hover buttons */
+.btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}
+
+/* Style for active buttons */
+.btn-primary:active {
+    background-color: #0062cc;
+    border-color: #005cbf;
+}
+
+/* Style for disabled buttons */
+.btn-primary:disabled {
+    background-color: #007bff;
+    border-color: #007bff;
+    opacity: 0.65;
+}
+
+/* Style for focus buttons */
+.btn-primary:focus {
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.5);
+}

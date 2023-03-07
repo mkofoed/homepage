@@ -12,7 +12,7 @@ on:
     inputs:
       version:
         description: 'Image version'
-        required: true
+        required: false
 
 #2
 env:
@@ -114,3 +114,6 @@ jobs:
 
             # Migrate
             docker compose run web python manage.py migrate
+
+            # Restart containers
+            docker compose restart

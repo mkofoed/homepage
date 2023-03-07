@@ -6,5 +6,5 @@ class HomeView(TemplateView):
 
     def get_context_data(self, **kwargs: object) -> dict:
         context = super().get_context_data(**kwargs)
-        context["title"] = "Home"
+        context["title"] = "asd"
         return context

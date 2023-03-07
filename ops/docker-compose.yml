@@ -5,23 +5,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: gunicorn --bind=0.0.0.0:5000 --timeout=0 --workers=2 --access-logfile=- project.wsgi
+    command: gunicorn --bind=0.0.0.0:5000 --reload --timeout=0 --workers=2 --access-logfile=- project.wsgi
     working_dir: /homepage
+    ports:
+      - "8000:5000"
     volumes:
       - ../.:/homepage
-      - static_volume:/homepage/staticfiles
     depends_on:
       - postgres
-      - nginx
-
-  nginx:
-    image: nginx:1.23
-    restart: always
-    volumes:
-      - static_volume:/static
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
-    ports:
-      - "${WEB_PORT}:8000"
 
   postgres:
     image: postgres:15
@@ -35,4 +26,3 @@ services:
 
 volumes:
   postgres:
-  static_volume:

@@ -96,17 +96,21 @@ jobs:
               mv docker-compose.production.yml docker-compose.yml;
             fi
 
+            # Create the /static/ folder if it does not exist
+            if [ ! -d /homepage/staticfiles ]; then
+              mkdir /homepage/staticfiles;
+            fi
+
             mv app.env .env
 
             # Log in to Docker Hub
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
-
             # Pull latest images and build containers
             docker compose -f docker-compose.yml up -d --build
 
             # Collectstatic
-            docker compose run web "python manage.py collectstatic --no-input"
+            docker-compose run web python manage.py collectstatic --no-input
 
             # Migrate
-            docker compose run web "python manage.py migrate"
+            docker compose run web python manage.py migrate

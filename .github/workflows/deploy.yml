@@ -110,7 +110,7 @@ jobs:
             if [ ! -d /homepage/static ]; then
               mkdir /homepage/static;
             fi
-            docker-compose run web python manage.py collectstatic --no-input
+            docker compose run web python manage.py collectstatic --no-input
 
             # Migrate
             docker compose run web python manage.py migrate

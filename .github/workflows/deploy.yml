@@ -96,11 +96,7 @@ jobs:
               mv docker-compose.production.yml docker-compose.yml;
             fi
 
-            # Create the /static/ folder if it does not exist
-            if [ ! -d /homepage/staticfiles ]; then
-              mkdir /homepage/staticfiles;
-            fi
-
+            # Rename the .env file
             mv app.env .env
 
             # Log in to Docker Hub
@@ -110,6 +106,9 @@ jobs:
             docker compose -f docker-compose.yml up -d --build
 
             # Collectstatic
+            if [ ! -d /homepage/static ]; then
+              mkdir /homepage/static;
+            fi
             docker-compose run web python manage.py collectstatic --no-input
 
             # Migrate

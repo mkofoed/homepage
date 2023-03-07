@@ -92,8 +92,17 @@ jobs:
             # Log in to Docker Hub
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
+            # Rename production docker-compose file
             cd /homepage/ops/
+            rm docker-compose.yml
+            mv docker-compose.production.yml docker-compose.yml
             mv app.env .env
 
             # Pull latest images and build containers
             docker compose -f docker-compose.production.yml up -d --build
+
+            # Collectstatic
+            docker compose run web "python manage.py collectstatic --no-input"
+
+            # Migrate
+            docker compose run web "python manage.py migrate"

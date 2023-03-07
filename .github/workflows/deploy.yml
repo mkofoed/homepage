@@ -105,8 +105,6 @@ jobs:
             # Pull latest images and build containers
             docker compose -f docker-compose.yml up -d --build
 
-            cd /homepage/
-
             # Collectstatic
             docker compose run web "python manage.py collectstatic --no-input"
 

@@ -24,6 +24,7 @@ env = environ.Env(
     DB_USERNAME=(str, "postgres"),
     DB_PASSWORD=(str, "postgres"),
     DB_PORT=(int, 1234),
+    IP=(str, "localhost"),
 )
 
 DEBUG = env("DEBUG")
@@ -41,6 +42,7 @@ SECRET_KEY = env("SECRET_KEY")
 
 
 ALLOWED_HOSTS = ["mkofoed.dk"]
+ALLOWED_HOSTS += [env("IP")]
 CSRF_TRUSTED_ORIGINS = ["http://mkofoed.dk", "https://mkofoed.dk"]
 if DEBUG:  # Add local hosts if debug
     ALLOWED_HOSTS += ["localhost", "127.0.0.1"]

@@ -31,6 +31,7 @@ DEBUG = env("DEBUG")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+APPS_DIR = BASE_DIR / "project"
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
@@ -145,8 +146,7 @@ STATIC_URL = "/static/"
 
 # Define the directories where Django should look for static files
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static/"),
-    os.path.join(BASE_DIR, "project/static/"),
+    APPS_DIR / "static",
 ]
 
 # Define the directory where Django should collect all static files

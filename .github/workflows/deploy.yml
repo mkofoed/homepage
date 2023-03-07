@@ -89,14 +89,18 @@ jobs:
           passphrase: ''
           envs: IMAGE_NAME,GITHUB_SHA
           script: |
+            # Rename production docker-compose file
+            cd /homepage/ops/
+            if [ -e docker-compose.production.yml ]; then
+              rm docker-compose.yml;
+              mv docker-compose.production.yml docker-compose.yml;
+            fi
+
+            mv app.env .env
+
             # Log in to Docker Hub
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
-            # Rename production docker-compose file
-            cd /homepage/ops/
-            rm docker-compose.yml
-            mv docker-compose.production.yml docker-compose.yml
-            mv app.env .env
 
             # Pull latest images and build containers
             docker compose -f docker-compose.production.yml up -d --build

@@ -2,6 +2,32 @@
 
 {% block content %}
     <h1>Home</h1>
-    {{ title }}
-    {{ content }}
+
+<div class="card bg-dark text-white">
+  <div class="card-body">
+    <h5 class="card-title">Card Title</h5>
+    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+    <a href="#" class="btn btn-primary">Go somewhere</a>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item bg-dark text-white">Cras justo odio</li>
+    <li class="list-group-item bg-dark text-white">Dapibus ac facilisis in</li>
+    <li class="list-group-item bg-dark text-white">Vestibulum at eros</li>
+  </ul>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-sm-6">
+        <a href="#" class="card-link">Card link</a>
+      </div>
+      <div class="col-sm-6">
+        <a href="#" class="card-link">Another link</a>
+      </div>
+    </div>
+  </div>
+  <div class="card-footer text-muted bg-dark">
+    Footer text goes here
+  </div>
+</div>
+
+
 {% endblock content %}

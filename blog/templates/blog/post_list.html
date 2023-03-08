@@ -1,0 +1,11 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+    <h1>Home</h1>
+
+    {% for post in object_list %}
+        {{ post.title }}
+    {% endfor %}
+
+
+{% endblock content %}

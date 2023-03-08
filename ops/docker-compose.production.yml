@@ -14,14 +14,16 @@ services:
       - nginx
 
   nginx:
-    image: nginx:1.23
+    image: jonasal/nginx-certbot:latest
     restart: always
     volumes:
       - static_volume:/static
       - media_volume:/media
+      - nginx_secrets:/etc/letsencrypt
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "${WEB_PORT}:8000"
+      - "80:8000"
+      - "443:8443"
 
   postgres:
     image: postgres:15
@@ -37,3 +39,4 @@ volumes:
   postgres:
   static_volume:
   media_volume:
+  nginx_secrets:

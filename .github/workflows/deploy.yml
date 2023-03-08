@@ -61,6 +61,7 @@ jobs:
           echo "WEB_PORT=${{ secrets.WEB_PORT }}" >> app.env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> app.env
           echo "IP=${{ secrets.IP }}" >> app.env
+          echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> app.env
 
       - name: Copy .env file to remote machine
         uses: appleboy/scp-action@master

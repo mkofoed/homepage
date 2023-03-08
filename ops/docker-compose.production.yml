@@ -24,8 +24,8 @@ services:
       - nginx_secrets:/etc/letsencrypt
       - ./nginx.conf:/etc/nginx/user_conf.d/default.conf
     ports:
-      - "80:8000"
-      - "443:8443"
+      - "80:80"
+      - "443:443"
 
   postgres:
     image: postgres:15

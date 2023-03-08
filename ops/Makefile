@@ -4,11 +4,11 @@ up:
 build:
 	docker compose build
 
-bash:
+sh:
 	docker compose run --rm web sh
 
 shell:
-	docker compose run --rm web python ../manage.py shell
+	docker compose run --rm web python manage.py shell
 
 down:
 	docker compose down -v --remove-orphans
@@ -27,4 +27,3 @@ dbshell:
 prepare:
 	docker compose run --rm web python manage.py migrate && \
 	docker compose run --rm web python manage.py collectstatic --no-input && \
-	docker compose run --rm web sh -c "echo 'from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser(\"admin\", \"admin@myproject.com\", \"password\")' | python manage.py shell"

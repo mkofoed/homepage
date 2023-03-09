@@ -1,84 +1,113 @@
 {% extends 'home/base.html' %}
 
 {% block card_body %}
-    <h1>About Me</h1>
-    <p>Hello, I'm <strong>Mikkel</strong>, a seasoned software developer with more than 5 years of experience in the SaaS industry. I specialize in Python and Django, and have a proven track record of success with Docker, Linux, and related technologies.</p>
-    <p>As a developer, I'm committed to building high-quality software that delivers value and solves real-world problems. I take pride in my work and strive to produce code that is both reliable and easy to understand.</p>
-    <p>Over the years, I've had the opportunity to work on a variety of projects, from small startups to large enterprise applications. I bring this wealth of experience to every project I work on, and am always seeking out new challenges and opportunities to learn and grow.</p>
-    <p>My passion for learning and innovation doesn't end with technology, however. I'm also a collaborative team player with excellent communication skills, and believe that open communication and teamwork are essential for creating successful software products. As a mentor, I enjoy sharing my experience and learning from others to create a positive and productive work environment.</p>
-    <p>If you're interested in learning more about my experience or discussing a potential project, please feel free to <a href="https://www.linkedin.com/in/mbkofoed/">get in touch</a>. I'd love to hear from you!</p>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <h1 class="mb-4">About Me</h1>
+                <p class="lead mb-4">Hello, I'm <strong>Mikkel</strong>, a seasoned software developer with more than 5 years of experience in the SaaS industry. I specialize in Python and Django, and have a proven track record of success with Docker, Linux, and related technologies.</p>
+                <p class="lead mb-4">As a developer, I'm committed to building high-quality software that delivers value and solves real-world problems. I take pride in my work and strive to produce code that is both reliable and easy to understand.</p>
+                <p class="lead mb-4">Over the years, I've had the opportunity to work on a variety of projects, from small startups to large enterprise applications. I bring this wealth of experience to every project I work on, and am always seeking out new challenges and opportunities to learn and grow.</p>
+                <p class="lead mb-4">My passion for learning and innovation doesn't end with technology, however. I'm also a collaborative team player with excellent communication skills, and believe that open communication and teamwork are essential for creating successful software products. As a mentor, I enjoy sharing my experience and learning from others to create a positive and productive work environment.</p>
+                <p class="lead ">If you're interested in learning more about me, my experience or discussing a potential job or project, please feel free to <a href="https://www.linkedin.com/in/mbkofoed/">get in touch</a>. I'd love to hear from you!</p>
+            </div>
+        </div>
+    </div>
 
-    <br/>
-    <h1>Career</h1>
-    <ul class="list-group-flush">
-        <li class="list-group-item">
-            Software Engineer @ <a href="https://www.linkedin.com/company/entolabs">Ento Labs</a> (2022 - 2023)
-            <ul class="list-group-flush">
-                <li class="list-group-item">
-                    <strong>About</strong>: Ento Labs is a SaaS startup that focuses on analysis of the consumption data for buildings. This can be electricity, heating, gas, water, or other.
-                </li>
-                <li class="list-group-item">
-                    <strong>My role</strong>: Develop and modernise the backend of the platform, which was built on Python and Django. I specifically designed and implemented a full framework to integrate with third-party data providers.
-                </li>
-                <li class="list-group-item">
-                    <strong>Main technologies</strong>: Python, Django, Docker, Linux, PostgreSQL, Redis, AWS, git, GitHub, HTML, CSS, JavaScript.
-                </li>
-            </ul>
-        </li>
-        <li class="list-group-item">
-            Senior IT Consultant @ <a href="https://www.linkedin.com/company/netcompany-a-s/">Netcompany</a> (2022)
-            <ul class="list-group-flush">
-                <li class="list-group-item">
-                    <strong>About</strong>: Netcompany is a digital consulting company that provides IT solutions and services to public and private sector clients.
-                </li>
-                <li class="list-group-item">
-                    <strong>My role</strong>: As a senior consultant, I was tasked with delivering a variety of web applications for clients in the private sector. I was responsible for meeting the client's requirements, and for delivering high-quality software on time.
-                </li>
-                <li class="list-group-item">
-                    <strong>Main technologies</strong>: .NET, C#, ASP.NET, SQL Server, git.
-                </li>
-            </ul>
-        </li>
-        <li class="list-group-item">
-            IT Consultant @ <a href="https://www.linkedin.com/company/netcompany-a-s/">Netcompany</a> (2019 - 2022)
-            <ul class="list-group-flush">
-                <li class="list-group-item">
-                    <strong>About</strong>: Netcompany is a digital consulting company that provides IT solutions and services to public and private sector clients.
-                </li>
-                <li class="list-group-item">
-                    <strong>My role</strong>: As an IT consultant, I was tasked with delivering software designed by other developers. I was responsible for gathering requirements from stakeholders and translating them into technical specifications. I also worked closely with the client to ensure that the software met their needs.
-                </li>
-                <li class="list-group-item">
-                    <strong>Main technologies</strong>: .NET, C#, ASP.NET, SQL Server, git.
-                </li>
-            </ul>
-        </li>
-        <li class="list-group-item">
-            Software Engineer @ <a href="https://www.linkedin.com/company/plecto/">Plecto</a> (2017 - 2019)
-            <ul class="list-group-flush">
-                <li class="list-group-item">
-                    <strong>About</strong>: Plecto is a business dashboard software company that provides real-time performance tracking and visualization tools for sales, customer service, and other teams.
-                </li>
-                <li class="list-group-item">
-                    <strong>My role</strong>: To develop the full stack of the Plecto platform, which was built on Python and Django. I was mainly responsible for extending the library of integrations, as well as maintaining and improving existing code.
-                </li>
-                <li class="list-group-item">
-                    <strong>Main technologies</strong>: Python, Django, Docker, Linux, PostgreSQL, Redis, AWS, git, GitHub, HTML, CSS, JavaScript.
-                </li>
-            </ul>
-    </ul>
+    <div class="container py-5">
+        <h1>Career</h1>
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="https://www.linkedin.com/company/entolabs">Ento Labs</a> (2022 - 2023)</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Built a full framework to integrate with third-party data providers.</li>
+                            <li class="list-group-item">Modernized the backend of the platform using Python, Django, Docker, Linux, PostgreSQL, Redis, AWS, git, GitHub, HTML, CSS, and JavaScript.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="https://www.linkedin.com/company/netcompany-a-s/">Netcompany</a> (2022)</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Delivered high-quality web applications for private sector clients using .NET, C#, ASP.NET, and SQL Server.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="https://www.linkedin.com/company/netcompany-a-s/">Netcompany</a> (2019 - 2022)</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Translated stakeholder requirements into technical specifications and delivered software that met client needs using .NET, C#, ASP.NET, and SQL Server.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="https://www.linkedin.com/company/plecto/">Plecto</a> (2017 - 2019)</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Extended the library of integrations and maintained and improved existing code using Python, Django, Docker, Linux, PostgreSQL, Redis, AWS, git, GitHub, HTML, CSS, and JavaScript.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <br/>
-    <h1>Skills</h1>
-    <p>
-        My main areas of expertise are Python, Django, and related technologies. I have a strong background in Linux and Docker, and have experience with a variety of other technologies, including JavaScript, HTML, CSS, SQL, and NoSQL databases. I have also worked with a number of cloud platforms, including AWS, Azure, and Google Cloud.
-    </p>
-    <ul class="list-group-flush">
-        <li class="list-group-item">
-            <strong>Programming Languages</strong>: Python, C#, PHP, JS, BASH.
-        </li>
-        <li class="list-group-item">
-            <strong>Other technologies</strong>: Django, ASP.NET, Docker, Linux, SQL, NoSQL, HTML, CSS, JavaScript, git, GitHub, AWS, Azure, Windows, Linux, macOS.
-        </li>
-    </ul>
+
+    <div class="container py-5">
+        <h1>Skills</h1>
+        <p class="lead">
+            I am highly skilled in Python, Django, and related technologies. I have extensive experience with Linux and Docker and have worked with a variety of other technologies, including JavaScript, HTML, CSS, SQL, and NoSQL databases. I have also worked with a number of cloud platforms, including AWS, Azure, and Google Cloud.
+        </p>
+        <div class="row">
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Programming Languages</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><i class="fab fa-python"></i> Python</li>
+                            <li class="list-group-item"><i class="fas fa-file-code"></i> C#</li>
+                            <li class="list-group-item"><i class="fab fa-php"></i> PHP</li>
+                            <li class="list-group-item"><i class="fab fa-js-square"></i> JavaScript</li>
+                            <li class="list-group-item"><i class="fas fa-terminal"></i> BASH</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Other Technologies</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><i class="fab fa-python"></i> Django</li>
+                            <li class="list-group-item"><i class="fas fa-file-code"></i> ASP.NET</li>
+                            <li class="list-group-item"><i class="fab fa-docker"></i> Docker</li>
+                            <li class="list-group-item"><i class="fab fa-linux"></i> Linux</li>
+                            <li class="list-group-item"><i class="fas fa-database"></i> SQL</li>
+                            <li class="list-group-item"><i class="fas fa-database"></i> NoSQL</li>
+                            <li class="list-group-item"><i class="fab fa-html5"></i> HTML</li>
+                            <li class="list-group-item"><i class="fab fa-css3-alt"></i> CSS</li>
+                            <li class="list-group-item"><i class="fab fa-git-alt"></i> git</li>
+                            <li class="list-group-item"><i class="fab fa-github"></i> GitHub</li>
+                            <li class="list-group-item"><i class="fab fa-aws"></i> AWS</li>
+                            <li class="list-group-item"><i class="fab fa-microsoft"></i> Azure</li>
+                            <li class="list-group-item"><i class="fab fa-windows"></i> Windows</li>
+                            <li class="list-group-item"><i class="fab fa-apple"></i> macOS</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 {% endblock card_body %}

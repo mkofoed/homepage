@@ -2,8 +2,7 @@ version: "3.9"
 
 services:
   web:
-    image: mkofoeddk/homepage:latest
-    pull_policy: always
+    image: ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ github.sha }}
     command: gunicorn --bind=0.0.0.0:5000 --timeout=0 --workers=2 --access-logfile=- project.wsgi
     working_dir: /homepage
     volumes:

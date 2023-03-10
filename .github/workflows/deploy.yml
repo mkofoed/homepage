@@ -97,7 +97,7 @@ jobs:
             docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_TOKEN }}
 
             # Pull latest images and build containers
-            docker compose -f docker-compose.yml up -d --build
+            docker compose -f docker-compose.yml up -d --build  --no-cache
 
             # Collectstatic
             if [ ! -d /homepage/static ]; then

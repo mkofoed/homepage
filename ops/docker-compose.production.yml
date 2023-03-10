@@ -3,7 +3,7 @@ version: "3.9"
 services:
   web:
     image: mkofoeddk/homepage:latest
-    pull: always
+    pull_policy: always
     command: gunicorn --bind=0.0.0.0:5000 --timeout=0 --workers=2 --access-logfile=- project.wsgi
     working_dir: /homepage
     volumes:

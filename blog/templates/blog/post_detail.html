@@ -1,0 +1,21 @@
+{% extends "blog/post_base.html" %}
+
+{% block middle_pane %}
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title display-4">
+                    {{ object.title }}
+                </h5>
+                <div class="card-subtitle mb-2 text-muted">{{ object.author.get_name }}
+                    on {{ object.date_created|date }}</div>
+                <div class="card-text content-to-markdown">{{ content|safe }}</div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{%  block extra_buttons %}
+    <a class="btn btn-block btn-outline-secondary" href="{% url 'blog:update' object.slug %}">Update Post</a>
+    <a class="btn btn-block btn-danger" href="{% url 'blog:delete' object.slug %}">Delete post</a>
+{% endblock %}

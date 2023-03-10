@@ -1,0 +1,27 @@
+{% extends "home/base.html" %}
+
+{% block middle_pane %}
+    <div class="container-fluid">
+        {% block post_middle %}
+        {% endblock post_middle %}
+    </div>
+{% endblock %}
+
+{% block left_pane %}
+    <div class="container-fluid mt-4">
+        <a href="{% url 'blog:list' %}" class="btn btn-block btn-outline-secondary">List</a>
+        {% if request.user.is_staff %}
+            <a href="{% url 'blog:admin_list' %}" class="btn btn-block btn-outline-secondary">Admin List</a>
+        {% endif %}
+    </div>
+{% endblock left_pane %}
+
+{% block right_pane %}
+    {% if request.user.is_staff %}
+        <div class="container-fluid mt-4">
+            <a href="{% url 'blog:create' %}" class="btn btn-block btn-outline-success">New post</a>
+        {% block extra_buttons %}
+        {% endblock extra_buttons %}
+        </div>
+    {% endif %}
+{% endblock right_pane %}

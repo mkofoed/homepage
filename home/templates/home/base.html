@@ -50,21 +50,28 @@
 </nav>
 
 <div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <!-- Content -->
-            {% block content %}
+    {% block full_pane %}
+        <div class="row">
+            <div class="col-sm-2">
+                {% block left_pane %}{% endblock left_pane %}
+            </div>
+            <div class="col-sm-8">
+                <!-- Content -->
+                {% block middle_pane %}
 
-                <div class="card">
-                    <div class="card-body">
-                        {% block card_body %}
-                        {% endblock %}
+                    <div class="card">
+                        <div class="card-body">
+                            {% block middle_card_body %}{% endblock middle_card_body %}
+                        </div>
                     </div>
-                </div>
 
-            {% endblock %}
+                {% endblock middle_pane %}
+            </div>
+            <div class="col-sm-2">
+                {% block right_pane %}{% endblock right_pane %}
+            </div>
         </div>
-    </div>
+    {% endblock full_pane %}
 </div>
 
 <!-- Footer -->

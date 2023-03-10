@@ -21,9 +21,11 @@ restart:
 	docker compose run --rm web python manage.py collectstatic --no-input && \
 	docker compose restart web
 
+mm:
+	docker compose run --rm web python manage.py makemigrations
+
+migrate:
+	docker compose run --rm web python manage.py migrate
+
 dbshell:
 	docker compose run --rm web python manage.py dbshell
-
-prepare:
-	docker compose run --rm web python manage.py migrate && \
-	docker compose run --rm web python manage.py collectstatic --no-input && \

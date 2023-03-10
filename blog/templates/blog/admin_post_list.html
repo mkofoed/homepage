@@ -11,10 +11,10 @@
         </div>
     {% endif %}
     {% for object in object_list %}
-        <div class="card mb-2">
+        <div class="card mb-2" {% if not object.published %}style="background-color: #cdc594"{% endif %}>
             <div class="card-body">
                 <div class="card-title">
-                    <a class="card-title display-4" href="{% url 'blog:detail' object.slug %}"><h4>{{ object.title }}</h4></a>
+                    <a class="card-title display-4" href="{% url 'blog:update' object.slug %}"><h4>{{ object.title }}</h4></a>
                 </div>
                 <div class="card-subtitle mb-2">{{ object.summary }}</div>
                 <div class="card-subtitle mb-2 text-muted float-right">{{ object.author.get_name }}

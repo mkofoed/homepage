@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     # Custom apps
     "home",
     "blog",
+    # Third party apps
+    "markdownx",
 ]
 
 MIDDLEWARE = [

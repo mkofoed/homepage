@@ -1,0 +1,26 @@
+{% extends "blog/post_base.html" %}
+
+
+{% block middle_pane %}
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title display-4">
+                Do you want to delete the item: {{ object.title }}
+            </h5>
+            <div class="card-subtitle mb-2 text-muted">Created by: {{ object.author }}</div>
+            <div class="card-subtitle mb-2 text-muted">{{ object.date_created|date }}</div>
+            <form action="." method="POST">
+                {% csrf_token %}
+                <div class="row mb-2">
+                    <div class="col">
+                        <input type="submit" class="btn btn-block btn-danger" value="Delete"/>
+                    </div>
+                    <div class="col">
+                        <a class="btn btn-block btn-primary" href="{% url 'myblog:detail' object.slug %}">Cancel</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock middle_pane %}

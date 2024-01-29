@@ -1,13 +1,21 @@
-FROM python:3.11-alpine
+# Use an official Python runtime as a parent image
+FROM python:3.12-alpine as builder
 
-RUN pip install "poetry==1.4.0"
+# Set the working directory in the container to /homepage
+WORKDIR /homepage
+
+# Copy the current directory contents into the container at /homepage
+COPY . /homepage/
+
+# Install any needed packages specified in requirements.txt
+RUN pip install --upgrade pip \
+    && pip install "poetry==1.7.1" \
+    && poetry config virtualenvs.create false \
+    && cd ./ops \
+    && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
+
+# Start a new stage and copy over the artifacts we need from the previous stage
+FROM python:3.12-alpine
 
 WORKDIR /homepage
-COPY poetry.lock pyproject.toml /homepage/ops/
-
-# Project initialization:
-RUN poetry config virtualenvs.create false \
-  && cd ./ops \
-  && poetry install $(test "$YOUR_ENV" == production && echo "--no-dev") --no-interaction --no-ansi
-
-COPY . /homepage/
+COPY --from=builder /homepage /homepage

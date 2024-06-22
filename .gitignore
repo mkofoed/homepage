@@ -4,6 +4,7 @@
 .env.*.local
 *.log
 *.pyc
+ops/run/
 __pycache__/
 
 # Ignore Poetry virtual environment

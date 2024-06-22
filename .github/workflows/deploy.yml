@@ -63,6 +63,7 @@ jobs:
           echo "IP=${{ secrets.IP }}" >> app.env
           echo "CERTBOT_EMAIL=${{ secrets.CERTBOT_EMAIL }}" >> app.env
           echo "LATEST_GITHUB_SHA=${{ github.sha }}" >> app.env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> app.env
 
       - name: Copy .env file to remote machine
         uses: appleboy/scp-action@master

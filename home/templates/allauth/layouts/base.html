@@ -1,0 +1,15 @@
+{% extends "home/base.html" %}
+{% load i18n allauth %}
+{% block full_pane %}
+
+        <div class="row justify-content-md-center">
+            <div class="col col-lg-4">
+                <div class="card shadow rounded-4">
+                    <div class="card-body p-5">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

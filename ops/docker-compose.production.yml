@@ -14,7 +14,7 @@ services:
       - nginx
 
   nginx:
-    image: jonasal/nginx-certbot:4.2-alpine
+    image: jonasal/nginx-certbot:5.2-alpine
     restart: always
     environment:
       - CERTBOT_EMAIL=${CERTBOT_EMAIL}

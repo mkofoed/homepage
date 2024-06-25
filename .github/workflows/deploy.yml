@@ -1,16 +1,11 @@
 name: Build and Deploy
 
-# 1
-# Controls when the workflow will run
 on:
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-#2
 env:
   IMAGE_NAME: "homepage"
 
-#3
 jobs:
   build_and_push:
     runs-on: ubuntu-latest
@@ -102,17 +97,5 @@ jobs:
             # Pull latest image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/$IMAGE_NAME:${{ github.sha }}
 
-            # Pull latest images and build containers
-            docker compose -f docker-compose.yml up -d --build
-
-            # Collectstatic
-            if [ ! -d /homepage/static ]; then
-              mkdir /homepage/static;
-            fi
-            docker compose run web python manage.py collectstatic --no-input
-
-            # Migrate
-            docker compose run web python manage.py migrate
-
-            # Restart containers
-            docker compose restart
+            ¤ Run the deploy script in the makefile
+            make deploy

@@ -1,8 +1,12 @@
 up:
-	docker compose up -d
+	echo "Starting services..." && \
+	docker compose -f docker-compose.yml up -d --build && \
+	echo "Services started successfully"
 
 build:
-	docker compose build
+	echo "Building services..." && \
+	docker compose build && \
+	echo "Services built successfully"
 
 sh:
 	docker compose run --rm web sh
@@ -11,21 +15,40 @@ shell:
 	docker compose run --rm web python manage.py shell
 
 down:
-	docker compose down -v --remove-orphans
+	echo "Stopping services..." && \
+	docker compose down -v --remove-orphans && \
+	echo "Services stopped successfully"
 
 prune:
-	docker system prune --all --volumes --force
+	echo "Pruning docker system..." && \
+	docker system prune -a -f && \
+	echo "Docker system pruned successfully"
 
 restart:
-	docker compose run --rm web python manage.py migrate && \
-	docker compose run --rm web python manage.py collectstatic --no-input && \
-	docker compose restart web
+	echo "Restarting web service..." && \
+	docker compose restart web && \
+	echo "Web service restarted successfully"
 
 mm:
+	echo "Creating migrations..." && \
 	docker compose run --rm web python manage.py makemigrations
+	echo "Migrations created successfully"
 
 migrate:
-	docker compose run --rm web python manage.py migrate
+	echo "Migrating database..." && \
+	docker compose run --rm web python manage.py migrate && \
+	echo "Database migrated successfully"
 
 dbshell:
-	docker compose run --rm web python manage.py dbshell
+	echo "Connecting to database..." && \
+	docker compose run --rm web python manage.py dbshell && \
+	echo "Connected to database successfully"
+
+collectstatic:
+	if [ ! -d /homepage/static ]; then
+	  mkdir /homepage/static;
+	fi && \
+	docker compose run web python manage.py collectstatic --no-input
+
+deploy: up collectstatic migrate restart prune
+	echo "Deployed successfully"

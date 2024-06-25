@@ -45,8 +45,8 @@ dbshell:
 	echo "Connected to database successfully"
 
 collectstatic:
-	if [ ! -d /homepage/static ]; then
-	  mkdir /homepage/static;
+	if [ ! -d /homepage/static ]; then\
+		mkdir /homepage/static;\
 	fi && \
 	docker compose run web python manage.py collectstatic --no-input
 

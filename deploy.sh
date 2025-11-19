@@ -8,6 +8,7 @@ echo "🚀 Starting deployment..."
 # Pull latest changes
 echo "⬇️ Pulling latest changes..."
 git pull origin main
+docker system prune -f
 
 # Build and start containers
 echo "🐳 Building and starting containers..."

@@ -15,6 +15,6 @@ jobs:
         username: ${{ secrets.DROPLET_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd ~/homepage2
+          cd ~/homepage
           source .env
           ./deploy.sh

@@ -87,10 +87,10 @@ Before the first deployment, you need to manually set up the server:
 
 2.  **Clone the repository:**
     ```bash
-    git clone <repository-url> homepage2
-    cd homepage2
+    git clone <repository-url> homepage
+    cd homepage
     ```
-    *Note: The GitHub Action expects the directory to be named `homepage2`.*
+    *Note: The GitHub Action expects the directory to be named `homepage`.*
 
 3.  **Create the production environment file:**
     Create a `.env` file with your production secrets:
@@ -104,7 +104,7 @@ Before the first deployment, you need to manually set up the server:
 Deployment is triggered automatically when you push changes to the `main` branch. The GitHub Action workflow (`.github/workflows/deploy.yml`) performs the following steps:
 
 1.  Connects to the server via SSH.
-2.  Navigates to the project directory (`~/homepage2`).
+2.  Navigates to the project directory (`~/homepage`).
 3.  Loads environment variables.
 4.  Executes the `deploy.sh` script.
 
@@ -115,7 +115,7 @@ If you need to deploy manually without pushing to GitHub:
 1.  **SSH into the server.**
 2.  **Navigate to the project directory:**
     ```bash
-    cd ~/homepage2
+    cd ~/homepage
     ```
 3.  **Run the deployment script:**
     ```bash

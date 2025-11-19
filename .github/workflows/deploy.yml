@@ -27,9 +27,9 @@ jobs:
         context: .
         file: ./Dockerfile.prod
         push: true
-        tags: mkofoed/homepage-web:latest
-        cache-from: type=registry,ref=mkofoed/homepage-web:buildcache
-        cache-to: type=registry,ref=mkofoed/homepage-web:buildcache,mode=max
+        tags: mkofoeddk/homepage-web:latest
+        cache-from: type=registry,ref=mkofoeddk/homepage-web:buildcache
+        cache-to: type=registry,ref=mkofoeddk/homepage-web:buildcache,mode=max
 
   deploy:
     needs: build

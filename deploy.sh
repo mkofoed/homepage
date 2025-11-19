@@ -7,6 +7,8 @@ echo "🚀 Starting deployment..."
 
 # Pull latest changes
 echo "⬇️ Pulling latest changes..."
+git reset --hard HEAD
+git clean -fd
 git pull origin main
 docker system prune -f
 

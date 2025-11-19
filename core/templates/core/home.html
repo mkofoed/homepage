@@ -1,10 +1,10 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Home - My Homepage{% endblock %}
+{% block title %}Home - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
 <div class="hero-section text-center py-5">
-    <h1 class="display-3 fw-bold animate-slide-up delay-1">Welcome to <span class="text-gradient">My Homepage</span>
+    <h1 class="display-3 fw-bold animate-slide-up delay-1">Welcome to <span class="text-gradient">{{ SITE_NAME }}</span>
     </h1>
     <p class="lead mb-4 animate-slide-up delay-2">A modern, dockerized Django application with a touch of style.</p>
     <div class="animate-fade-in delay-3">

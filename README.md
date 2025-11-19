@@ -75,6 +75,9 @@ To enable automated deployment, configure the following secrets in your GitHub r
 | `DROPLET_IP` | The public IP address of your server. |
 | `DROPLET_USER` | The SSH username (usually `root`). |
 | `SSH_PRIVATE_KEY` | The private SSH key for authenticating with the server. |
+| `DOCKER_USERNAME` | Your Docker Hub username. |
+| `DOCKER_PASSWORD` | Your Docker Hub access token or password. |
+| `ENV_FILE` | The **full content** of your production `.env` file. |
 
 ### Initial Server Setup
 
@@ -92,21 +95,25 @@ Before the first deployment, you need to manually set up the server:
     ```
     *Note: The GitHub Action expects the directory to be named `homepage`.*
 
-3.  **Create the production environment file:**
-    Create a `.env` file with your production secrets:
+3.  **Initialize HTTPS (One-time setup):**
+    Edit the `init-letsencrypt.sh` file to set your email address, then run it:
     ```bash
-    nano .env
+    nano init-letsencrypt.sh
+    chmod +x init-letsencrypt.sh
+    ./init-letsencrypt.sh
     ```
-    Ensure `DEBUG=0` and other production settings are correct.
+    *This script generates the initial SSL certificates required for Nginx to start.*
 
 ### Automated Deployment
 
 Deployment is triggered automatically when you push changes to the `main` branch. The GitHub Action workflow (`.github/workflows/deploy.yml`) performs the following steps:
 
-1.  Connects to the server via SSH.
-2.  Navigates to the project directory (`~/homepage`).
-3.  Loads environment variables.
-4.  Executes the `deploy.sh` script.
+1.  **Build & Push:** Builds the Docker image and pushes it to Docker Hub.
+2.  **Deploy:**
+    -   Connects to the server via SSH.
+    -   Navigates to the project directory (`~/homepage`).
+    -   Injects the `.env` file from the `ENV_FILE` secret.
+    -   Executes the `deploy.sh` script to pull the new image and restart containers.
 
 ### Manual Deployment
 
@@ -122,4 +129,4 @@ If you need to deploy manually without pushing to GitHub:
     ./deploy.sh
     ```
 
-The `deploy.sh` script handles pulling the latest code, rebuilding Docker images, running migrations, and collecting static files.
+The `deploy.sh` script handles pulling the latest images, restarting containers, running migrations, and collecting static files.

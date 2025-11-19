@@ -10,9 +10,13 @@ echo "⬇️ Pulling latest changes..."
 git pull origin main
 docker system prune -f
 
-# Build and start containers
-echo "🐳 Building and starting containers..."
-docker compose -f docker-compose.prod.yml up -d --build
+# Pull latest images
+echo "🐳 Pulling latest images..."
+docker compose -f docker-compose.prod.yml pull
+
+# Start containers
+echo "🚀 Starting containers..."
+docker compose -f docker-compose.prod.yml up -d
 
 # Run migrations
 echo "🗄️ Running migrations..."

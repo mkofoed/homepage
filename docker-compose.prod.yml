@@ -1,6 +1,8 @@
 services:
   web:
-    image: mkofoeddk/homepage-web:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     expose:
       - 8000
@@ -9,7 +11,8 @@ services:
     environment:
       - DEBUG=0
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:18
@@ -19,6 +22,11 @@ services:
       - POSTGRES_DB=${SQL_DATABASE:-homepage}
       - POSTGRES_USER=${SQL_USER:-postgres}
       - POSTGRES_PASSWORD=${SQL_PASSWORD:-postgres}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${SQL_USER:-postgres} -d ${SQL_DATABASE:-homepage}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     env_file:
       - .env
 

@@ -24,6 +24,8 @@ docker compose -f docker-compose.prod.yml up -d
 echo "⏳ Waiting for database to initialize..."
 sleep 10
 
+
+
 # Run migrations
 echo "🗄️ Running migrations..."
 docker compose -f docker-compose.prod.yml exec -T web python manage.py migrate

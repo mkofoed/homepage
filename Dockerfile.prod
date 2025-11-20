@@ -18,12 +18,12 @@ RUN apt-get update && \
 
 # lint
 RUN pip install --upgrade pip
-# run this before copying requirements for cache optimization
-COPY . .
-
 # install python dependencies
 COPY ./requirements.txt .
 RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+
+# copy project
+COPY . .
 
 
 #########

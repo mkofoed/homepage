@@ -3,9 +3,36 @@ name: Deploy to DigitalOcean
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        file: ./Dockerfile.prod
+        push: true
+        tags: mkofoeddk/homepage-web:latest
+        cache-from: type=registry,ref=mkofoeddk/homepage-web:buildcache
+        cache-to: type=registry,ref=mkofoeddk/homepage-web:buildcache,mode=max
+
   deploy:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - name: Deploy to DigitalOcean Droplet
@@ -15,6 +42,6 @@ jobs:
         username: ${{ secrets.DROPLET_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd ~/homepage2
-          source .env
+          cd ~/homepage
+          echo "${{ secrets.ENV_FILE }}" > .env
           ./deploy.sh

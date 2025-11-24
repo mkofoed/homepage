@@ -4,3 +4,4 @@ gunicorn
 python-decouple
 markdown
 django-debug-toolbar
+psycopg2-binary

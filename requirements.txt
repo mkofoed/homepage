@@ -1,7 +1,7 @@
 Django>=5.2
 
-gunicorn
+gunicorn==23.0.0
+psycopg2-binary==2.9.10
 python-decouple
 markdown
 django-debug-toolbar
-

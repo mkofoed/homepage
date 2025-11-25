@@ -9,9 +9,19 @@ services:
     environment:
       - DEBUG=0
     volumes:
-      - sqlite_data:/home/app/web/db
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles
+    depends_on:
+      - db
+
+  db:
+    image: postgres:18
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=homepageuser
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=homepage
 
   nginx:
     image: jonasal/nginx-certbot:latest
@@ -29,8 +39,7 @@ services:
       - media_volume:/home/app/web/mediafiles
 
 volumes:
-  sqlite_data:
+  postgres_data:
   static_volume:
   media_volume:
-
   letsencrypt_data:

@@ -1,26 +1,12 @@
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "mkdir -p db && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     environment:
       - DEBUG=1
     env_file:
       - .env
-
-  db:
-    image: postgres:18
-    volumes:
-      - postgres_data:/var/lib/postgresql
-    environment:
-      - POSTGRES_DB=homepage
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-
-volumes:
-  postgres_data:

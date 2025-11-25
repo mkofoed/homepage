@@ -21,7 +21,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/homepage.conf:/etc/nginx/user.conf.d/homepage.conf:ro
+      - ./nginx:/etc/nginx/user_conf.d:ro
       - letsencrypt_data:/etc/letsencrypt
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles

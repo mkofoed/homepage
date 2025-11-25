@@ -19,9 +19,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
     environment:
-      - POSTGRES_USER=homepageuser
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=homepage
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=${SQL_DATABASE}
 
   nginx:
     image: jonasal/nginx-certbot:latest

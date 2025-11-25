@@ -10,6 +10,8 @@ services:
       - DEBUG=0
     volumes:
       - sqlite_data:/home/app/web/db
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
 
   nginx:
     image: jonasal/nginx-certbot:latest

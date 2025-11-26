@@ -333,10 +333,217 @@ footer {
 
 .feature-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: underline;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--color-header-bg) !important;
+    padding: 16px;
+}
+
+.navbar-brand {
+    color: var(--color-header-text) !important;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.nav-link {
+    color: var(--color-header-text) !important;
+    font-weight: 600;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.nav-link:hover {
+    opacity: 1;
+}
+
+/* Jumbotron / Hero */
+.jumbotron {
+    background-color: var(--color-canvas-subtle);
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 5px 16px;
+}
+
+/* Cards */
+.card {
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background-color: var(--color-canvas-default) !important;
+}
+
+.card-body {
+    padding: 16px;
+    color: var(--color-fg-default);
+}
+
+.card-title a {
+    color: var(--color-fg-default);
+    font-weight: 600;
+}
+
+.card-title a:hover {
+    color: var(--color-accent-fg);
+}
+
+.text-muted {
+    color: var(--color-fg-muted) !important;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--color-btn-primary-bg);
+    color: var(--color-btn-primary-text);
+    border: 1px solid rgba(27, 31, 35, 0.15);
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 5px 16px;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-btn-primary-hover-bg);
+    border-color: rgba(27, 31, 35, 0.15);
+}
+
+.btn-secondary {
+    background-color: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    font-weight: 600;
+    padding: 5px 16px;
+}
+
+.btn-secondary:hover {
+    background-color: #f3f4f6;
+    border-color: var(--color-border-default);
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid var(--color-border-default);
+    margin-top: 40px;
+    padding-top: 40px;
+    color: var(--color-fg-muted);
+}
+
+/* Animations */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes gradientFlow {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animate-slide-up {
+    opacity: 0;
+    animation: slideUp 0.8s ease-out forwards;
+}
+
+.animate-fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease-out forwards;
+}
+
+.delay-1 {
+    animation-delay: 0.1s;
+}
+
+.delay-2 {
+    animation-delay: 0.3s;
+}
+
+.delay-3 {
+    animation-delay: 0.5s;
+}
+
+.delay-4 {
+    animation-delay: 0.7s;
+}
+
+.delay-5 {
+    animation-delay: 0.9s;
+}
+
+.delay-6 {
+    animation-delay: 1.1s;
+}
+
+/* Hero Section */
+.hero-section {
+    margin-bottom: 3rem;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #58a6ff, #238636, #a371f7);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientFlow 5s ease infinite;
+}
+
+.btn-outline-light {
+    color: var(--color-fg-default);
+    border-color: var(--color-border-default);
+}
+
+.btn-outline-light:hover {
+    background-color: var(--color-canvas-subtle);
+    border-color: var(--color-fg-default);
+    color: var(--color-fg-default);
+}
+
+.feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     border-color: var(--color-accent-fg);
+}
+
+/* List Groups */
+.list-group-item {
+    background-color: var(--color-canvas-default);
+    border-color: var(--color-border-default);
+    color: var(--color-fg-default);
+}
+
+.list-group-item-action:hover, .list-group-item-action:focus {
+    background-color: var(--color-canvas-subtle);
+    color: var(--color-fg-default);
 }

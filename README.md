@@ -8,7 +8,7 @@ A personal homepage application built with Django, Docker, and PostgreSQL.
 - **Database**: PostgreSQL 18
 - **Containerization**: Docker & Docker Compose
 - **Web Server**: Gunicorn & Nginx
-- **Deployment**: DigitalOcean (via GitHub Actions)
+- **Deployment**: Hetzner VM (via GitHub Actions)
 
 ## Prerequisites
 
@@ -57,14 +57,11 @@ A personal homepage application built with Django, Docker, and PostgreSQL.
 
 ## Deployment
 
-The application is deployed to a DigitalOcean droplet using GitHub Actions for continuous delivery.
+The application is deployed to a **Hetzner VM** using GitHub Actions for continuous delivery.
 
 ### Server Prerequisites
 
-The target server (e.g., DigitalOcean Droplet) must have the following installed:
-- [Docker](https://docs.docker.com/engine/install/ubuntu/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- Git
+The target server must have Docker and Docker Compose installed. We provide a script to automate the initial provisioning.
 
 ### GitHub Secrets
 
@@ -72,7 +69,7 @@ To enable automated deployment, configure the following secrets in your GitHub r
 
 | Secret Name | Description |
 | :--- | :--- |
-| `DROPLET_IP` | The public IP address of your server. |
+| `DROPLET_IP` | The public IP address of your Hetzner server. |
 | `DROPLET_USER` | The SSH username (usually `root`). |
 | `SSH_PRIVATE_KEY` | The private SSH key for authenticating with the server. |
 | `DOCKER_USERNAME` | Your Docker Hub username. |
@@ -81,28 +78,31 @@ To enable automated deployment, configure the following secrets in your GitHub r
 
 ### Initial Server Setup
 
-Before the first deployment, you need to manually set up the server:
+We have a script `setup_hetzner.sh` that automates the server provisioning (installing Docker, UFW, etc.).
 
-1.  **SSH into your server:**
+1.  **Copy the script to your server:**
     ```bash
-    ssh root@<your-droplet-ip>
+    scp setup_hetzner.sh root@<your-server-ip>:~/
     ```
 
-2.  **Clone the repository:**
+2.  **SSH into your server:**
     ```bash
-    git clone <repository-url> homepage
-    cd homepage
+    ssh root@<your-server-ip>
     ```
-    *Note: The GitHub Action expects the directory to be named `homepage`.*
 
-3.  **Initialize HTTPS (One-time setup):**
-    Edit the `init-letsencrypt.sh` file to set your email address, then run it:
+3.  **Run the setup script:**
     ```bash
-    nano init-letsencrypt.sh
-    chmod +x init-letsencrypt.sh
-    ./init-letsencrypt.sh
+    chmod +x setup_hetzner.sh
+    ./setup_hetzner.sh
     ```
-    *This script generates the initial SSL certificates required for Nginx to start.*
+
+4.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/mkofoed/homepage.git ~/homepage
+    ```
+
+5.  **Initialize HTTPS (One-time setup):**
+    The Nginx container handles SSL certificates automatically via Let's Encrypt. Ensure your DNS records (A and CNAME) are pointing to the server IP before starting the containers.
 
 ### Automated Deployment
 
@@ -271,3 +271,19 @@ If deployment fails with a timeout or exit code 137 (OOM), your server might be 
     sudo ./setup_swap.sh
     ```
     This creates a 1GB swap file to prevent memory exhaustion during builds and migrations.
+
+## Administration
+
+### Create Superuser
+
+To create a superuser for the Django admin panel:
+
+**Local Development:**
+```bash
+docker-compose exec web python manage.py createsuperuser
+```
+
+**Production:**
+```bash
+docker compose -f docker-compose.prod.yml exec web python manage.py createsuperuser
+```

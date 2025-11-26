@@ -5,10 +5,10 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-domains=(mkofoed.dk www.mkofoed.dk)
+domains=(mkofoed.dev www.mkofoed.dev)
 rsa_key_size=4096
 data_path="./data/certbot"
-email="mikkel@mkofoed.dk" # Adding a default email, user should change this
+email="mikkel@mkofoed.dev" # Adding a default email, user should change this
 staging=0 # Set to 1 if you're testing your setup to avoid hitting request limits
 
 if [ -d "$data_path" ]; then

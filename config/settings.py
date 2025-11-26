@@ -28,7 +28,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
-CSRF_TRUSTED_ORIGINS = ['https://mkofoed.dk', 'https://www.mkofoed.dk']
+CSRF_TRUSTED_ORIGINS = ['https://mkofoed.dev', 'https://www.mkofoed.dev']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
@@ -82,7 +82,7 @@ TEMPLATES = [
     },
 ]
 
-SITE_NAME = "MKofoed.dk"
+SITE_NAME = "MKofoed.dev"
 
 WSGI_APPLICATION = 'config.wsgi.application'
 

@@ -27,7 +27,7 @@ services:
     image: jonasal/nginx-certbot:latest
     restart: unless-stopped
     environment:
-      - CERTBOT_EMAIL=mikkel@mkofoed.dk
+      - CERTBOT_EMAIL=mikkel@mkofoed.dev
       - STAGING=0
     ports:
       - "80:80"

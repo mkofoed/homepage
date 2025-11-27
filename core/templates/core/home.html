@@ -3,38 +3,85 @@
 {% block title %}Home - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="hero-section text-center py-5">
-    <h1 class="display-3 fw-bold animate-slide-up delay-1">Welcome to <span class="text-gradient">{{ SITE_NAME }}</span>
-    </h1>
-    <p class="lead mb-4 animate-slide-up delay-2">A modern, dockerized Django application with a touch of style.</p>
-    <div class="animate-fade-in delay-3">
-        <a class="btn btn-primary btn-lg px-4 me-2" href="{% url 'blog_index' %}" role="button">Read the Blog</a>
-        <a class="btn btn-outline-light btn-lg px-4" href="{% url 'about' %}" role="button">About Me</a>
+<!-- Hero Section -->
+<div class="hero-section text-center py-5 mb-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold animate-slide-up delay-1 mb-3">
+                    Hi, I'm <span class="text-gradient">Mikkel Kofoed</span>
+                </h1>
+                <h2 class="h4 text-muted mb-4 animate-slide-up delay-2">
+                    Senior Developer & Physicist
+                </h2>
+                <p class="lead mb-5 animate-slide-up delay-3 text-secondary">
+                    Bridging the gap between complex data and robust software solutions.
+                    Specializing in .NET, Python, and scalable cloud architecture.
+                </p>
+                <div class="animate-fade-in delay-3 d-flex justify-content-center gap-3">
+                    <a class="btn btn-primary btn-lg px-4" href="{% url 'about' %}" role="button">
+                        <i class="bi bi-person me-2"></i>About Me
+                    </a>
+                    <a class="btn btn-outline-secondary btn-lg px-4" href="{% url 'blog_index' %}" role="button">
+                        <i class="bi bi-journal-text me-2"></i>Read Blog
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="row mt-5 g-4">
-    <div class="col-md-4 animate-slide-up delay-4">
-        <div class="card h-100 feature-card">
-            <div class="card-body">
-                <h3 class="h5 card-title">🚀 Modern Stack</h3>
-                <p class="card-text">Built with Django 5.2, Python 3.14, and PostgreSQL 18.</p>
-            </div>
-        </div>
+<!-- Expertise Section -->
+<div class="row g-4 mb-5">
+    <div class="col-12 text-center mb-2 animate-slide-up delay-4">
+        <h3 class="h2 fw-bold">My Expertise</h3>
+        <p class="text-muted">Delivering value through technical excellence and scientific rigor.</p>
     </div>
+
+    <!-- Card 1: Software Architecture -->
     <div class="col-md-4 animate-slide-up delay-5">
-        <div class="card h-100 feature-card">
-            <div class="card-body">
-                <h3 class="h5 card-title">🐳 Dockerized</h3>
-                <p class="card-text">Fully containerized development and production environments.</p>
+        <div class="card h-100 feature-card border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="mb-3 text-primary">
+                    <i class="bi bi-diagram-3-fill display-4"></i>
+                </div>
+                <h3 class="h5 card-title fw-bold">Software Architecture</h3>
+                <p class="card-text text-muted">
+                    Designing scalable, maintainable systems using modern patterns.
+                    Expertise in .NET, Python, and microservices.
+                </p>
             </div>
         </div>
     </div>
+
+    <!-- Card 2: Data & Science -->
     <div class="col-md-4 animate-slide-up delay-6">
-        <div class="card h-100 feature-card">
-            <div class="card-body">
-                <h3 class="h5 card-title">📝 Markdown Blog</h3>
-                <p class="card-text">Write posts in Markdown and have them rendered beautifully.</p>
+        <div class="card h-100 feature-card border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="mb-3 text-primary">
+                    <i class="bi bi-graph-up-arrow display-4"></i>
+                </div>
+                <h3 class="h5 card-title fw-bold">Data & Science</h3>
+                <p class="card-text text-muted">
+                    Leveraging a background in Physics to solve complex analytical problems
+                    and build data-driven applications.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card 3: Cloud Solutions -->
+    <div class="col-md-4 animate-slide-up delay-7">
+        <div class="card h-100 feature-card border-0 shadow-sm">
+            <div class="card-body text-center p-4">
+                <div class="mb-3 text-primary">
+                    <i class="bi bi-cloud-check-fill display-4"></i>
+                </div>
+                <h3 class="h5 card-title fw-bold">Cloud Solutions</h3>
+                <p class="card-text text-muted">
+                    Building and deploying robust cloud infrastructure on Azure.
+                    Proficient in Docker, CI/CD, and DevOps practices.
+                </p>
             </div>
         </div>
     </div>

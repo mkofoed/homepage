@@ -3,6 +3,127 @@
 {% block title %}About - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<h1>About Us</h1>
-<p>This is the about page. We are building a Django app with Docker and PostgreSQL.</p>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-2">Mikkel Kofoed</h1>
+            <h2 class="h4 text-muted mb-4">Senior Developer // Physicist @Fellowmind</h2>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="https://github.com/mkofoed" class="btn btn-outline-dark btn-sm" target="_blank">
+                    <i class="bi bi-github me-2"></i>GitHub
+                </a>
+                <a href="https://www.linkedin.com/in/mbkofoed/" class="btn btn-outline-primary btn-sm" target="_blank">
+                    <i class="bi bi-linkedin me-2"></i>LinkedIn
+                </a>
+            </div>
+        </div>
+
+        <!-- About Summary -->
+        <div class="card shadow-sm mb-5">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-3"><i class="bi bi-person-lines-fill me-2 text-primary"></i>About Me</h3>
+                <p class="lead mb-0">
+                    Developer and physicist with a demonstrated history of working in the internet and data industry on
+                    both large and small projects.
+                </p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Experience Section -->
+            <div class="col-md-8 mb-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-briefcase-fill me-2 text-primary"></i>Experience</h3>
+
+                <!-- Experience Item -->
+                <div class="border-start border-2 border-primary ps-4 mb-4 position-relative">
+                    <div class="position-absolute top-0 start-0 translate-middle bg-primary rounded-circle"
+                        style="width: 12px; height: 12px;"></div>
+                    <h4 class="h6 fw-bold mb-1">Senior Developer</h4>
+                    <p class="text-muted small mb-2">Fellowmind • Apr 2023 - Present</p>
+                    <p class="small text-secondary">
+                        Specializing in .NET and Azure cloud solutions. Architecting and developing scalable
+                        applications, integrating complex data systems, and driving technical excellence in software
+                        delivery.
+                    </p>
+                </div>
+
+                <!-- Experience Item -->
+                <div class="border-start border-2 border-secondary ps-4 mb-4 position-relative">
+                    <div class="position-absolute top-0 start-0 translate-middle bg-secondary rounded-circle"
+                        style="width: 12px; height: 12px;"></div>
+                    <h4 class="h6 fw-bold mb-1">Software Engineer</h4>
+                    <p class="text-muted small mb-2">Ento Labs • Apr 2022 - Mar 2023</p>
+                    <p class="small text-secondary">
+                        Full stack development focusing on energy data analysis and visualization. Built robust backend
+                        services with Python/Django and responsive frontends.
+                    </p>
+                </div>
+
+                <!-- Experience Item -->
+                <div class="border-start border-2 border-secondary ps-4 mb-4 position-relative">
+                    <div class="position-absolute top-0 start-0 translate-middle bg-secondary rounded-circle"
+                        style="width: 12px; height: 12px;"></div>
+                    <h4 class="h6 fw-bold mb-1">Senior IT Consultant</h4>
+                    <p class="text-muted small mb-2">Netcompany • May 2019 - Apr 2022</p>
+                    <p class="small text-secondary">
+                        Worked on large-scale public sector IT projects. Promoted from IT Consultant (May 2019 - Dec
+                        2021) to Senior IT Consultant (Jan 2022 - Apr 2022). Focused on PostgreSQL and critical system
+                        reliability.
+                    </p>
+                </div>
+
+                <!-- Experience Item -->
+                <div class="border-start border-2 border-secondary ps-4 mb-4 position-relative">
+                    <div class="position-absolute top-0 start-0 translate-middle bg-secondary rounded-circle"
+                        style="width: 12px; height: 12px;"></div>
+                    <h4 class="h6 fw-bold mb-1">Developer</h4>
+                    <p class="text-muted small mb-2">Plecto • Nov 2017 - May 2019</p>
+                    <p class="small text-secondary">
+                        Developed real-time dashboard solutions using Redis and PostgreSQL. Focused on performance
+                        optimization and user experience.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="col-md-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-tools me-2 text-primary"></i>Skills</h3>
+
+                <div class="mb-4">
+                    <h4 class="h6 text-muted text-uppercase small fw-bold mb-3">.NET & Microsoft</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border">C#</span>
+                        <span class="badge bg-light text-dark border">.NET</span>
+                        <span class="badge bg-light text-dark border">ASP.NET Core</span>
+                        <span class="badge bg-light text-dark border">Azure</span>
+                        <span class="badge bg-light text-dark border">Entity Framework</span>
+                        <span class="badge bg-light text-dark border">SQL Server</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h4 class="h6 text-muted text-uppercase small fw-bold mb-3">Open Source & Web</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border">Python</span>
+                        <span class="badge bg-light text-dark border">Django</span>
+                        <span class="badge bg-light text-dark border">Docker</span>
+                        <span class="badge bg-light text-dark border">PostgreSQL</span>
+                        <span class="badge bg-light text-dark border">HTMX</span>
+                        <span class="badge bg-light text-dark border">Linux</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="h6 text-muted text-uppercase small fw-bold mb-3">Domain</h4>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-light text-dark border">Data Analysis</span>
+                        <span class="badge bg-light text-dark border">Physics</span>
+                        <span class="badge bg-light text-dark border">Software Engineering</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

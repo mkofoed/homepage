@@ -1,0 +1,22 @@
+{% for post in page_obj %}
+<div class="card mb-3">
+    <div class="card-body">
+        <h2 class="card-title"><a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a></h2>
+        {% for post in page_obj %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="card-title"><a href="{% url 'blog_detail' post.pk %}">{{ post.title }}</a></h2>
+                <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+                <p class="card-text"><small class="text-muted">Posted on {{ post.created_at|date:"F d, Y" }}</small></p>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <div id="load-more" class="text-center mt-4" hx-boost="false">
+            <button class="btn btn-primary" hx-get="{% url 'blog_list' %}?page={{ page_obj.next_page_number }}"
+                hx-target="#load-more" hx-swap="outerHTML">
+                Load More
+            </button>
+        </div>
+        {% endif %}

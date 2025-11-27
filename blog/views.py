@@ -9,9 +9,18 @@ def index(request):
         'recent_posts': recent_posts
     })
 
+from django.core.paginator import Paginator
+
 def post_list(request):
     posts = Post.objects.all().order_by('-created_at')
-    return render(request, 'blog/post_list.html', {'posts': posts})
+    paginator = Paginator(posts, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    if request.headers.get('HX-Request'):
+        return render(request, 'blog/partials/post_list_items.html', {'page_obj': page_obj})
+
+    return render(request, 'blog/post_list.html', {'page_obj': page_obj})
 
 def detail(request, pk):
     post = get_object_or_404(Post, pk=pk)

@@ -1,45 +1,33 @@
-/* Navbar */
-.navbar {
-    background-color: var(--color-glass-navbar-bg) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    padding: 16px;
-}
-
-.navbar-brand {
-    color: var(--color-header-text) !important;
-    font-weight: 600;
-    font-size: 16px;
-}
-
-.nav-link {
-    color: var(--color-header-text) !important;
-    font-weight: 600;
-    font-size: 14px;
-    opacity: 0.7;
-}
-
-.nav-link:hover {
-    opacity: 1;
-}
-
-/* Footer */
-footer {
     border-top: 1px solid var(--color-border-default);
+    font-size: 0.9rem;
     margin-top: 40px;
     padding-top: 40px;
-    color: var(--color-fg-muted);
-}
+    }
 
-/* Hero Section */
-.hero-section {
-    margin-bottom: 3rem;
-}
+    .footer-link {
+        transition: color 0.2s ease-in-out, padding-left 0.2s ease-in-out;
+    }
 
-.jumbotron {
-    background-color: var(--color-canvas-subtle);
-    border: 1px solid rgba(27, 31, 35, 0.15);
-    border-radius: 6px;
-    font-weight: 600;
-    padding: 5px 16px;
-}
+    .footer-link:hover {
+        color: var(--color-accent-fg) !important;
+        padding-left: 5px;
+        text-decoration: none;
+    }
+
+    .text-uppercase {
+        letter-spacing: 0.05em;
+        color: var(--color-header-text);
+    }
+
+    /* Hero Section */
+    .hero-section {
+        margin-bottom: 3rem;
+    }
+
+    .jumbotron {
+        background-color: var(--color-canvas-subtle);
+        border: 1px solid rgba(27, 31, 35, 0.15);
+        border-radius: 6px;
+        font-weight: 600;
+        padding: 5px 16px;
+    }

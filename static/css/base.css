@@ -3,6 +3,9 @@ body {
     background-color: var(--color-canvas-default);
     color: var(--color-fg-default);
     line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 a {

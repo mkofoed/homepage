@@ -3,27 +3,19 @@
 ###########
 
 # pull official base image
-FROM python:3.14-slim as builder
+FROM python:3.14-slim AS builder
 
 # set work directory
 WORKDIR /usr/src/app
 
 # set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends gcc libpq-dev python3-dev && \
     rm -rf /var/lib/apt/lists/*
-
-# install uv for fast dependency management
-RUN pip install --no-cache-dir uv
-
-# install python dependencies
-COPY ./pyproject.toml .
-RUN uv pip install --system -e . && \
-    pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -e .
 
 # copy project
 COPY . .
@@ -50,20 +42,20 @@ RUN mkdir $APP_HOME/staticfiles
 RUN mkdir $APP_HOME/mediafiles
 WORKDIR $APP_HOME
 
-# install dependencies
+# install system dependencies (libpq5 for psycopg2, gcc/libpq-dev for building)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends netcat-openbsd libpq5 && \
+    apt-get install -y --no-install-recommends netcat-openbsd libpq5 gcc libpq-dev python3-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # install uv for fast dependency management
 RUN pip install --no-cache-dir uv
 
-COPY --from=builder /usr/src/app/wheels /wheels
+# copy pyproject.toml and install dependencies
 COPY --from=builder /usr/src/app/pyproject.toml .
-RUN uv pip install --system --no-cache /wheels/*
+RUN uv pip install --system .
 
 # copy project
-COPY . $APP_HOME
+COPY --from=builder /usr/src/app $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME

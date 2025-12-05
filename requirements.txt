@@ -1,8 +1,0 @@
-Django>=6.0
-sentry-sdk
-
-gunicorn==23.0.0
-psycopg2-binary==2.9.10
-python-decouple
-markdown
-django-debug-toolbar

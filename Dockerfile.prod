@@ -14,13 +14,16 @@ ENV PYTHONUNBUFFERED 1
 
 # install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev
+    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev && \
+    rm -rf /var/lib/apt/lists/*
 
-# lint
-RUN pip install --upgrade pip
+# install uv for fast dependency management
+RUN pip install --no-cache-dir uv
+
 # install python dependencies
-COPY ./requirements.txt .
-RUN pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -r requirements.txt
+COPY ./pyproject.toml .
+RUN uv pip install --system -e . && \
+    pip wheel --no-cache-dir --no-deps --wheel-dir /usr/src/app/wheels -e .
 
 # copy project
 COPY . .
@@ -48,11 +51,16 @@ RUN mkdir $APP_HOME/mediafiles
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends netcat-openbsd libpq5
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends netcat-openbsd libpq5 && \
+    rm -rf /var/lib/apt/lists/*
+
+# install uv for fast dependency management
+RUN pip install --no-cache-dir uv
+
 COPY --from=builder /usr/src/app/wheels /wheels
-COPY --from=builder /usr/src/app/requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install --no-cache /wheels/*
+COPY --from=builder /usr/src/app/pyproject.toml .
+RUN uv pip install --system --no-cache /wheels/*
 
 # copy project
 COPY . $APP_HOME

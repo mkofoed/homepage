@@ -10,11 +10,15 @@ ENV PYTHONUNBUFFERED 1
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev
+    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency management
+RUN pip install --no-cache-dir uv
 
 # Install dependencies
-COPY ./requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY ./pyproject.toml .
+RUN uv pip install --system -e .
 
 # Copy project
 COPY . .

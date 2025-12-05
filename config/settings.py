@@ -50,9 +50,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    # Third-party apps
+    'rest_framework',
+    'drf_spectacular',
+    
     # Local apps
     'core',
     'blog',
+    'showcase',
 ]
 
 MIDDLEWARE = [
@@ -172,3 +177,16 @@ if SENTRY_DSN:
         },
     )
 
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+# drf-spectacular settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MKofoed.dev API Playground',
+    'DESCRIPTION': 'Demo API endpoints showcasing REST API development skills.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

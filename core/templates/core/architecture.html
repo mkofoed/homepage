@@ -1,0 +1,250 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Architecture - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<style>
+    .mermaid svg {
+        background: transparent !important;
+    }
+
+    .mermaid .cluster rect {
+        fill: transparent !important;
+        stroke: #4a5568 !important;
+    }
+</style>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Hero Section -->
+        <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold mb-2">How This Site Is Built</h1>
+            <p class="lead text-muted">A deep dive into the architecture, infrastructure, and DevOps practices.</p>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="card shadow-sm mb-5 bg-dark">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>System Architecture
+                </h3>
+                <div class="mermaid">
+                    flowchart LR
+                    subgraph Internet["🌐 Internet"]
+                    User["👤 User<br />Browser"]
+                    end
+
+                    subgraph Cloud["☁️ Cloudflare"]
+                    CDN["🛡️ CDN<br />DDoS Protection"]
+                    SSL["🔒 SSL<br />Termination"]
+                    end
+
+                    subgraph VM["🖥️ Hetzner VM"]
+                    subgraph Docker["🐳 Docker Compose"]
+                    Nginx["⚡ Nginx<br />Reverse Proxy"]
+                    Gunicorn["🦄 Gunicorn<br />WSGI Server"]
+                    Django["🐍 Django<br />Application"]
+                    Postgres[("🗄️ PostgreSQL<br />Database")]
+                    end
+                    end
+
+                    User --> CDN --> SSL --> Nginx --> Gunicorn --> Django --> Postgres
+
+                    style User fill:#4a5568,stroke:#718096,color:#fff
+                    style CDN fill:#f6ad55,stroke:#ed8936,color:#000
+                    style SSL fill:#f6ad55,stroke:#ed8936,color:#000
+                    style Nginx fill:#48bb78,stroke:#38a169,color:#000
+                    style Gunicorn fill:#4299e1,stroke:#3182ce,color:#fff
+                    style Django fill:#38a169,stroke:#2f855a,color:#fff
+                    style Postgres fill:#667eea,stroke:#5a67d8,color:#fff
+                </div>
+            </div>
+        </div>
+
+        <!-- Tech Stack -->
+        <div class="card shadow-sm mb-5 bg-dark">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-stack me-2 text-primary"></i>Tech Stack</h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-code-slash me-2"></i>Backend</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li><span class="badge bg-success me-2">Python {{ PYTHON_VERSION }}</span></li>
+                                <li class="mt-1"><span class="badge bg-success me-2">Django {{ DJANGO_VERSION }}</span>
+                                </li>
+                                <li class="mt-1"><span class="badge bg-secondary me-2">Gunicorn</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-database me-2"></i>Database</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li><span class="badge bg-primary me-2">PostgreSQL</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
+                            <h6 class="fw-bold mb-2"><i class="bi bi-box me-2"></i>Infrastructure</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li><span class="badge bg-info text-dark me-2">Docker</span></li>
+                                <li class="mt-1"><span class="badge bg-info text-dark me-2">Nginx</span></li>
+                                <li class="mt-1"><span class="badge bg-warning text-dark me-2">Cloudflare</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Health Check -->
+        <div class="card shadow-sm mb-5 bg-dark">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-heart-pulse me-2 text-primary"></i>Live Health Status</h3>
+                <div id="health-status" hx-get="{% url 'health_check' %}" hx-trigger="load, every 10s"
+                    hx-swap="innerHTML">
+                    <div class="d-flex align-items-center">
+                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                        <span class="text-muted">Loading health status...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deployment Pipeline -->
+        <div class="card shadow-sm mb-5 bg-dark">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-arrow-repeat me-2 text-primary"></i>Deployment Pipeline</h3>
+                <div class="mermaid">
+                    graph LR
+                    A["📝 Push to main"] --> B["🔨 Build Docker Image"]
+                    B --> C["📦 Push to Docker Hub"]
+                    C --> D["🔗 SSH to Server"]
+                    D --> E["⬇️ Pull Image"]
+                    E --> F["🚀 Deploy Containers"]
+                    F --> G["✅ Run Migrations"]
+                </div>
+                <div class="mt-4">
+                    <a href="https://github.com/mkofoed/homepage" target="_blank" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-github me-2"></i>View on GitHub
+                    </a>
+                    <a href="https://github.com/mkofoed/homepage/actions" target="_blank"
+                        class="btn btn-outline-primary btn-sm ms-2">
+                        <i class="bi bi-play-circle me-2"></i>View Actions
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Features -->
+        <div class="card shadow-sm bg-dark">
+            <div class="card-body p-4">
+                <h3 class="h5 fw-bold mb-4"><i class="bi bi-lightning-fill me-2 text-primary"></i>Key Features</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Fast Dependency Management</h6>
+                                <p class="text-muted small mb-0">Using <code>uv</code> for 10-100x faster Python package
+                                    installs</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Automatic SSL</h6>
+                                <p class="text-muted small mb-0">Let's Encrypt certificates via nginx-certbot container
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Zero-Downtime Deploys</h6>
+                                <p class="text-muted small mb-0">Docker Compose with rolling container updates</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-start">
+                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">Error Tracking</h6>
+                                <p class="text-muted small mb-0">Sentry integration for production error monitoring</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mermaid JS for diagrams -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    // Initialize Mermaid with dark theme
+    (function () {
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                background: 'transparent',
+                primaryColor: '#4a5568',
+                secondaryColor: '#2d3748',
+                tertiaryColor: '#1a202c'
+            }
+        });
+
+        // Render all mermaid diagrams
+        mermaid.run();
+    })();
+</script>
+
+<!-- HTMX handler for health check response -->
+<script>
+    document.body.addEventListener('htmx:afterSwap', function (event) {
+        if (event.detail.target.id === 'health-status') {
+            try {
+                const data = JSON.parse(event.detail.xhr.responseText);
+                const statusClass = data.status === 'healthy' ? 'success' : 'danger';
+                const statusIcon = data.status === 'healthy' ? 'check-circle-fill' : 'x-circle-fill';
+
+                event.detail.target.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-${statusIcon} text-${statusClass} me-2"></i>
+                                <span class="fw-bold">Status:</span>
+                                <span class="badge bg-${statusClass} ms-2">${data.status.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-database me-2 text-primary"></i>
+                                <span class="fw-bold">Database:</span>
+                                <span class="ms-2">${data.database.response_ms}ms</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-speedometer2 me-2 text-primary"></i>
+                                <span class="fw-bold">Response:</span>
+                                <span class="ms-2">${data.response_time_ms}ms</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                event.detail.target.innerHTML = '<span class="text-danger">Failed to parse health data</span>';
+            }
+        }
+    });
+</script>
+{% endblock %}

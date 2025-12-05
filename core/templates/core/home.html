@@ -102,4 +102,22 @@
         </div>
     </div>
 </div>
+
+<!-- GitHub Stats Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4 animate-fade-in">
+        <h3 class="h2 fw-bold">GitHub Activity</h3>
+        <p class="text-muted">Live stats from my GitHub profile</p>
+    </div>
+    <div class="col-md-6 mx-auto">
+        <div hx-get="{% url 'github_stats' %}" hx-trigger="load" hx-swap="innerHTML">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <span class="ms-2 text-muted">Loading GitHub stats...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -4,6 +4,7 @@ Fetches user profile and repository statistics.
 """
 
 import logging
+from typing import Any
 
 import httpx
 from django.core.cache import cache
@@ -14,7 +15,7 @@ GITHUB_API_BASE: str = "https://api.github.com"
 CACHE_TIMEOUT: int = 3600  # 1 hour
 
 
-def get_github_stats(username: str = "mkofoed") -> dict | None:
+def get_github_stats(username: str = "mkofoed") -> dict[str, Any] | None:
     """
     Fetch GitHub user stats with caching.
     Returns None if API call fails.
@@ -23,7 +24,7 @@ def get_github_stats(username: str = "mkofoed") -> dict | None:
     cached_data = cache.get(cache_key)
 
     if cached_data is not None:
-        return cached_data
+        return dict(cached_data)
 
     try:
         with httpx.Client(timeout=10.0) as client:
@@ -48,7 +49,7 @@ def get_github_stats(username: str = "mkofoed") -> dict | None:
         total_forks = sum(repo.get("forks_count", 0) for repo in repos_data)
 
         # Count languages
-        languages = {}
+        languages: dict[str, int] = {}
         for repo in repos_data:
             lang = repo.get("language")
             if lang:

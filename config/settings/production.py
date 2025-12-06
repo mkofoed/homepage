@@ -2,7 +2,10 @@
 Django production settings.
 """
 
+from typing import Any, cast
+
 from .base import *  # noqa: F401, F403
+from .base import LOGGING as _LOGGING
 
 DEBUG = False
 
@@ -31,12 +34,13 @@ STORAGES = {
 
 # Production logging - Sentry captures logs via enable_logs=True in sentry_sdk.init()
 # Console also shows INFO+ for Docker logs visibility
-LOGGING["handlers"] = {  # noqa: F405
+LOGGING = cast(dict[str, Any], _LOGGING)
+LOGGING["handlers"] = {
     "console": {
         "class": "logging.StreamHandler",
         "formatter": "simple",
         "level": "INFO",  # Show INFO and above in console
     },
 }
-LOGGING["root"]["level"] = "INFO"  # noqa: F405
-LOGGING["loggers"]["django"]["level"] = "INFO"  # noqa: F405
+LOGGING["root"]["level"] = "INFO"  # type: ignore[index]
+LOGGING["loggers"]["django"]["level"] = "INFO"  # type: ignore[index]

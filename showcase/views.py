@@ -4,6 +4,7 @@ Showcase API views demonstrating various API patterns.
 
 import logging
 import random
+from collections.abc import Callable
 
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view
@@ -86,7 +87,7 @@ def calculate(request: Request) -> Response:
         b: float = float(request.data.get("b", 0))
         operation: str = request.data.get("operation", "add")
 
-        operations: dict[str, callable] = {
+        operations: dict[str, Callable[[float, float], float | None]] = {
             "add": lambda x, y: x + y,
             "subtract": lambda x, y: x - y,
             "multiply": lambda x, y: x * y,

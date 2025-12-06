@@ -3,8 +3,10 @@ Django development settings.
 """
 
 import socket
+from typing import Any, cast
 
 from .base import *  # noqa: F401, F403
+from .base import LOGGING as _LOGGING
 
 DEBUG = True
 
@@ -20,4 +22,5 @@ INTERNAL_IPS = [ip[:-1] + "1" for ip in ips] + ["127.0.0.1", "10.0.2.2"]
 CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
 
 # More verbose logging in development
-LOGGING["loggers"]["django"]["level"] = "DEBUG"  # noqa: F405
+LOGGING = cast(dict[str, Any], _LOGGING)
+LOGGING["loggers"]["django"]["level"] = "DEBUG"  # type: ignore[index]

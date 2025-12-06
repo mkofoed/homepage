@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Personal homepage built with Django"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=5.1,<6.0",
+    "django>=6.0",
     "gunicorn==23.0.0",
     "psycopg2-binary==2.9.11",
     "python-decouple>=3.8",
@@ -15,7 +15,33 @@ dependencies = [
     "djangorestframework>=3.16",
     "drf-spectacular>=0.29",
     "psutil>=7.1",
+    "whitenoise>=6.8",
+    "django-health-check>=3.18",
+    "ruff>=0.8",
 ]
 
 [tool.setuptools]
 packages = []
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "DJ",     # flake8-django
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "blog", "showcase", "config"]
+

@@ -8,6 +8,7 @@ services:
       - .env
     environment:
       - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=config.settings.production
     volumes:
       - static_volume:/home/app/web/staticfiles
       - media_volume:/home/app/web/mediafiles

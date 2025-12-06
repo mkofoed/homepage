@@ -1,12 +1,15 @@
 """
 Showcase API views demonstrating various API patterns.
 """
+import logging
 import random
 
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
+
+logger = logging.getLogger(__name__)
 
 
 PROGRAMMING_QUOTES: list[dict[str, str]] = [
@@ -82,13 +85,16 @@ def calculate(request: Request) -> Response:
         }
         
         if operation not in operations:
+            logger.warning("Unknown operation requested: %s", operation)
             return Response({'error': f'Unknown operation: {operation}'}, status=400)
         
         result = operations[operation](a, b)
         
         if result is None:
+            logger.warning("Division by zero attempted: %s / %s", a, b)
             return Response({'error': 'Division by zero'}, status=400)
         
+        logger.info("Calculate: %s %s %s = %s", a, operation, b, result)
         return Response({
             'a': a,
             'b': b,

@@ -201,6 +201,7 @@ if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         traces_sample_rate=1.0,
+        enable_logs=True,
         _experiments={
             "continuous_profiling_auto_start": True,
         },

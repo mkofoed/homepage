@@ -28,3 +28,15 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# Production logging - Sentry captures logs via enable_logs=True in sentry_sdk.init()
+# We keep minimal console output and let Sentry handle log aggregation
+LOGGING["handlers"] = {  # noqa: F405
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "simple",
+        "level": "WARNING",  # Only warnings and above to console
+    },
+}
+LOGGING["root"]["level"] = "INFO"  # noqa: F405
+LOGGING["loggers"]["django"]["level"] = "WARNING"  # noqa: F405

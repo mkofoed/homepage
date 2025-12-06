@@ -1,8 +1,11 @@
+import logging
 import time
 
 from django.db import connection
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+
+logger = logging.getLogger(__name__)
 
 
 def home(request: HttpRequest) -> HttpResponse:
@@ -32,11 +35,16 @@ def health_check(request: HttpRequest) -> JsonResponse:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
         db_response_ms = round((time.time() - db_start) * 1000, 2)
-    except Exception:
+    except Exception as e:
         db_healthy = False
+        logger.error("Database health check failed: %s", e)
+    
+    status = 'healthy' if db_healthy else 'unhealthy'
+    if not db_healthy:
+        logger.warning("Health check returning unhealthy status")
     
     return JsonResponse({
-        'status': 'healthy' if db_healthy else 'unhealthy',
+        'status': status,
         'database': {
             'connected': db_healthy,
             'response_ms': db_response_ms,
@@ -48,7 +56,13 @@ def health_check(request: HttpRequest) -> JsonResponse:
 def github_stats(request: HttpRequest) -> HttpResponse:
     """API endpoint returning GitHub stats as HTML partial."""
     from .services.github_service import get_github_stats
+    
+    logger.info("Fetching GitHub stats")
     stats = get_github_stats()
+    
+    if stats is None:
+        logger.warning("GitHub stats returned None")
+    
     return render(request, 'core/partials/github_stats.html', {'stats': stats})
 
 
@@ -72,8 +86,8 @@ def metrics(request: HttpRequest) -> JsonResponse:
         with connection.cursor() as cursor:
             cursor.execute("SELECT 1")
         db_response_ms = round((time.time() - start) * 1000, 2)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error("Metrics DB check failed: %s", e)
     
     return JsonResponse({
         'cpu_percent': cpu_percent,

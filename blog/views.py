@@ -1,8 +1,12 @@
+import logging
+
 from django.core.paginator import Paginator
 from django.http import HttpRequest, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from .models import Post
+
+logger = logging.getLogger(__name__)
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -31,4 +35,5 @@ def post_list(request: HttpRequest) -> HttpResponse:
 def detail(request: HttpRequest, pk: int) -> HttpResponse:
     """Single blog post detail page."""
     post = get_object_or_404(Post, pk=pk)
+    logger.info("Blog post viewed: %s (id=%d)", post.title, pk)
     return render(request, 'blog/detail.html', {'post': post})

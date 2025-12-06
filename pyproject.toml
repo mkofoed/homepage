@@ -18,6 +18,10 @@ dependencies = [
     "whitenoise>=6.8",
     "django-health-check>=3.18",
     "ruff>=0.8",
+    "mypy>=1.13",
+    "django-stubs>=5.1",
+    "djangorestframework-stubs>=3.15",
+    "pre-commit>=4.0",
 ]
 
 [tool.setuptools]
@@ -44,4 +48,17 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["core", "blog", "showcase", "config"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+strict = false
+warn_return_any = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+exclude = ["migrations", "venv", ".venv"]
+
+[tool.django-stubs]
+django_settings_module = "config.settings.development"
+
 

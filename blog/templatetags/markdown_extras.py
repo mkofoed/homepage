@@ -10,4 +10,4 @@ register = template.Library()
 @stringfilter
 def markdown(value: str) -> SafeString:
     """Convert markdown text to HTML."""
-    return md.markdown(value, extensions=['markdown.extensions.fenced_code'])
+    return md.markdown(value, extensions=["markdown.extensions.fenced_code"])

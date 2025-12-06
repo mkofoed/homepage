@@ -2,12 +2,14 @@
 Showcase API views demonstrating various API patterns.
 """
 import random
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from rest_framework.decorators import api_view
+from rest_framework.request import Request
+from rest_framework.response import Response
 
 
-PROGRAMMING_QUOTES = [
+PROGRAMMING_QUOTES: list[dict[str, str]] = [
     {"quote": "Code is like humor. When you have to explain it, it's bad.", "author": "Cory House"},
     {"quote": "First, solve the problem. Then, write the code.", "author": "John Johnson"},
     {"quote": "Experience is the name everyone gives to their mistakes.", "author": "Oscar Wilde"},
@@ -38,9 +40,9 @@ PROGRAMMING_QUOTES = [
     responses={200: dict},
 )
 @api_view(['GET'])
-def echo(request):
+def echo(request: Request) -> Response:
     """Echo back the provided message."""
-    message = request.query_params.get('message', 'Hello, World!')
+    message: str = request.query_params.get('message', 'Hello, World!')
     return Response({
         'message': message,
         'length': len(message),
@@ -65,14 +67,14 @@ def echo(request):
     responses={200: dict},
 )
 @api_view(['POST'])
-def calculate(request):
+def calculate(request: Request) -> Response:
     """Perform a calculation on two numbers."""
     try:
-        a = float(request.data.get('a', 0))
-        b = float(request.data.get('b', 0))
-        operation = request.data.get('operation', 'add')
+        a: float = float(request.data.get('a', 0))
+        b: float = float(request.data.get('b', 0))
+        operation: str = request.data.get('operation', 'add')
         
-        operations = {
+        operations: dict[str, callable] = {
             'add': lambda x, y: x + y,
             'subtract': lambda x, y: x - y,
             'multiply': lambda x, y: x * y,
@@ -103,9 +105,9 @@ def calculate(request):
     responses={200: dict},
 )
 @api_view(['GET'])
-def random_quote(request):
+def random_quote(request: Request) -> Response:
     """Return a random programming quote."""
-    quote = random.choice(PROGRAMMING_QUOTES)
+    quote: dict[str, str] = random.choice(PROGRAMMING_QUOTES)
     return Response(quote)
 
 
@@ -126,15 +128,15 @@ def random_quote(request):
     responses={200: dict},
 )
 @api_view(['GET'])
-def fibonacci(request):
+def fibonacci(request: Request) -> Response:
     """Generate Fibonacci sequence."""
     try:
-        n = min(int(request.query_params.get('n', 10)), 50)
+        n: int = min(int(request.query_params.get('n', 10)), 50)
         
         if n <= 0:
             return Response({'error': 'n must be positive'}, status=400)
         
-        fib = [0, 1]
+        fib: list[int] = [0, 1]
         while len(fib) < n:
             fib.append(fib[-1] + fib[-2])
         
@@ -165,11 +167,11 @@ def fibonacci(request):
     responses={200: dict},
 )
 @api_view(['GET'])
-def palindrome(request):
+def palindrome(request: Request) -> Response:
     """Check if text is a palindrome."""
-    text = request.query_params.get('text', '')
-    clean = ''.join(c.lower() for c in text if c.isalnum())
-    is_palindrome = clean == clean[::-1]
+    text: str = request.query_params.get('text', '')
+    clean: str = ''.join(c.lower() for c in text if c.isalnum())
+    is_palindrome: bool = clean == clean[::-1]
     
     return Response({
         'text': text,

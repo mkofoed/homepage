@@ -2,18 +2,18 @@
 GitHub API service with caching.
 Fetches user profile and repository statistics.
 """
+import logging
+
 import httpx
 from django.core.cache import cache
-from typing import Optional
-import logging
 
 logger = logging.getLogger(__name__)
 
-GITHUB_API_BASE = "https://api.github.com"
-CACHE_TIMEOUT = 3600  # 1 hour
+GITHUB_API_BASE: str = "https://api.github.com"
+CACHE_TIMEOUT: int = 3600  # 1 hour
 
 
-def get_github_stats(username: str = "mkofoed") -> Optional[dict]:
+def get_github_stats(username: str = "mkofoed") -> dict | None:
     """
     Fetch GitHub user stats with caching.
     Returns None if API call fails.

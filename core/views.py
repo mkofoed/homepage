@@ -1,29 +1,32 @@
 import time
-from django.shortcuts import render
+
 from django.db import connection
-from django.http import JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import render
 
 
-def home(request):
+def home(request: HttpRequest) -> HttpResponse:
+    """Home page view."""
     return render(request, 'core/home.html')
 
 
-def about(request):
+def about(request: HttpRequest) -> HttpResponse:
+    """About page view."""
     return render(request, 'core/about.html')
 
 
-def architecture(request):
+def architecture(request: HttpRequest) -> HttpResponse:
     """Architecture page showing how the site is built."""
     return render(request, 'core/architecture.html')
 
 
-def health_check(request):
+def health_check(request: HttpRequest) -> JsonResponse:
     """API endpoint returning system health metrics."""
     start_time = time.time()
     
     # Check database connectivity
-    db_healthy = True
-    db_response_ms = 0
+    db_healthy: bool = True
+    db_response_ms: float = 0
     try:
         db_start = time.time()
         with connection.cursor() as cursor:
@@ -42,29 +45,28 @@ def health_check(request):
     })
 
 
-def github_stats(request):
+def github_stats(request: HttpRequest) -> HttpResponse:
     """API endpoint returning GitHub stats as HTML partial."""
     from .services.github_service import get_github_stats
     stats = get_github_stats()
     return render(request, 'core/partials/github_stats.html', {'stats': stats})
 
 
-def dashboard(request):
+def dashboard(request: HttpRequest) -> HttpResponse:
     """Real-time metrics dashboard."""
     return render(request, 'core/dashboard.html')
 
 
-def metrics(request):
+def metrics(request: HttpRequest) -> JsonResponse:
     """API endpoint returning server metrics."""
-    import os
     import psutil
     
     # Get CPU and memory usage
-    cpu_percent = psutil.cpu_percent(interval=0.1)
+    cpu_percent: float = psutil.cpu_percent(interval=0.1)
     memory = psutil.virtual_memory()
     
     # Database response time
-    db_response_ms = 0
+    db_response_ms: float = 0
     try:
         start = time.time()
         with connection.cursor() as cursor:

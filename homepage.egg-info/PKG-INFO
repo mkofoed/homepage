@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: homepage
+Version: 1.0.0
+Summary: Personal homepage built with Django
+Requires-Python: >=3.12
+Requires-Dist: django>=6.0
+Requires-Dist: gunicorn==23.0.0
+Requires-Dist: psycopg2-binary==2.9.11
+Requires-Dist: python-decouple>=3.8
+Requires-Dist: markdown>=3.10
+Requires-Dist: sentry-sdk>=2.47
+Requires-Dist: django-debug-toolbar>=6.1
+Requires-Dist: httpx>=0.28
+Requires-Dist: djangorestframework>=3.16
+Requires-Dist: drf-spectacular>=0.29
+Requires-Dist: psutil>=7.1
+Requires-Dist: whitenoise>=6.8
+Requires-Dist: django-health-check>=3.18
+Requires-Dist: ruff>=0.8
+Requires-Dist: mypy>=1.13
+Requires-Dist: django-stubs>=5.1
+Requires-Dist: djangorestframework-stubs>=3.15
+Requires-Dist: pre-commit>=4.0
+Requires-Dist: types-Markdown>=3.7

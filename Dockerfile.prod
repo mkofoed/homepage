@@ -60,9 +60,6 @@ COPY --from=builder /usr/src/app $APP_HOME
 # Set Django settings module for production
 ENV DJANGO_SETTINGS_MODULE=config.settings.production
 
-# Collect static files (generates WhiteNoise manifest)
-RUN python manage.py collectstatic --noinput
-
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
 

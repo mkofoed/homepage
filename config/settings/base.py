@@ -84,13 +84,14 @@ SITE_NAME = "MKofoed.dev"
 # Database
 # =============================================================================
 
+# Allow defaults for Docker build (collectstatic doesn't need real DB)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("SQL_DATABASE"),
-        "USER": config("SQL_USER"),
-        "PASSWORD": config("SQL_PASSWORD"),
-        "HOST": config("SQL_HOST"),
+        "NAME": config("SQL_DATABASE", default="homepage"),
+        "USER": config("SQL_USER", default="postgres"),
+        "PASSWORD": config("SQL_PASSWORD", default="postgres"),
+        "HOST": config("SQL_HOST", default="localhost"),
         "PORT": config("SQL_PORT", default="5432"),
     }
 }

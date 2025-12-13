@@ -6,6 +6,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path("django-admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("", include("core.urls")),
     path("blog/", include("blog.urls")),
     # API Playground

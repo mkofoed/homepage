@@ -24,6 +24,11 @@ ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Authentication
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = "/accounts/login/"
+
 
 # =============================================================================
 # Application Definition

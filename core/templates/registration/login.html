@@ -1,0 +1,54 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Login - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="card bg-dark border-secondary shadow">
+            <div class="card-header bg-secondary bg-opacity-25 border-secondary text-center py-4">
+                <h3 class="mb-0 text-light"><i class="bi bi-person-circle me-2"></i>Login</h3>
+            </div>
+            <div class="card-body p-4">
+                {% if form.errors %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Invalid username or password. Please try again.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">
+                            <i class="bi bi-person me-1"></i>Username
+                        </label>
+                        <input type="text" name="username" id="id_username"
+                            class="form-control bg-dark text-light border-secondary{% if form.errors %} is-invalid{% endif %}"
+                            placeholder="Enter your username" autofocus required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label">
+                            <i class="bi bi-lock me-1"></i>Password
+                        </label>
+                        <input type="password" name="password" id="id_password"
+                            class="form-control bg-dark text-light border-secondary{% if form.errors %} is-invalid{% endif %}"
+                            placeholder="Enter your password" required>
+                    </div>
+
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Log In
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

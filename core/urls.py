@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import path
 from health_check.views import HealthCheckView
 
 from . import views

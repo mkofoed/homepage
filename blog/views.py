@@ -23,7 +23,7 @@ def post_list(request: HttpRequest) -> HttpResponse:
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    if request.headers.get("HX-Request"):
+    if getattr(request, "htmx", False):
         return render(request, "blog/partials/post_list_items.html", {"page_obj": page_obj})
 
     return render(request, "blog/post_list.html", {"page_obj": page_obj})

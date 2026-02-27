@@ -3,8 +3,6 @@ Showcase API views demonstrating various API patterns.
 """
 
 import logging
-import random
-from collections.abc import Callable
 
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, extend_schema
 from rest_framework.decorators import api_view
@@ -14,24 +12,7 @@ from rest_framework.response import Response
 logger = logging.getLogger(__name__)
 
 
-PROGRAMMING_QUOTES: list[dict[str, str]] = [
-    {"quote": "Code is like humor. When you have to explain it, it's bad.", "author": "Cory House"},
-    {"quote": "First, solve the problem. Then, write the code.", "author": "John Johnson"},
-    {"quote": "Experience is the name everyone gives to their mistakes.", "author": "Oscar Wilde"},
-    {"quote": "In order to be irreplaceable, one must always be different.", "author": "Coco Chanel"},
-    {"quote": "Java is to JavaScript what car is to Carpet.", "author": "Chris Heilmann"},
-    {"quote": "Knowledge is power.", "author": "Francis Bacon"},
-    {
-        "quote": "Sometimes it pays to stay in bed on Monday, rather than spending the rest of the week debugging Monday's code.",
-        "author": "Dan Salomon",
-    },
-    {
-        "quote": "Perfection is achieved not when there is nothing more to add, but rather when there is nothing more to take away.",
-        "author": "Antoine de Saint-Exupery",
-    },
-    {"quote": "Code never lies, comments sometimes do.", "author": "Ron Jeffries"},
-    {"quote": "Simplicity is the soul of efficiency.", "author": "Austin Freeman"},
-]
+# Programming quotes moved to services
 
 
 @extend_schema(
@@ -87,32 +68,24 @@ def calculate(request: Request) -> Response:
         b: float = float(request.data.get("b", 0))
         operation: str = request.data.get("operation", "add")
 
-        operations: dict[str, Callable[[float, float], float | None]] = {
-            "add": lambda x, y: x + y,
-            "subtract": lambda x, y: x - y,
-            "multiply": lambda x, y: x * y,
-            "divide": lambda x, y: x / y if y != 0 else None,
-        }
+        from .services.algorithms import calculate_operation
 
-        if operation not in operations:
-            logger.warning("Unknown operation requested: %s", operation)
-            return Response({"error": f"Unknown operation: {operation}"}, status=400)
+        try:
+            result = calculate_operation(a, b, operation)
+            if result is None:
+                return Response({"error": "Division by zero"}, status=400)
 
-        result = operations[operation](a, b)
+            return Response(
+                {
+                    "a": a,
+                    "b": b,
+                    "operation": operation,
+                    "result": result,
+                }
+            )
+        except ValueError as e:
+            return Response({"error": str(e)}, status=400)
 
-        if result is None:
-            logger.warning("Division by zero attempted: %s / %s", a, b)
-            return Response({"error": "Division by zero"}, status=400)
-
-        logger.info("Calculate: %s %s %s = %s", a, operation, b, result)
-        return Response(
-            {
-                "a": a,
-                "b": b,
-                "operation": operation,
-                "result": result,
-            }
-        )
     except (ValueError, TypeError) as e:
         return Response({"error": str(e)}, status=400)
 
@@ -125,8 +98,9 @@ def calculate(request: Request) -> Response:
 @api_view(["GET"])
 def random_quote(request: Request) -> Response:
     """Return a random programming quote."""
-    quote: dict[str, str] = random.choice(PROGRAMMING_QUOTES)
-    return Response(quote)
+    from .services.content import get_random_quote
+
+    return Response(get_random_quote())
 
 
 @extend_schema(
@@ -148,25 +122,21 @@ def random_quote(request: Request) -> Response:
 @api_view(["GET"])
 def fibonacci(request: Request) -> Response:
     """Generate Fibonacci sequence."""
+    from .services.algorithms import generate_fibonacci
+
     try:
         n: int = min(int(request.query_params.get("n", 10)), 50)
-
-        if n <= 0:
-            return Response({"error": "n must be positive"}, status=400)
-
-        fib: list[int] = [0, 1]
-        while len(fib) < n:
-            fib.append(fib[-1] + fib[-2])
+        sequence = generate_fibonacci(n)
 
         return Response(
             {
                 "n": n,
-                "sequence": fib[:n],
-                "sum": sum(fib[:n]),
+                "sequence": sequence,
+                "sum": sum(sequence),
             }
         )
-    except ValueError:
-        return Response({"error": "Invalid number"}, status=400)
+    except ValueError as e:
+        return Response({"error": str(e)}, status=400)
 
 
 @extend_schema(
@@ -189,9 +159,10 @@ def fibonacci(request: Request) -> Response:
 @api_view(["GET"])
 def palindrome(request: Request) -> Response:
     """Check if text is a palindrome."""
+    from .services.algorithms import check_palindrome
+
     text: str = request.query_params.get("text", "")
-    clean: str = "".join(c.lower() for c in text if c.isalnum())
-    is_palindrome: bool = clean == clean[::-1]
+    clean, is_palindrome = check_palindrome(text)
 
     return Response(
         {

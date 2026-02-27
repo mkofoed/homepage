@@ -46,13 +46,12 @@ INSTALLED_APPS = [
     "drf_spectacular",
     # Health checks
     "health_check",
-    "health_check.db",
-    "health_check.cache",
-    "health_check.storage",
     # Local apps
     "core",
     "blog",
     "showcase",
+    # Enhancements
+    "django_htmx",
 ]
 
 MIDDLEWARE = [
@@ -64,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 TEMPLATES = [

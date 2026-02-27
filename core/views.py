@@ -1,7 +1,6 @@
 import logging
 import time
 
-from django.db import connection
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 
@@ -25,19 +24,10 @@ def architecture(request: HttpRequest) -> HttpResponse:
 
 def health_check(request: HttpRequest) -> JsonResponse:
     """API endpoint returning system health metrics."""
-    start_time = time.time()
+    from .services.system_metrics import check_database_health
 
-    # Check database connectivity
-    db_healthy: bool = True
-    db_response_ms: float = 0
-    try:
-        db_start = time.time()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-        db_response_ms = round((time.time() - db_start) * 1000, 2)
-    except Exception as e:
-        db_healthy = False
-        logger.error("Database health check failed: %s", e)
+    start_time = time.time()
+    db_healthy, db_response_ms = check_database_health()
 
     status = "healthy" if db_healthy else "unhealthy"
     if not db_healthy:
@@ -75,28 +65,10 @@ def dashboard(request: HttpRequest) -> HttpResponse:
 
 def metrics(request: HttpRequest) -> JsonResponse:
     """API endpoint returning server metrics."""
-    import psutil
+    from .services.system_metrics import check_database_health, get_system_metrics
 
-    # Get CPU and memory usage
-    cpu_percent: float = psutil.cpu_percent(interval=0.1)
-    memory = psutil.virtual_memory()
+    metrics_data = get_system_metrics()
+    _, db_response_ms = check_database_health()
+    metrics_data["db_response_ms"] = db_response_ms
 
-    # Database response time
-    db_response_ms: float = 0
-    try:
-        start = time.time()
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-        db_response_ms = round((time.time() - start) * 1000, 2)
-    except Exception as e:
-        logger.error("Metrics DB check failed: %s", e)
-
-    return JsonResponse(
-        {
-            "cpu_percent": cpu_percent,
-            "memory_percent": round(memory.percent, 1),
-            "memory_used_mb": round(memory.used / (1024 * 1024), 1),
-            "memory_total_mb": round(memory.total / (1024 * 1024), 1),
-            "db_response_ms": db_response_ms,
-        }
-    )
+    return JsonResponse(metrics_data)

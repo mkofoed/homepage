@@ -27,6 +27,9 @@ sleep 5
 echo "🗄️ Running migrations..."
 docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate
 
+echo "🗄️ Backfilling Historical Spot Prices..."
+docker compose -f docker-compose.prod.yml run --rm web python manage.py backfill_spot_prices --limit 5000
+
 echo "🎨 Collecting static files..."
 docker compose -f docker-compose.prod.yml run --rm web python manage.py collectstatic --noinput
 

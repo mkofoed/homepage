@@ -40,7 +40,7 @@
                         <ul class="dropdown-menu dropdown-menu-dark">
                             <li><a class="dropdown-item" href="{% url 'architecture' %}" hx-boost="false"><i
                                         class="bi bi-diagram-3 me-2"></i>Architecture</a></li>
-                            <li><a class="dropdown-item" href="{% url 'dashboard' %}" hx-boost="false"><i
+                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}" hx-boost="false"><i
                                         class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
                             <li><a class="dropdown-item" href="{% url 'swagger-ui' %}" target="_blank"><i
                                         class="bi bi-code-slash me-2"></i>API Docs <i
@@ -127,7 +127,7 @@
             <hr class="my-4 border-secondary">
             <div class="row align-items-center">
                 <div class="col-12 text-center">
-                    <p class="mb-0 text-muted small">&copy; 2025 {{ SITE_NAME }}. All rights reserved.</p>
+                    <p class="mb-0 text-muted small">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
                     <p class="mb-0 text-muted small mt-2">
                         <i class="bi bi-filetype-py me-1"></i>Python {{ PYTHON_VERSION }}
                         <span class="mx-2">•</span>

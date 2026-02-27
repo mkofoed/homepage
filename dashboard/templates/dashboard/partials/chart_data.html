@@ -1,0 +1,65 @@
+<script>
+    (function () {
+        const newData = JSON.parse('{{ chart_data_json|escapejs }}');
+        const currentIntervalIso = '{{ current_interval_iso }}';
+        const activeRange = '{{ active_range }}';
+
+        if (window.priceChart) {
+            window.priceChart.data.labels = newData.labels;
+            window.priceChart.data.datasets[0].data = newData.data_spot;
+            window.priceChart.data.datasets[1].data = newData.data_grid;
+            window.priceChart.data.datasets[2].data = newData.data_system;
+            window.priceChart.data.datasets[3].data = newData.data_tax;
+
+            // Remove the 5th dataset (VAT) if it still exists in the Chart instance from a previous render
+            if (window.priceChart.data.datasets.length > 4) {
+                window.priceChart.data.datasets.pop();
+            }
+
+            // Highlight the current active interval with thick borders spanning ALL datasets
+            const borderColors = newData.labels.map(label => {
+                const labelTime = new Date(label).getTime();
+                const currTime = new Date(currentIntervalIso).getTime();
+                return labelTime === currTime ? '#facc15' : 'transparent';
+            });
+
+            const borderWidths = newData.labels.map(label => {
+                const labelTime = new Date(label).getTime();
+                const currTime = new Date(currentIntervalIso).getTime();
+                return labelTime === currTime ? { top: 2, right: 3, bottom: 2, left: 3 } : 0;
+            });
+
+            // Additionally emphasize the Spot Price base layer background color
+            const spotBgColors = newData.labels.map(label => {
+                const labelTime = new Date(label).getTime();
+                const currTime = new Date(currentIntervalIso).getTime();
+                return labelTime === currTime ? '#fef08a' : '#38bdf8';
+            });
+
+            window.priceChart.data.datasets[0].backgroundColor = spotBgColors;
+
+            window.priceChart.data.datasets.forEach(dataset => {
+                dataset.borderColor = borderColors;
+                dataset.borderWidth = borderWidths;
+            });
+
+            // Update Active Buttons visually
+            document.querySelectorAll('.zoom-btn').forEach(btn => btn.classList.remove('active'));
+            const btnId = activeRange === 'default' ? 'day' : activeRange;
+            const activeBtn = document.getElementById('btn-zoom-' + btnId);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            // Reset zoom bounds since we manage duration dynamically via backend limits
+            if (activeRange === 'default') {
+                const nowTime = new Date(currentIntervalIso).getTime();
+                window.priceChart.options.scales.x.min = nowTime;
+                window.priceChart.options.scales.x.max = nowTime + (6 * 60 * 60 * 1000);
+            } else {
+                delete window.priceChart.options.scales.x.min;
+                delete window.priceChart.options.scales.x.max;
+            }
+
+            window.priceChart.update();
+        }
+    })();
+</script>

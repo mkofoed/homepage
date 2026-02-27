@@ -58,11 +58,6 @@ def github_stats(request: HttpRequest) -> HttpResponse:
     return render(request, "core/partials/github_stats.html", {"stats": stats})
 
 
-def dashboard(request: HttpRequest) -> HttpResponse:
-    """Real-time metrics dashboard."""
-    return render(request, "core/dashboard.html")
-
-
 def metrics(request: HttpRequest) -> JsonResponse:
     """API endpoint returning server metrics."""
     from .services.system_metrics import check_database_health, get_system_metrics

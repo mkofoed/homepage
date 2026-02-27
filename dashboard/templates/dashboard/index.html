@@ -1,0 +1,173 @@
+{% extends "core/base.html" %}
+
+{% block title %}Electricity Prices Dashboard - MKofoed.dev{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold gradient-text">Real-Time Electricity Dashboard</h1>
+            <p class="lead text-muted">Aarhus (DK1) Spot Prices - Updates every 60s</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <!-- Chart Column -->
+        <div class="col-12">
+            <div class="card glass-card shadow-lg border-0 mb-4 rounded-4 overflow-hidden h-100">
+                <div
+                    class="card-header bg-dark text-white border-bottom-0 d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0 fw-semibold"><i class="bi bi-graph-up-arrow me-2 text-warning"></i>Stacked Price
+                        Components (DKK/kWh)</h5>
+
+                    <div class="btn-group btn-group-sm ms-auto me-3" role="group">
+                        <button id="btn-zoom-day" class="btn btn-outline-info zoom-btn"
+                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=day"
+                            hx-target="#chart-scripts">1D</button>
+                        <button id="btn-zoom-week" class="btn btn-outline-info zoom-btn active"
+                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=week"
+                            hx-target="#chart-scripts">1W</button>
+                        <button id="btn-zoom-month" class="btn btn-outline-info zoom-btn"
+                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=month"
+                            hx-target="#chart-scripts">1M</button>
+                        <button id="btn-zoom-year" class="btn btn-outline-info zoom-btn"
+                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=year"
+                            hx-target="#chart-scripts">1Y</button>
+                    </div>
+
+                    <div id="chart-indicator" class="htmx-indicator spinner-border spinner-border-sm text-light"
+                        role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div class="card-body bg-dark" style="position: relative; height: 70vh; width: 100%;">
+                    <!-- 
+                        HTMX will GET the configured chart data every 60 seconds.
+                        The response is a block of Javascript that updates this canvas.
+                    -->
+                    <canvas id="priceChart" hx-get="{% url 'dashboard:htmx_price_chart' %}?range=default"
+                        hx-trigger="load, every 60s" hx-indicator="#chart-indicator">
+                    </canvas>
+                    <div id="chart-scripts"></div> <!-- HTMX will swap script tags in here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Chart.js and Zoom Plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
+<script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+<script>
+    // Initialize empty chart on page load
+    const ctx = document.getElementById('priceChart').getContext('2d');
+
+    window.priceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Spotpris',
+                    data: [],
+                    backgroundColor: '#38bdf8', // Light Blue 400
+                    borderWidth: 0,
+                },
+                {
+                    label: 'Netselskab',
+                    data: [],
+                    backgroundColor: '#10b981', // Emerald 500
+                    borderWidth: 0,
+                },
+                {
+                    label: 'Forsyningstilsynet',
+                    data: [],
+                    backgroundColor: '#f59e0b', // Amber 500
+                    borderWidth: 0,
+                },
+                {
+                    label: 'Elafgift',
+                    data: [],
+                    backgroundColor: '#ef4444', // Red 500
+                    borderRadius: { topLeft: 4, topRight: 4, bottomLeft: 0, bottomRight: 0 },
+                    borderWidth: 0,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: '#94a3b8' }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#cbd5e1',
+                    borderColor: '#334155',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true,
+                    mode: 'index',
+                    callbacks: {
+                        label: function (context) {
+                            return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' kr.';
+                        },
+                        footer: function (tooltipItems) {
+                            let total = 0;
+                            tooltipItems.forEach(function (tooltipItem) {
+                                total += tooltipItem.parsed.y;
+                            });
+                            return 'Total: ' + total.toFixed(2) + ' kr./kWh';
+                        }
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'x'
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'x', // Only zoom along the time axis for bar charts
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    type: 'time',
+                    time: {
+                        unit: 'hour',
+                        displayFormats: {
+                            hour: 'MMM d, HH:mm'
+                        }
+                    },
+                    grid: { color: '#334155', tickColor: '#334155' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    stacked: true,
+                    grid: { color: '#334155', tickColor: '#334155' },
+                    ticks: { color: '#94a3b8' },
+                    beginAtZero: true
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+        }
+    });
+</script>
+{% endblock content %}

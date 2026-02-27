@@ -9,6 +9,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("", include("core.urls")),
     path("blog/", include("blog.urls")),
+    path("dashboard/", include("dashboard.urls")),
     # API Playground
     path("api/showcase/", include("showcase.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),

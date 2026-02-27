@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "core",
     "blog",
     "showcase",
+    "dashboard",
     # Enhancements
     "django_htmx",
 ]
@@ -211,3 +212,24 @@ if SENTRY_DSN:
             "continuous_profiling_auto_start": True,
         },
     )
+
+# =============================================================================
+# Celery
+# =============================================================================
+
+CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://redis:6379/0")
+CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="redis://redis:6379/1")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "poll_energinet_prices_hourly": {
+        "task": "dashboard.tasks.poll_energinet_prices_task",
+        "schedule": crontab(minute=10),
+        "kwargs": {"limit": 24},
+    },
+}

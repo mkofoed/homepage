@@ -14,15 +14,53 @@ services:
       - media_volume:/home/app/web/mediafiles
     depends_on:
       - db
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    expose:
+      - 6379
 
   db:
-    image: postgres:18
+    image: timescale/timescaledb:latest-pg18
+    restart: unless-stopped
     volumes:
       - postgres_data:/var/lib/postgresql
     environment:
       - POSTGRES_USER=${SQL_USER}
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
       - POSTGRES_DB=${SQL_DATABASE}
+
+  celery_worker:
+    image: mkofoeddk/homepage-web:latest
+    command: celery -A config worker -l INFO
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - db
+      - redis
+
+  celery_beat:
+    image: mkofoeddk/homepage-web:latest
+    command: celery -A config beat -l INFO
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DEBUG=0
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - db
+      - redis
 
   nginx:
     image: jonasal/nginx-certbot:latest

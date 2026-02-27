@@ -26,3 +26,7 @@ venv.bak/
 id_ed25519
 id_ed25519.pub
 data/
+
+# Celery
+celerybeat-schedule*
+celerybeat.pid

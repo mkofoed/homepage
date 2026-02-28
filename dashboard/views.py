@@ -76,7 +76,7 @@ def htmx_price_chart(request):
         spot_kwh = (float(spot_dkk_mwh) / 1000.0) * 1.25
 
         tax = 0.008 * 1.25  # 2026 Danish Electricity Tax Rate
-        system_tariff = 0.136 * 1.25 # Current Energinet System Tariff
+        system_tariff = 0.136 * 1.25  # Current Energinet System Tariff
 
         # Grid Tariff logic (Estimate based on standard DK1 Operator e.g. TREFOR / Radius)
         month = ts.month

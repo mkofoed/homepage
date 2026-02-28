@@ -23,3 +23,5 @@ Requires-Dist: djangorestframework-stubs>=3.16.8
 Requires-Dist: pre-commit>=4.5.1
 Requires-Dist: types-markdown>=3.10.2.20260211
 Requires-Dist: django-htmx>=1.27.0
+Requires-Dist: celery>=5.6.2
+Requires-Dist: redis>=7.2.1

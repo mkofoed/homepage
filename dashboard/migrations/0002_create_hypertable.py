@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.RunSQL(
             sql=[
                 ("CREATE EXTENSION IF NOT EXISTS timescaledb;"),
-                ("SELECT create_hypertable('dashboard_spotprice', 'timestamp');")
+                ("SELECT create_hypertable('dashboard_spotprice', 'timestamp');"),
             ],
             reverse_sql="DROP TABLE dashboard_spotprice;",
         )

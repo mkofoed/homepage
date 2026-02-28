@@ -55,12 +55,12 @@
     </div>
 </div>
 
-<!-- Include Chart.js and Zoom Plugin -->
+<!-- Include Chart.js, Zoom Plugin, and Date Adapter -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
-<script
-    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
 
 <script>
     // Initialize empty chart on page load
@@ -115,6 +115,18 @@
                     displayColors: true,
                     mode: 'index',
                     callbacks: {
+                        title: function (context) {
+                            if (!context || !context.length) return '';
+                            const date = new Date(context[0].parsed.x);
+                            return date.toLocaleString('da-DK', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                timeZone: 'Europe/Copenhagen'
+                            });
+                        },
                         label: function (context) {
                             return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' kr.';
                         },
@@ -147,10 +159,15 @@
                 x: {
                     stacked: true,
                     type: 'time',
+                    adapters: {
+                        date: {
+                            locale: 'da'
+                        }
+                    },
                     time: {
                         unit: 'hour',
                         displayFormats: {
-                            hour: 'MMM d, HH:mm'
+                            hour: 'd. MMM HH:mm'
                         }
                     },
                     grid: { color: '#334155', tickColor: '#334155' },

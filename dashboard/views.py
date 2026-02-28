@@ -1,5 +1,7 @@
 import json
+
 from django.shortcuts import render
+
 from dashboard.models import SpotPrice
 
 
@@ -17,10 +19,11 @@ def htmx_price_chart(request):
     the labels and data for Chart.js, and returns it inside a script tag
     to re-render the chart.
     """
-    from django.utils import timezone
-    from django.db.models import Avg
-    from django.db.models.functions import TruncHour, TruncDay
     from datetime import timedelta
+
+    from django.db.models import Avg
+    from django.db.models.functions import TruncDay, TruncHour
+    from django.utils import timezone
 
     range_param = request.GET.get("range", "default")
     now = timezone.now()
@@ -60,7 +63,6 @@ def htmx_price_chart(request):
     data_tax = []
     data_system = []
     data_grid = []
-    data_vat = []
 
     for item in qs:
         # Extract timestamp and base spot price
@@ -74,13 +76,13 @@ def htmx_price_chart(request):
         spot_kwh = (float(spot_dkk_mwh) / 1000.0) * 1.25
 
         tax = 0.008 * 1.25  # 2026 Danish Electricity Tax Rate
-        system_tariff = 0.136 * 1.25 # Current Energinet System Tariff 
-        
+        system_tariff = 0.136 * 1.25 # Current Energinet System Tariff
+
         # Grid Tariff logic (Estimate based on standard DK1 Operator e.g. TREFOR / Radius)
         month = ts.month
         hour = ts.hour
         is_winter = month in [10, 11, 12, 1, 2, 3]
-        
+
         if range_param == "year":
             # Rough daily average for grid tariff
             grid_tariff = (0.34 if is_winter else 0.16) * 1.25

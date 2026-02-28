@@ -1,5 +1,7 @@
 import logging
+
 from django.core.management.base import BaseCommand
+
 from dashboard.services.energinet import fetch_latest_spot_prices
 
 logger = logging.getLogger(__name__)

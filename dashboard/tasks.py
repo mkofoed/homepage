@@ -1,5 +1,6 @@
-from celery import shared_task
 import logging
+
+from celery import shared_task
 
 from dashboard.services.energinet import fetch_latest_spot_prices
 

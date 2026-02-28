@@ -1,8 +1,7 @@
 import logging
 import urllib.parse
-from datetime import datetime
-import httpx
 
+import httpx
 from django.core.management.base import BaseCommand
 from django.utils.dateparse import parse_datetime
 

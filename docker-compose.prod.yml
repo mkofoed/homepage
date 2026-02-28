@@ -25,6 +25,7 @@ services:
   db:
     image: timescale/timescaledb:latest-pg18
     restart: unless-stopped
+    command: postgres -c shared_preload_libraries=timescaledb
     volumes:
       - postgres_data:/var/lib/postgresql
     environment:

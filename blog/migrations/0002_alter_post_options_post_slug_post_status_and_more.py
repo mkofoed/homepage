@@ -48,6 +48,8 @@ def ensure_slug_column_and_populate(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False  # Required: DROP INDEX cannot run inside a transaction
+
     dependencies = [
         ("blog", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),

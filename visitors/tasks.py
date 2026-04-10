@@ -36,4 +36,4 @@ def log_page_view(self, *, ip: str, path: str, device_type: str = "desktop") -> 
         )
     except Exception as exc:
         logger.warning("Failed to create PageView", exc_info=True)
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc

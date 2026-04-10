@@ -43,16 +43,18 @@ class PriceContext:
     stale: bool
 
 
-def _hourly_avg_spot(hour_start: datetime) -> Decimal | None:
+def _hourly_avg_spot(hour_start: datetime, price_area: str) -> Decimal | None:
     """Average spot price for all quarters in an hour. Returns DKK/MWh or None."""
     hour_end = hour_start + timedelta(hours=1)
-    agg = SpotPrice.objects.filter(timestamp__gte=hour_start, timestamp__lt=hour_end).aggregate(avg=Avg("price_dkk"))
+    agg = SpotPrice.objects.filter(timestamp__gte=hour_start, timestamp__lt=hour_end, price_area=price_area).aggregate(
+        avg=Avg("price_dkk")
+    )
     if agg["avg"] is not None:
         return Decimal(str(agg["avg"]))
     return None
 
 
-def get_current_price(timestamp: datetime) -> PriceContext | None:
+def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceContext | None:
     """Return current price context. Averages all quarters in the current hour."""
 
     cached_value = cache.get(CACHE_KEY)
@@ -63,7 +65,7 @@ def get_current_price(timestamp: datetime) -> PriceContext | None:
     stale = False
 
     # Average all quarters in current hour (matches chart hourly view)
-    avg_spot_mwh = _hourly_avg_spot(hour_start)
+    avg_spot_mwh = _hourly_avg_spot(hour_start, price_area)
 
     if avg_spot_mwh is None:
         # Try most recent hour with data
@@ -71,7 +73,7 @@ def get_current_price(timestamp: datetime) -> PriceContext | None:
         if latest is None:
             return None
         fallback_hour = latest.timestamp.replace(minute=0, second=0, microsecond=0)
-        avg_spot_mwh = _hourly_avg_spot(fallback_hour)
+        avg_spot_mwh = _hourly_avg_spot(fallback_hour, price_area)
         if avg_spot_mwh is None:
             avg_spot_mwh = latest.price_dkk
         hour_start = fallback_hour
@@ -83,11 +85,15 @@ def get_current_price(timestamp: datetime) -> PriceContext | None:
     # Daily aggregates — also use hourly averages for consistency
     today_start = hour_start.replace(hour=0)
     tomorrow_start = today_start + timedelta(days=1)
-    day_prices = SpotPrice.objects.filter(timestamp__gte=today_start, timestamp__lt=tomorrow_start)
+    day_prices = SpotPrice.objects.filter(
+        timestamp__gte=today_start, timestamp__lt=tomorrow_start, price_area=price_area
+    )
 
     if not day_prices.exists():
         yesterday_start = today_start - timedelta(days=1)
-        day_prices = SpotPrice.objects.filter(timestamp__gte=yesterday_start, timestamp__lt=today_start)
+        day_prices = SpotPrice.objects.filter(
+            timestamp__gte=yesterday_start, timestamp__lt=today_start, price_area=price_area
+        )
 
     if day_prices.exists():
         agg = day_prices.aggregate(
@@ -103,7 +109,7 @@ def get_current_price(timestamp: datetime) -> PriceContext | None:
 
     # Trend vs same hour yesterday (also averaged)
     yesterday_hour_start = hour_start - timedelta(days=1)
-    yesterday_avg = _hourly_avg_spot(yesterday_hour_start)
+    yesterday_avg = _hourly_avg_spot(yesterday_hour_start, price_area)
 
     if yesterday_avg is not None:
         yesterday_total = _total_price(

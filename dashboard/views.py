@@ -30,7 +30,12 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         resolution = "hour"
 
     now = timezone.now()
-    chart_data = get_chart_data(range_param=range_param, now=now, resolution=resolution, offset=offset)
+    price_area = request.GET.get("area", "DK1")
+    if price_area not in ["DK1", "DK2"]:
+        price_area = "DK1"
+    chart_data = get_chart_data(
+        range_param=range_param, now=now, resolution=resolution, offset=offset, price_area=price_area
+    )
 
     minute_bucket = (now.minute // 15) * 15
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
@@ -71,6 +76,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         "current_interval_iso": current_interval.isoformat(),
         "active_range": range_param,
         "summary_json": json.dumps(summary),
+        "active_area": price_area,
         "period_label": period_label,
         "offset": offset,
     }
@@ -80,7 +86,10 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
 def htmx_hero_card(request: HttpRequest) -> HttpResponse:
     """HTMX endpoint: returns the current price hero card partial."""
     now = timezone.now()
-    ctx = get_current_price(now)
+    price_area = request.GET.get("area", "DK1")
+    if price_area not in ["DK1", "DK2"]:
+        price_area = "DK1"
+    ctx = get_current_price(now, price_area=price_area)
     if ctx is None:
         return render(request, "dashboard/partials/hero_card.html", {"unavailable": True})
     return render(request, "dashboard/partials/hero_card.html", {"price": ctx, "unavailable": False})

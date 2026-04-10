@@ -9,13 +9,25 @@
     window.chartResolution = 'hour';
     window.chartRange = 'day';
     window.chartOffset = 0;
+    window.priceArea = '{{ active_area|default:"DK1" }}';  // Use active_area from context
 
     function loadChart() {
         var res = window.chartResolution || 'hour';
         var range = window.chartRange || 'day';
         var offset = window.chartOffset || 0;
-        var url = '{% url "dashboard:htmx_price_chart" %}?range=' + range + '&resolution=' + res + '&offset=' + offset;
+        var area = window.priceArea || 'DK1';
+        var url = '{% url "dashboard:htmx_price_chart" %}?range=' + range + '&resolution=' + res + '&offset=' + offset + "&area=" + area;
         htmx.ajax('GET', url, {target: '#chart-area', swap: 'innerHTML'});
+    }
+
+    function setArea(area) {
+        window.priceArea = area;
+        document.querySelectorAll('.area-radio').forEach(function(r) { r.checked = (r.value === area); });
+        loadChart();
+        htmx.ajax('GET', '{% url "dashboard:htmx_hero_card" %}?area=' + area, {
+            target: '#hero-card-container',
+            swap: 'innerHTML'
+        });
     }
 
     function setRange(range, btn) {
@@ -32,110 +44,37 @@
     }
 </script>
 <style>
-    .res-switch {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.8rem;
-        flex-shrink: 0;
-    }
-    .res-switch input[type="checkbox"] { display: none; }
-    .res-switch__track {
-        position: relative;
-        width: 32px;
-        height: 18px;
-        background: var(--ds-surface, #1e293b);
-        border: 1px solid var(--ds-border, #334155);
-        border-radius: 9px;
-        cursor: pointer;
-        transition: background 200ms;
-        flex-shrink: 0;
-    }
-    .res-switch__track::after {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 12px;
-        height: 12px;
-        background: var(--ds-accent, #22d3ee);
-        border-radius: 50%;
-        transition: transform 200ms;
-        box-shadow: 0 0 6px rgba(34, 211, 238, 0.5);
-    }
-    .res-switch input:checked + .res-switch__track { background: var(--ds-surface-hover, #334155); }
-    .res-switch input:checked + .res-switch__track::after { transform: translateX(14px); }
-    .res-switch__label {
-        color: var(--ds-text-muted, #64748b);
-        font-weight: 500;
-        min-width: 24px;
-        text-align: center;
-        user-select: none;
-        white-space: nowrap;
-    }
-    .res-switch__label--active { color: var(--ds-accent, #22d3ee); }
-
-    .summary-cards {
+    .area-switch {
         display: flex;
+        align-items: center;
         gap: 1rem;
         justify-content: center;
-        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
     }
-    .summary-card {
-        text-align: center;
-        padding: 0.75rem 1.5rem;
-        min-width: 140px;
-    }
-    .summary-card__label {
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--ds-text-muted, #64748b);
-        margin-bottom: 0.25rem;
-    }
-    .summary-card__price {
-        font-family: var(--ds-font-code, 'JetBrains Mono', monospace);
-        font-size: 1.75rem;
-        font-weight: 700;
-        line-height: 1.2;
-    }
-    .summary-card__sub {
-        font-size: 0.75rem;
-        color: var(--ds-text-muted, #64748b);
-    }
-    .summary-card--low .summary-card__price { color: var(--ds-success, #10b981); }
-    .summary-card--high .summary-card__price { color: var(--ds-danger, #ef4444); }
-    .summary-card--avg .summary-card__price { color: var(--ds-text-secondary, #94a3b8); }
-
-    .nav-arrows {
-        display: flex;
+    .area-switch__label {
+        display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
     }
-    .nav-arrows__btn {
-        background: none;
+    .area-switch__input { display: none; }
+    .area-switch__button {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
         border: 1px solid var(--ds-border, #334155);
+        background: var(--ds-surface, #1e293b);
+        font-size: 1rem;
+        font-weight: 500;
         color: var(--ds-text-secondary, #94a3b8);
-        border-radius: 6px;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         cursor: pointer;
         transition: all 150ms;
-        font-size: 1rem;
     }
-    .nav-arrows__btn:hover {
-        border-color: var(--ds-accent, #22d3ee);
-        color: var(--ds-accent, #22d3ee);
-    }
-    .nav-arrows__label {
-        font-size: 0.9rem;
-        color: var(--ds-text-secondary, #94a3b8);
-        min-width: 140px;
-        text-align: center;
-        font-weight: 500;
+    .area-switch__input:checked + .area-switch__button {
+        background: var(--ds-accent, #22d3ee);
+        color: white;
     }
 </style>
 {% endblock %}
@@ -145,80 +84,32 @@
     <div class="row mb-5">
         <div class="col-12 text-center">
             <h1 class="ds-text-primary fw-bold">Real-Time Electricity Dashboard</h1>
-            <p class="lead ds-text-secondary">Aarhus (DK1) — Updates every 60s</p>
+            <p class="lead ds-text-secondary">Aarhus (DK1)  Updates every 60s</p>
         </div>
+    </div>
+
+    <!-- Area Switcher -->
+    <div class="area-switch">
+        <label class="area-switch__label">
+            <input type="radio" name="area" class="area-switch__input area-radio" value="DK1" {% if active_area == "DK1" %}checked{% endif %}
+                   onchange="setArea('DK1')">
+            <span class="area-switch__button">DK1 (Vest)</span>
+        </label>
+        <label class="area-switch__label">
+            <input type="radio" name="area" class="area-switch__input area-radio" value="DK2" {% if active_area == "DK2" %}checked{% endif %}
+                   onchange="setArea('DK2')">
+            <span class="area-switch__button">DK2 (Øst)</span>
+        </label>
     </div>
 
     <!-- Current Price Hero Card -->
     <div id="hero-card-container"
-         hx-get="{% url 'dashboard:htmx_hero_card' %}"
+         hx-get="{% url 'dashboard:htmx_hero_card' %}?area={{ active_area|default:'DK1' }}"
          hx-trigger="load, every 60s"
          hx-swap="innerHTML"
          class="mb-4">
         <div class="ds-card text-center py-4">
-            <p class="ds-text-secondary mb-0">Loading current price…</p>
+            <p class="ds-text-secondary mb-0">Loading current price Updated every 60 sec</p>
         </div>
-    </div>
-
-    <!-- Chart Section -->
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="ds-surface ds-card ds-radius-lg shadow-lg border-0 mb-4 p-4 reveal">
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                    <h5 class="mb-0 fw-semibold"><i class="bi bi-graph-up-arrow me-2 ds-accent"></i>Prisudvikling</h5>
-
-                    <div class="d-flex align-items-center gap-3">
-                        <div id="res-toggle" class="res-switch" style="margin-right: 0.5rem;">
-                            <span class="res-switch__label" id="res-label-15m">15m</span>
-                            <label style="display:inline-flex; margin:0;">
-                                <input type="checkbox" id="res-checkbox" checked
-                                    onchange="var c=this.checked; window.chartResolution=c?'hour':'quarter'; document.getElementById('res-label-15m').classList.toggle('res-switch__label--active',!c); document.getElementById('res-label-1h').classList.toggle('res-switch__label--active',c); loadChart();">
-                                <span class="res-switch__track"></span>
-                            </label>
-                            <span class="res-switch__label res-switch__label--active" id="res-label-1h">1h</span>
-                        </div>
-
-                        <span style="border-left: 1px solid var(--ds-border, #334155); height: 24px;"></span>
-
-                        <!-- Period navigation -->
-                        <div class="nav-arrows">
-                            <button class="nav-arrows__btn" onclick="navigate(-1)" title="Previous period">
-                                <i class="bi bi-chevron-left"></i>
-                            </button>
-                            <button class="nav-arrows__label" id="period-label" onclick="window.chartOffset=0; loadChart();" title="Back to current" style="cursor:pointer; background:none; border:none;">I dag</button>
-                            <button class="nav-arrows__btn" onclick="navigate(1)" title="Next period">
-                                <i class="bi bi-chevron-right"></i>
-                            </button>
-                        </div>
-
-                        <span style="border-left: 1px solid var(--ds-border, #334155); height: 24px;"></span>
-
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Time range">
-                            <button id="btn-zoom-day" class="ds-btn-outline zoom-btn active" onclick="setRange('day', this)">1D</button>
-                            <button id="btn-zoom-week" class="ds-btn-outline zoom-btn" onclick="setRange('week', this)">1W</button>
-                            <button id="btn-zoom-month" class="ds-btn-outline zoom-btn" onclick="setRange('month', this)">1M</button>
-                            <button id="btn-zoom-year" class="ds-btn-outline zoom-btn" onclick="setRange('year', this)">1Y</button>
-                        </div>
-
-                        <div id="chart-indicator" class="htmx-indicator spinner-border spinner-border-sm ds-accent" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary cards + chart loaded together via HTMX -->
-                <div id="chart-area"
-                     hx-get="{% url 'dashboard:htmx_price_chart' %}?range=day&resolution=hour&offset=0"
-                     hx-trigger="load, every 60s"
-                     hx-swap="innerHTML"
-                     hx-indicator="#chart-indicator">
-                    <div class="text-center py-5">
-                        <div class="spinner-border spinner-border-sm ds-accent" role="status"></div>
-                        <p class="ds-text-muted mt-2">Loading chart…</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
-{% endblock content %}
+]}

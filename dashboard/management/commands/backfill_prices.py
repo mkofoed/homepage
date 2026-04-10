@@ -46,6 +46,7 @@ class Command(BaseCommand):
         logger.info(f"Starting backfill for range {start_date} -> {end_date}.")
 
         try:
+            price_areas = ["DK1", "DK2"] if options.get("area") == "all" else [options.get("area")]
             total_inserted = 0
             delta = timedelta(days=7)  # Chunk by week
             current_start = start_date
@@ -53,13 +54,14 @@ class Command(BaseCommand):
             while current_start <= end_date:
                 current_end = min(current_start + delta, end_date + timedelta(days=1))
 
-                logger.info(f"Fetching spot prices for range {current_start} -> {current_end}...")
-                inserted = fetch_spot_prices_for_range(
-                    start_date=current_start.isoformat(), end_date=current_end.isoformat()
-                )
-                total_inserted += inserted
+                for area in price_areas:
+                    logger.info(f"Fetching spot prices for {area} in range {current_start} -> {current_end}...")
+                    inserted = fetch_spot_prices_for_range(
+                        start_date=current_start.isoformat(), end_date=current_end.isoformat(), price_area=area
+                    )
+                    total_inserted += inserted
 
-                logger.info(f"Inserted {inserted} records for range {current_start} -> {current_end}.")
+                    logger.info(f"Inserted {inserted} records for {area} in range {current_start} -> {current_end}.")
                 current_start += delta
 
             logger.info(f"Backfill complete. Total records inserted: {total_inserted}.")

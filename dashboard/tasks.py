@@ -14,7 +14,9 @@ def poll_energinet_prices_task(self, limit: int = 24) -> int:
     """
     try:
         logger.info("Starting Celery task to poll latest %d spot prices...", limit)
-        inserted = fetch_latest_spot_prices(limit=limit)
+        inserted_dk1 = fetch_latest_spot_prices(limit=limit, price_area="DK1")
+        inserted_dk2 = fetch_latest_spot_prices(limit=limit, price_area="DK2")
+        inserted = inserted_dk1 + inserted_dk2
         logger.info("Celery task complete. Inserted %d spot price records.", inserted)
         return inserted
     except Exception as exc:

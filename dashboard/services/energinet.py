@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import urllib.parse
@@ -42,7 +43,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.timezone.utc)
+        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.UTC)
         if timestamp is None:
             continue
 
@@ -57,6 +58,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
                 timestamp=timestamp,
                 price_dkk=price_dkk,
                 price_eur=price_eur,
+                price_area=record.get("PriceArea", "Unknown"),
             )
         )
 
@@ -108,7 +110,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.timezone.utc)
+        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.UTC)
         if timestamp is None:
             continue
 
@@ -123,6 +125,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
                 timestamp=timestamp,
                 price_dkk=price_dkk,
                 price_eur=price_eur,
+                price_area=record.get("PriceArea", "Unknown"),
             )
         )
 

@@ -119,15 +119,17 @@ class ChartData:
     period_label: str  # e.g. "10. apr 2026", "Uge 15 (7/4 – 13/4)"
 
 
-def get_chart_data(range_param: str, now: datetime, resolution: str = "quarter", offset: int = 0) -> ChartData:
-    cache_key = f"price_chart:{range_param}:{resolution}:{offset}"
+def get_chart_data(
+    range_param: str, now: datetime, resolution: str = "quarter", offset: int = 0, price_area: str = "DK1"
+) -> ChartData:
+    cache_key = f"price_chart:{range_param}:{resolution}:{offset}:{price_area}"
     cached_data: ChartData | None = cache.get(cache_key)
     if cached_data:
         return cached_data
 
     start_time, end_time, period_label = _period_bounds(range_param, now, offset)
 
-    base_qs = SpotPrice.objects.filter(timestamp__gte=start_time, timestamp__lt=end_time)
+    base_qs = SpotPrice.objects.filter(timestamp__gte=start_time, timestamp__lt=end_time, price_area=price_area)
 
     qs: QuerySet[Any]
     aggregate_field: str | None = None

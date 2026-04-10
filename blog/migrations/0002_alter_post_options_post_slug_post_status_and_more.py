@@ -3,6 +3,23 @@
 import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
+from django.utils.text import slugify
+
+
+def populate_slugs(apps, schema_editor):
+    """Populate slug field from title for existing posts."""
+    Post = apps.get_model("blog", "Post")
+    seen = {}
+    for post in Post.objects.order_by("id"):
+        base_slug = slugify(post.title) or f"post-{post.id}"
+        slug = base_slug
+        counter = 1
+        while slug in seen:
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        seen[slug] = True
+        post.slug = slug
+        post.save(update_fields=["slug"])
 
 
 class Migration(migrations.Migration):
@@ -16,7 +33,17 @@ class Migration(migrations.Migration):
             name="post",
             options={"ordering": ["-created_at"]},
         ),
+        # Step 1: Add slug as non-unique with a default so existing rows get ''
         migrations.AddField(
+            model_name="post",
+            name="slug",
+            field=models.SlugField(blank=True, max_length=200, default=""),
+            preserve_default=False,
+        ),
+        # Step 2: Populate slugs from titles for all existing rows
+        migrations.RunPython(populate_slugs, migrations.RunPython.noop),
+        # Step 3: Now safe to add the unique constraint
+        migrations.AlterField(
             model_name="post",
             name="slug",
             field=models.SlugField(blank=True, max_length=200, unique=True),
@@ -25,14 +52,19 @@ class Migration(migrations.Migration):
             model_name="post",
             name="status",
             field=models.CharField(
-                choices=[("draft", "Draft"), ("published", "Published")], db_index=True, default="draft", max_length=10
+                choices=[("draft", "Draft"), ("published", "Published")],
+                db_index=True,
+                default="draft",
+                max_length=10,
             ),
         ),
         migrations.AlterField(
             model_name="post",
             name="author",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="posts", to=settings.AUTH_USER_MODEL
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="posts",
+                to=settings.AUTH_USER_MODEL,
             ),
         ),
         migrations.AlterField(

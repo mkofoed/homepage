@@ -1,11 +1,12 @@
-import hashlib
 import datetime
+import hashlib
 import logging
 from dataclasses import dataclass
+
 from django.contrib.gis.geoip2 import GeoIP2
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass(frozen=True)
 class GeoLocation:
@@ -16,9 +17,11 @@ class GeoLocation:
     latitude: float
     longitude: float
 
+
 def hash_ip(ip: str) -> str:
     daily_salt = f"mkofoed-{datetime.date.today().isoformat()}"
     return hashlib.sha256(f"{daily_salt}:{ip}".encode()).hexdigest()
+
 
 def lookup_ip(ip: str) -> GeoLocation | None:
     try:

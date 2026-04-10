@@ -1,0 +1,69 @@
+import logging
+from datetime import date, timedelta
+
+from django.core.management.base import BaseCommand, CommandError
+from django.utils.dateparse import parse_date
+
+from dashboard.services.energinet import fetch_spot_prices_for_range
+
+logger = logging.getLogger(__name__)
+
+
+class Command(BaseCommand):
+    help = "Backfill Energinet spot prices for a given date range. Defaults to current month."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--from-date",
+            type=str,
+            help="Start date in ISO format (YYYY-MM-DD). Defaults to start of current month.",
+        )
+        parser.add_argument(
+            "--to-date",
+            type=str,
+            help="End date in ISO format (YYYY-MM-DD). Defaults to today.",
+        )
+
+    def handle(self, *args, **options):
+        from_date = options["from_date"]
+        to_date = options["to_date"]
+
+        # Default to start of the current month and today
+        today = date.today()
+        if not from_date:
+            from_date = today.replace(day=1).isoformat()
+        if not to_date:
+            to_date = today.isoformat()
+
+        # Validate dates
+        start_date = parse_date(from_date)
+        end_date = parse_date(to_date)
+        if not start_date or not end_date:
+            raise CommandError("Invalid date formats. Use ISO format: YYYY-MM-DD.")
+        if start_date > end_date:
+            raise CommandError("'from-date' cannot be later than 'to-date'.")
+
+        logger.info(f"Starting backfill for range {start_date} -> {end_date}.")
+
+        try:
+            total_inserted = 0
+            delta = timedelta(days=7)  # Chunk by week
+            current_start = start_date
+
+            while current_start <= end_date:
+                current_end = min(current_start + delta - timedelta(days=1), end_date)
+
+                logger.info(f"Fetching spot prices for range {current_start} -> {current_end}...")
+                inserted = fetch_spot_prices_for_range(
+                    start_date=current_start.isoformat(), end_date=current_end.isoformat()
+                )
+                total_inserted += inserted
+
+                logger.info(f"Inserted {inserted} records for range {current_start} -> {current_end}.")
+                current_start += delta
+
+            logger.info(f"Backfill complete. Total records inserted: {total_inserted}.")
+            self.stdout.write(self.style.SUCCESS(f"Successfully backfilled {total_inserted} spot prices."))
+        except Exception as e:
+            logger.exception("Failed to backfill spot prices.")
+            raise CommandError(f"Error during backfill: {e}")

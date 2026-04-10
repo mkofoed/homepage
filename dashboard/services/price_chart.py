@@ -42,9 +42,7 @@ def _grid_tariff_ex_vat(hour: int, month: int) -> Decimal:
     return N1_GRID_TARIFFS[season][period]
 
 
-def _period_bounds(
-    range_param: str, now: datetime, offset: int = 0
-) -> tuple[datetime, datetime, str]:
+def _period_bounds(range_param: str, now: datetime, offset: int = 0) -> tuple[datetime, datetime, str]:
     """
     Return (start_utc, end_utc, period_label) for the given range and offset.
     offset=0 is current period, -1 is previous, +1 is next.
@@ -121,9 +119,7 @@ class ChartData:
     period_label: str  # e.g. "10. apr 2026", "Uge 15 (7/4 – 13/4)"
 
 
-def get_chart_data(
-    range_param: str, now: datetime, resolution: str = "quarter", offset: int = 0
-) -> ChartData:
+def get_chart_data(range_param: str, now: datetime, resolution: str = "quarter", offset: int = 0) -> ChartData:
     cache_key = f"price_chart:{range_param}:{resolution}:{offset}"
     cached_data: ChartData | None = cache.get(cache_key)
     if cached_data:
@@ -184,9 +180,7 @@ def get_chart_data(
             season = "winter" if month in [10, 11, 12, 1, 2, 3] else "summer"
             tariffs = N1_GRID_TARIFFS[season]
             avg_grid = float(
-                (tariffs["night"] * 6 + tariffs["day"] * 14 + tariffs["peak"] * 4)
-                / 24
-                * DK_VAT_MULTIPLIER
+                (tariffs["night"] * 6 + tariffs["day"] * 14 + tariffs["peak"] * 4) / 24 * DK_VAT_MULTIPLIER
             )
             transport = energinet_incl + avg_grid
         else:

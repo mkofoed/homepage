@@ -1,8 +1,7 @@
 import json
+import zoneinfo
 from dataclasses import asdict
 from datetime import datetime as dt
-
-import zoneinfo
 
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
@@ -31,9 +30,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         resolution = "hour"
 
     now = timezone.now()
-    chart_data = get_chart_data(
-        range_param=range_param, now=now, resolution=resolution, offset=offset
-    )
+    chart_data = get_chart_data(range_param=range_param, now=now, resolution=resolution, offset=offset)
 
     minute_bucket = (now.minute // 15) * 15
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
@@ -54,7 +51,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                 t = dt.fromisoformat(iso_str)
                 t_cph = t.astimezone(CPH_TZ)
                 return f"Kl. {t_cph.hour:02d}-{(t_cph.hour + 1) % 24:02d}"
-            except (ValueError, AttributeError):
+            except ValueError, AttributeError:
                 return ""
 
         summary = {

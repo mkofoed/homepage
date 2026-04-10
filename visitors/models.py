@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class PageView(models.Model):
     timestamp = models.DateTimeField(primary_key=True)
     ip_hash = models.CharField(max_length=64)

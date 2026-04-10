@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Optional
 
 from django.core.cache import cache
 from django.db.models import Avg, Max, Min
@@ -38,24 +37,22 @@ class PriceContext:
     day_min: Decimal
     day_max: Decimal
     day_avg: Decimal
-    trend_pct: Optional[Decimal]
+    trend_pct: Decimal | None
     trend_direction: str  # "up" | "down" | "flat" | "unavailable"
     color: str  # "cheap" | "expensive" | "neutral"
     stale: bool
 
 
-def _hourly_avg_spot(hour_start: datetime) -> Optional[Decimal]:
+def _hourly_avg_spot(hour_start: datetime) -> Decimal | None:
     """Average spot price for all quarters in an hour. Returns DKK/MWh or None."""
     hour_end = hour_start + timedelta(hours=1)
-    agg = SpotPrice.objects.filter(
-        timestamp__gte=hour_start, timestamp__lt=hour_end
-    ).aggregate(avg=Avg("price_dkk"))
+    agg = SpotPrice.objects.filter(timestamp__gte=hour_start, timestamp__lt=hour_end).aggregate(avg=Avg("price_dkk"))
     if agg["avg"] is not None:
         return Decimal(str(agg["avg"]))
     return None
 
 
-def get_current_price(timestamp: datetime) -> Optional[PriceContext]:
+def get_current_price(timestamp: datetime) -> PriceContext | None:
     """Return current price context. Averages all quarters in the current hour."""
 
     cached_value = cache.get(CACHE_KEY)
@@ -86,15 +83,11 @@ def get_current_price(timestamp: datetime) -> Optional[PriceContext]:
     # Daily aggregates — also use hourly averages for consistency
     today_start = hour_start.replace(hour=0)
     tomorrow_start = today_start + timedelta(days=1)
-    day_prices = SpotPrice.objects.filter(
-        timestamp__gte=today_start, timestamp__lt=tomorrow_start
-    )
+    day_prices = SpotPrice.objects.filter(timestamp__gte=today_start, timestamp__lt=tomorrow_start)
 
     if not day_prices.exists():
         yesterday_start = today_start - timedelta(days=1)
-        day_prices = SpotPrice.objects.filter(
-            timestamp__gte=yesterday_start, timestamp__lt=today_start
-        )
+        day_prices = SpotPrice.objects.filter(timestamp__gte=yesterday_start, timestamp__lt=today_start)
 
     if day_prices.exists():
         agg = day_prices.aggregate(
@@ -104,9 +97,7 @@ def get_current_price(timestamp: datetime) -> Optional[PriceContext]:
         )
         day_min = _total_price(agg["day_min"], 3, timestamp.month)
         day_max = _total_price(agg["day_max"], 18, timestamp.month)
-        day_avg = _total_price(
-            Decimal(str(agg["day_avg"])), 12, timestamp.month
-        )
+        day_avg = _total_price(Decimal(str(agg["day_avg"])), 12, timestamp.month)
     else:
         day_min = day_max = day_avg = current_total
 
@@ -121,29 +112,17 @@ def get_current_price(timestamp: datetime) -> Optional[PriceContext]:
             yesterday_hour_start.month,
         )
         if yesterday_total != 0:
-            trend_pct = (
-                (current_total - yesterday_total) / yesterday_total * 100
-            ).quantize(Decimal("0.1"))
+            trend_pct = ((current_total - yesterday_total) / yesterday_total * 100).quantize(Decimal("0.1"))
         else:
             trend_pct = Decimal("0")
         trend_direction = (
-            "up"
-            if current_total > yesterday_total
-            else "down"
-            if current_total < yesterday_total
-            else "flat"
+            "up" if current_total > yesterday_total else "down" if current_total < yesterday_total else "flat"
         )
     else:
         trend_pct = None
         trend_direction = "unavailable"
 
-    color = (
-        "cheap"
-        if current_total < day_avg
-        else "expensive"
-        if current_total > day_avg
-        else "neutral"
-    )
+    color = "cheap" if current_total < day_avg else "expensive" if current_total > day_avg else "neutral"
 
     price_context = PriceContext(
         current_price=current_total.quantize(Decimal("0.01")),

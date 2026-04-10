@@ -1,8 +1,10 @@
 import logging
+
 from celery import shared_task
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task(
     bind=True,
@@ -13,8 +15,8 @@ logger = logging.getLogger(__name__)
     ignore_result=True,
 )
 def log_page_view(self, *, ip: str, path: str, device_type: str = "desktop") -> None:
-    from visitors.services.geoip import lookup_ip
     from visitors.models import PageView
+    from visitors.services.geoip import lookup_ip
 
     location = lookup_ip(ip)
     if location is None:

@@ -4,10 +4,10 @@ Shared settings used by both development and production.
 """
 
 from pathlib import Path
+from urllib.parse import quote
 
 from celery.schedules import crontab
 from decouple import Csv, config
-from urllib.parse import quote
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent

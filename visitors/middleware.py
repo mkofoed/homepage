@@ -1,8 +1,5 @@
-import hashlib
-import datetime
-import re
 import logging
-from django.conf import settings
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +11,7 @@ BOT_PATTERN = re.compile(
     r"(bot|crawl|spider|slurp|baidu|yandex|duckduck|semrush|ahref|mj12)",
     re.IGNORECASE,
 )
+
 
 class VisitorTrackingMiddleware:
     def __init__(self, get_response):

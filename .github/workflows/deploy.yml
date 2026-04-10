@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +30,9 @@ jobs:
         context: .
         file: ./Dockerfile.prod
         push: true
-        tags: mkofoeddk/homepage-web:latest
+        tags: |
+          mkofoeddk/homepage-web:latest
+          mkofoeddk/homepage-web:${{ github.sha }}
         cache-from: type=registry,ref=mkofoeddk/homepage-web:buildcache
         cache-to: type=registry,ref=mkofoeddk/homepage-web:buildcache,mode=max
 
@@ -37,11 +42,14 @@ jobs:
     steps:
     - name: Deploy to VM
       uses: appleboy/ssh-action@50ac135b5cc24900da4c88ae0d2a71c2cca01c30 # v1.0.3
+      env:
+        ENV_FILE: ${{ secrets.ENV_FILE }}
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: ${{ secrets.DROPLET_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: ENV_FILE
         script: |
           cd ~/homepage
-          printf '%s' "${{ secrets.ENV_FILE }}" > .env
+          printf '%s' "$ENV_FILE" > .env
           ./deploy.sh

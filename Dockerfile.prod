@@ -3,7 +3,7 @@
 ###########
 
 # pull official base image
-FROM python:3.14-slim AS builder
+FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650 AS builder
 
 # set work directory
 WORKDIR /usr/src/app
@@ -26,9 +26,7 @@ COPY . .
 #########
 
 # pull official base image
-FROM python:3.14-slim
-
-# create directory for the app user
+FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650
 RUN mkdir -p /home/app
 
 # create the app user

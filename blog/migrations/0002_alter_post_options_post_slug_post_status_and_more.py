@@ -29,12 +29,8 @@ def ensure_slug_column_and_populate(apps, schema_editor):
     # Add slug column if missing
     if not slug_exists:
         with connection.cursor() as cursor:
-            cursor.execute(
-                "ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT ''"
-            )
-            cursor.execute(
-                "ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT"
-            )
+            cursor.execute("ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT ''")
+            cursor.execute("ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT")
 
     # Populate empty slugs from titles
     Post = apps.get_model("blog", "Post")
@@ -53,12 +49,8 @@ def ensure_slug_column_and_populate(apps, schema_editor):
 
 def create_slug_indexes(apps, schema_editor):
     with schema_editor.connection.cursor() as cursor:
-        cursor.execute(
-            "CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug)"
-        )
-        cursor.execute(
-            "CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops)"
-        )
+        cursor.execute("CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug)")
+        cursor.execute("CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops)")
 
 
 class Migration(migrations.Migration):

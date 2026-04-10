@@ -23,6 +23,10 @@ docker compose -f docker-compose.prod.yml up -d db redis
 echo "⏳ Waiting for database to be ready..."
 timeout 60 bash -c 'until docker compose -f docker-compose.prod.yml exec -T db pg_isready -U ${SQL_USER:-postgres}; do sleep 2; done'
 
+# Extra wait for TimescaleDB extension initialization
+echo "⏳ Waiting for TimescaleDB to finish initializing..."
+sleep 10
+
 # Stop old web/celery before migrations to avoid schema conflicts
 echo "🛑 Stopping old web containers..."
 docker compose -f docker-compose.prod.yml stop web celery_worker celery_beat || true

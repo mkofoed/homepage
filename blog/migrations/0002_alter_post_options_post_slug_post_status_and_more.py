@@ -6,37 +6,8 @@ from django.db import migrations, models
 from django.utils.text import slugify
 
 
-def ensure_slug_column_and_populate(apps, schema_editor):
-    """
-    Idempotent: ensure slug column exists (non-unique), populate empty slugs,
-    handle partially-applied state from prior failed migration runs.
-    """
-    connection = schema_editor.connection
-
-    # Check if slug column exists
-    with connection.cursor() as cursor:
-        cursor.execute("""
-            SELECT COUNT(*) FROM information_schema.columns
-            WHERE table_name='blog_post' AND column_name='slug'
-        """)
-        slug_exists = cursor.fetchone()[0] > 0
-
-    # Drop partial indexes if they exist (outside transaction since atomic=False)
-    with connection.cursor() as cursor:
-        cursor.execute("DROP INDEX IF EXISTS blog_post_slug_key")
-        cursor.execute("DROP INDEX IF EXISTS blog_post_slug_b95473f2_like")
-
-    # Add slug column if missing
-    if not slug_exists:
-        with connection.cursor() as cursor:
-            cursor.execute(
-                "ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT ''"
-            )
-            cursor.execute(
-                "ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT"
-            )
-
-    # Populate empty slugs from titles
+def populate_slugs(apps, schema_editor):
+    """Populate slug field from title for existing posts, handling duplicates."""
     Post = apps.get_model("blog", "Post")
     seen: dict[str, bool] = {}
     for post in Post.objects.filter(slug="").order_by("id"):
@@ -51,19 +22,7 @@ def ensure_slug_column_and_populate(apps, schema_editor):
         post.save(update_fields=["slug"])
 
 
-def create_slug_indexes(apps, schema_editor):
-    with schema_editor.connection.cursor() as cursor:
-        cursor.execute(
-            "CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug)"
-        )
-        cursor.execute(
-            "CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops)"
-        )
-
-
 class Migration(migrations.Migration):
-    atomic = False  # Required: index operations cannot run inside a transaction
-
     dependencies = [
         ("blog", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -74,23 +33,20 @@ class Migration(migrations.Migration):
             name="post",
             options={"ordering": ["-created_at"]},
         ),
-        # Step 1+2: Ensure column exists and populate slugs (fully idempotent)
-        migrations.RunPython(
-            ensure_slug_column_and_populate,
-            migrations.RunPython.noop,
+        # Step 1: Add slug as non-unique with blank default
+        migrations.AddField(
+            model_name="post",
+            name="slug",
+            field=models.SlugField(blank=True, max_length=200, default=""),
+            preserve_default=False,
         ),
-        # Step 3: Create indexes + sync Django state
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunPython(create_slug_indexes, migrations.RunPython.noop),
-            ],
-            state_operations=[
-                migrations.AddField(
-                    model_name="post",
-                    name="slug",
-                    field=models.SlugField(blank=True, max_length=200, unique=True),
-                ),
-            ],
+        # Step 2: Populate slugs from titles before adding unique constraint
+        migrations.RunPython(populate_slugs, migrations.RunPython.noop),
+        # Step 3: Make slug unique now that all values are populated
+        migrations.AlterField(
+            model_name="post",
+            name="slug",
+            field=models.SlugField(blank=True, max_length=200, unique=True),
         ),
         migrations.AddField(
             model_name="post",

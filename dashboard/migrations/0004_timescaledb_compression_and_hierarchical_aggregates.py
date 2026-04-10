@@ -1,6 +1,7 @@
 from django.db import migrations
 
 FORWARD_SQL = """
+-- Enable compression on the hypertable
 ALTER TABLE dashboard_spotprice SET (
     timescaledb.compress,
     timescaledb.compress_segmentby = 'price_area',
@@ -13,6 +14,7 @@ SELECT add_compression_policy(
     if_not_exists => TRUE
 );
 
+-- Hourly continuous aggregate
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_hourly
 WITH (timescaledb.continuous) AS
 SELECT
@@ -27,14 +29,7 @@ FROM dashboard_spotprice
 GROUP BY time_bucket('1 hour', "timestamp"), price_area
 WITH NO DATA;
 
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM dashboard_spotprice) THEN
-        RAISE NOTICE 'No data exists; skipping refresh step';
-        RETURN;
-    END IF;
-END $$;
-
+-- Daily continuous aggregate (from hourly)
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_daily
 WITH (timescaledb.continuous) AS
 SELECT
@@ -49,7 +44,7 @@ FROM dashboard_spotprice_hourly
 GROUP BY time_bucket('1 day', bucket), price_area
 WITH NO DATA;
 
-
+-- Monthly continuous aggregate (from daily)
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_monthly
 WITH (timescaledb.continuous) AS
 SELECT
@@ -64,7 +59,7 @@ FROM dashboard_spotprice_daily
 GROUP BY time_bucket('1 month', bucket), price_area
 WITH NO DATA;
 
-
+-- Yearly continuous aggregate (from monthly)
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_yearly
 WITH (timescaledb.continuous) AS
 SELECT
@@ -79,31 +74,29 @@ FROM dashboard_spotprice_monthly
 GROUP BY time_bucket('1 year', bucket), price_area
 WITH NO DATA;
 
-
-
-
+-- Refresh policies
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_hourly',
-    start_offset => INTERVAL '7 days', end_offset => INTERVAL '2 hours',
-    schedule_interval => INTERVAL '24 hours',
-    initial_start => '2026-04-11 02:00:00+02'::timestamptz,
+    start_offset => INTERVAL '7 days',
+    end_offset => INTERVAL '1 hour',
+    schedule_interval => INTERVAL '1 hour',
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_daily',
-    start_offset => INTERVAL '14 days', end_offset => INTERVAL '2 hours',
-    schedule_interval => INTERVAL '24 hours',
-    initial_start => '2026-04-11 02:05:00+02'::timestamptz,
+    start_offset => INTERVAL '14 days',
+    end_offset => INTERVAL '1 day',
+    schedule_interval => INTERVAL '1 day',
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_monthly',
-    start_offset => INTERVAL '70 days', end_offset => INTERVAL '2 days',
-    schedule_interval => INTERVAL '24 hours',
-    initial_start => '2026-04-11 02:10:00+02'::timestamptz,
+    start_offset => INTERVAL '90 days',
+    end_offset => INTERVAL '1 day',
+    schedule_interval => INTERVAL '1 day',
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_yearly',
-    start_offset => INTERVAL '800 days', end_offset => INTERVAL '2 days'
-    schedule_interval => INTERVAL '24 hours',
-    initial_start => '2026-04-11 02:15:00+02'::timestamptz,
+    start_offset => INTERVAL '800 days',
+    end_offset => INTERVAL '30 days',
+    schedule_interval => INTERVAL '1 day',
     if_not_exists => TRUE);
 """
 
@@ -118,8 +111,7 @@ DROP MATERIALIZED VIEW IF EXISTS dashboard_spotprice_monthly CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS dashboard_spotprice_daily CASCADE;
 DROP MATERIALIZED VIEW IF EXISTS dashboard_spotprice_hourly CASCADE;
 SELECT remove_compression_policy('dashboard_spotprice', if_exists => TRUE);
-SELECT decompress_chunk(c, if_compressed => TRUE) FROM show_chunks('dashboard_spotprice') c;
-ALTER TABLE dashboard_spotprice SET (timescaledb.compress = FALSE);
+ALTER TABLE dashboard_spotprice SET (timescaledb.compress = false);
 """
 
 

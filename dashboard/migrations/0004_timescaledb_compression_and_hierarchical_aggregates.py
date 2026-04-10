@@ -113,6 +113,8 @@ ALTER TABLE dashboard_spotprice SET (timescaledb.compress = FALSE);
 
 
 class Migration(migrations.Migration):
+    atomic = False
+
     dependencies = [
         ("dashboard", "0003_add_price_area_and_surrogate_pk"),
     ]

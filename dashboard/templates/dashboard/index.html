@@ -81,6 +81,7 @@
 
 {% block content %}
 <div class="container py-5">
+    <div class="row">
     <div class="row mb-5">
         <div class="col-12 text-center">
             <h1 class="ds-text-primary fw-bold">Real-Time Electricity Dashboard</h1>
@@ -92,12 +93,18 @@
     <div class="area-switch">
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK1" {% if active_area == "DK1" %}checked{% endif %}
-                   onchange="setArea('DK1')">
+                   onchange="setArea('DK1')"
+                   hx-get="{% url 'dashboard:htmx_price_chart' %}?area=DK1"
+                   hx-target="#chart-area"
+                   hx-swap="innerHTML">
             <span class="area-switch__button">DK1 (Vest)</span>
         </label>
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK2" {% if active_area == "DK2" %}checked{% endif %}
-                   onchange="setArea('DK2')">
+                   onchange="setArea('DK2')"
+                   hx-get="{% url 'dashboard:htmx_price_chart' %}?area=DK2"
+                   hx-target="#chart-area"
+                   hx-swap="innerHTML">
             <span class="area-switch__button">DK2 (Øst)</span>
         </label>
     </div>

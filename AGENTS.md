@@ -17,34 +17,33 @@ This project is a personal homepage and web application. It serves as both a pub
 - **Linting & Formatting**: Ruff
 - **Type Checking**: Mypy (`django-stubs`, `djangorestframework-stubs`)
 
-## Application Architecture
+## Deployment Details
+### Deployment Workflow
+- Images are hosted on GitHub Container Registry (GHCR) at `ghcr.io/mkofoed/homepage-web`.
+- CI/CD with GitHub Actions handles automated builds and deployment.
+- Key steps include:
+  - Docker images are built and pushed to GHCR.
+  - Server setup transfers files like `docker-compose.prod.yml`, `deploy.sh`, `rollback.sh`, and `nginx/` via SCP.
+  - The server does not use `git` for deployment files.
 
-The project is structured into modular Django applications. We strictly enforce a **Service Layer** pattern to prevent "Fat Views" and keep business logic decoupled from HTTP request handling.
+### Service Setup
+- **Nginx**: Included in the Docker Compose stack using the image `jonasal/nginx-certbot:5-alpine`.
+- **Networks**: 
+  - `frontend` (nginx + web)
+  - `backend` (web + db + redis + celery).
+- **Environment**: Relies on `.env` for secrets like `REDIS_PASSWORD`, `POSTGRES_USER`, etc.
 
-### 1. `core` App
-Handles project-wide infrastructure, base templates, and system metrics.
-- **Views**: `/health/`, `/metrics/`, dashboard, and static pages (`home`, `about`, `architecture`).
-- **Services (`core/services/`)**: Contains pure Python modules for system interactions, such as `system_metrics.py` which abstracts database ping tests and OS resource checks via `psutil`.
+### Database and Redis
+- PostgreSQL 18 is used with the `homepage_app` user.
+- Redis requires authentication and uses a read-only file system for security.
 
-### 2. `blog` App
-A blogging engine demonstrating standard Django ORM and template usage.
-- **Frontend**: Utilizes **HTMX** for seamless, partial-page reloads. Pagination is handled by checking the `request.htmx` attribute (provided by `django-htmx` middleware) to return partial HTML chunks instead of full page renders.
-
-### 3. `showcase` App
-An API playground demonstrating RESTful endpoint design.
-- **Views**: Exposes endpoints (`/api/showcase/*`) handling request parsing, parameter validation, and DRF `Response` formatting.
-- **Services (`showcase/services/`)**: Contains the raw business logic. `algorithms.py` handles calculations, sequences, and text parsing. `content.py` manages static data generation.
-
-### 4. `config` Directory
-Contains the project-wide settings and URL routing.
-- Settings are environment-aware and decoupled via `python-decouple`, split into `base.py`, `development.py`, and `production.py`.
-
-*Note: There is an initialized `messenger_book` app directory, but its implementation was discarded and it is currently inactive.*
+### Deployment Scripts
+- `deploy.sh` ensures safe migrations, health checks, and rollback support.
+- Health checks use `docker exec` to run lightweight service checks inside containers.
 
 ---
 
 ## Agent Guidelines & Conventions
-
 When modifying or extending this codebase, adhere to the following rules:
 
 ### 1. Strictly use the Service Layer Pattern

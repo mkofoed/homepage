@@ -1,9 +1,13 @@
 services:
   web:
-    build: .
+    image: mkofoeddk/homepage-web:latest
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
     ports:
       - "127.0.0.1:8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+    env_file:
+      - .env
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
@@ -28,8 +32,12 @@ services:
       retries: 3
 
   celery_worker:
-    build: .
+    image: mkofoeddk/homepage-web:latest
     command: celery -A config worker -l INFO
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       db:
@@ -38,8 +46,12 @@ services:
         condition: service_healthy
 
   celery_beat:
-    build: .
+    image: mkofoeddk/homepage-web:latest
     command: celery -A config beat -l INFO
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.production
+    env_file:
+      - .env
     restart: unless-stopped
     depends_on:
       db:

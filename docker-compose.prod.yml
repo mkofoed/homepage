@@ -57,8 +57,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/homepage.conf:/etc/nginx/conf.d/homepage.conf:ro
-      - ./nginx/rate-limit.conf:/etc/nginx/conf.d/00-rate-limit.conf:ro
+      - ./nginx/homepage.conf:/etc/nginx/conf.d/homepage.conf
+      - ./nginx/rate-limit.conf:/etc/nginx/conf.d/00-rate-limit.conf
       - nginx_certs:/etc/letsencrypt
       - static_files:/home/app/web/staticfiles:ro
       - media_files:/home/app/web/mediafiles:ro

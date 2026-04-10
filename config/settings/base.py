@@ -7,6 +7,7 @@ from pathlib import Path
 
 from celery.schedules import crontab
 from decouple import Csv, config
+from urllib.parse import quote
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -14,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("REDIS_URL", default="redis://redis:6379/2"),
+        "LOCATION": f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/2",
     }
 }
 
@@ -236,8 +237,8 @@ if SENTRY_DSN:
 # Celery
 # =============================================================================
 
-CELERY_BROKER_URL = config("CELERY_BROKER_URL", default="redis://redis:6379/0")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", default="redis://redis:6379/1")
+CELERY_BROKER_URL = f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/0"
+CELERY_RESULT_BACKEND = f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/1"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"

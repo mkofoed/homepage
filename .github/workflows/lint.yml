@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install uv
-          uv pip install --system -e . --no-cache
+          uv pip install --system -e .[dev] --no-cache
 
       - name: Run Ruff (fix)
         run: |

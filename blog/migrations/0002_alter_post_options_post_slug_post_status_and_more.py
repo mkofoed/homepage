@@ -8,31 +8,35 @@ from django.utils.text import slugify
 
 def ensure_slug_column_and_populate(apps, schema_editor):
     """
-    Idempotent: ensure slug column exists with non-unique constraint,
-    then populate any empty slugs from post titles.
-    Handles the case where a prior failed migration left the column
-    partially set up with empty values.
+    Idempotent: ensure slug column exists (non-unique), populate empty slugs,
+    handle partially-applied state from prior failed migration runs.
     """
-    # Drop any partially-created unique index first
-    schema_editor.execute("DROP INDEX IF EXISTS blog_post_slug_key;")
-    schema_editor.execute("DROP INDEX IF EXISTS blog_post_slug_b95473f2_like;")
+    connection = schema_editor.connection
 
-    # Add column if it doesn't exist
-    schema_editor.execute("""
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 FROM information_schema.columns
-                WHERE table_name='blog_post' AND column_name='slug'
-            ) THEN
-                ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT '';
-                ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT;
-            END IF;
-        END
-        $$;
-    """)
+    # Check if slug column exists
+    with connection.cursor() as cursor:
+        cursor.execute("""
+            SELECT COUNT(*) FROM information_schema.columns
+            WHERE table_name='blog_post' AND column_name='slug'
+        """)
+        slug_exists = cursor.fetchone()[0] > 0
 
-    # Populate empty slugs from titles using Python (handles duplicates)
+    # Drop partial indexes if they exist (outside transaction since atomic=False)
+    with connection.cursor() as cursor:
+        cursor.execute("DROP INDEX IF EXISTS blog_post_slug_key")
+        cursor.execute("DROP INDEX IF EXISTS blog_post_slug_b95473f2_like")
+
+    # Add slug column if missing
+    if not slug_exists:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT ''"
+            )
+            cursor.execute(
+                "ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT"
+            )
+
+    # Populate empty slugs from titles
     Post = apps.get_model("blog", "Post")
     seen: dict[str, bool] = {}
     for post in Post.objects.filter(slug="").order_by("id"):
@@ -47,8 +51,18 @@ def ensure_slug_column_and_populate(apps, schema_editor):
         post.save(update_fields=["slug"])
 
 
+def create_slug_indexes(apps, schema_editor):
+    with schema_editor.connection.cursor() as cursor:
+        cursor.execute(
+            "CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug)"
+        )
+        cursor.execute(
+            "CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops)"
+        )
+
+
 class Migration(migrations.Migration):
-    atomic = False  # Required: DROP INDEX cannot run inside a transaction
+    atomic = False  # Required: index operations cannot run inside a transaction
 
     dependencies = [
         ("blog", "0001_initial"),
@@ -60,22 +74,15 @@ class Migration(migrations.Migration):
             name="post",
             options={"ordering": ["-created_at"]},
         ),
-        # Step 1+2: Ensure column exists and populate slugs (idempotent)
+        # Step 1+2: Ensure column exists and populate slugs (fully idempotent)
         migrations.RunPython(
             ensure_slug_column_and_populate,
             migrations.RunPython.noop,
         ),
-        # Step 3: Add slug to Django state + create unique index
+        # Step 3: Create indexes + sync Django state
         migrations.SeparateDatabaseAndState(
             database_operations=[
-                migrations.RunSQL(
-                    sql="""
-                        ALTER TABLE blog_post ALTER COLUMN slug TYPE varchar(200);
-                        CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug);
-                        CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops);
-                    """,
-                    reverse_sql="DROP INDEX IF EXISTS blog_post_slug_key; DROP INDEX IF EXISTS blog_post_slug_b95473f2_like;",
-                ),
+                migrations.RunPython(create_slug_indexes, migrations.RunPython.noop),
             ],
             state_operations=[
                 migrations.AddField(

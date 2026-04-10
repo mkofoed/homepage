@@ -55,11 +55,7 @@ jobs:
         host: ${{ secrets.DROPLET_IP }}
         username: ${{ secrets.DROPLET_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: |
-          docker-compose.prod.yml
-          deploy.sh
-          rollback.sh
-          nginx/
+        source: "docker-compose.prod.yml,deploy.sh,rollback.sh,nginx/"
         target: ~/homepage
         overwrite: true
 

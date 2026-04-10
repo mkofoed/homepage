@@ -3,9 +3,10 @@
 set -euo pipefail
 
 if [ -f .env ]; then
-    set -a
-    source .env
-    set +a
+    # Export only the vars we need, safely handling special characters
+    export POSTGRES_USER=$(grep -E '^POSTGRES_USER=' .env | head -1 | cut -d'=' -f2-)
+    export POSTGRES_DB=$(grep -E '^POSTGRES_DB=' .env | head -1 | cut -d'=' -f2-)
+    export REDIS_PASSWORD=$(grep -E '^REDIS_PASSWORD=' .env | head -1 | cut -d'=' -f2-)
 fi
 
 IMAGE_TAG="${IMAGE_TAG:-${1:-latest}}"

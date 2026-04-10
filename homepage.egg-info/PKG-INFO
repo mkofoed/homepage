@@ -8,20 +8,22 @@ Requires-Dist: gunicorn==25.1.0
 Requires-Dist: psycopg2-binary==2.9.11
 Requires-Dist: python-decouple>=3.8
 Requires-Dist: markdown>=3.10.2
+Requires-Dist: nh3>=0.2.21
 Requires-Dist: sentry-sdk>=2.53.0
-Requires-Dist: django-debug-toolbar>=6.2.0
 Requires-Dist: httpx>=0.28.1
 Requires-Dist: djangorestframework>=3.16.1
 Requires-Dist: drf-spectacular>=0.29.0
 Requires-Dist: psutil>=7.2.2
 Requires-Dist: whitenoise>=6.12.0
 Requires-Dist: django-health-check>=4.0.6
-Requires-Dist: ruff>=0.15.4
-Requires-Dist: mypy>=1.19.1
-Requires-Dist: django-stubs>=5.2.9
-Requires-Dist: djangorestframework-stubs>=3.16.8
-Requires-Dist: pre-commit>=4.5.1
-Requires-Dist: types-markdown>=3.10.2.20260211
 Requires-Dist: django-htmx>=1.27.0
 Requires-Dist: celery>=5.6.2
 Requires-Dist: redis>=7.2.1
+Provides-Extra: dev
+Requires-Dist: ruff>=0.15.4; extra == "dev"
+Requires-Dist: mypy>=1.19.1; extra == "dev"
+Requires-Dist: django-stubs>=5.2.9; extra == "dev"
+Requires-Dist: djangorestframework-stubs>=3.16.8; extra == "dev"
+Requires-Dist: pre-commit>=4.5.1; extra == "dev"
+Requires-Dist: types-markdown>=3.10.2.20260211; extra == "dev"
+Requires-Dist: django-debug-toolbar>=6.2.0; extra == "dev"

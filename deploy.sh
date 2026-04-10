@@ -40,7 +40,7 @@ log "🔧 Ensuring TimescaleDB extension exists..."
 docker compose -f docker-compose.prod.yml exec -T db psql -U ${POSTGRES_USER:-homepage_app} -d ${POSTGRES_DB:-homepage} -c "CREATE EXTENSION IF NOT EXISTS timescaledb;" || true
 
 # Save the current tag for rollback
-PREVIOUS_TAG=$(docker compose -f docker-compose.prod.yml ps --format '{{.Image}}' | grep web | sed 's/.*://')
+PREVIOUS_TAG=$(docker compose -f docker-compose.prod.yml ps --format '{{.Image}}' 2>/dev/null | grep web | sed 's/.*://' || echo "")
 if [ -n "$PREVIOUS_TAG" ]; then
     echo "$PREVIOUS_TAG" > "$PREVIOUS_TAG_FILE"
     log "🔖 Previous tag saved: $PREVIOUS_TAG"

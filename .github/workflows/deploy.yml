@@ -74,5 +74,7 @@ jobs:
           chmod +x deploy.sh rollback.sh
           install -m 600 /dev/null .env
           printf '%s' "$ENV_FILE" > .env
+          sed -i 's/\r$//' .env
+          sed -i '/^$/d; /^#/d' .env
           export IMAGE_TAG="$IMAGE_TAG"
           ./deploy.sh

@@ -36,8 +36,8 @@ class Command(BaseCommand):
             to_date = today.isoformat()
 
         # Validate dates
-        start_date = parse_date(from_date)
-        end_date = parse_date(to_date)
+        start_date = parse_date(from_date + "T00:00")
+        end_date = parse_date(to_date + "T00:00")
         if not start_date or not end_date:
             raise CommandError("Invalid date formats. Use ISO format: YYYY-MM-DD.")
         if start_date > end_date:
@@ -66,4 +66,4 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS(f"Successfully backfilled {total_inserted} spot prices."))
         except Exception as e:
             logger.exception("Failed to backfill spot prices.")
-            raise CommandError(f"Error during backfill: {e}")
+            raise CommandError(f"Error during backfill: {e}") from e

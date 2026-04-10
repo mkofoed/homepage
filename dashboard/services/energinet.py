@@ -8,7 +8,7 @@ from dashboard.models import SpotPrice
 
 logger = logging.getLogger(__name__)
 
-ENERGINET_API_URL = "https://api.energidataservice.dk/dataset/Elspotprices"
+ENERGINET_API_URL = "https://api.energidataservice.dk/dataset/DayAheadPrices"
 
 
 def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
@@ -18,7 +18,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
     """
     filter_val = f'{{"PriceArea":"{price_area}"}}'
     encoded_filter = urllib.parse.quote(filter_val)
-    url = f"{ENERGINET_API_URL}?limit={limit}&filter={encoded_filter}&sort=TimeUTC%20DESC"
+    url = f"{ENERGINET_API_URL}?limit={limit}&filter={encoded_filter}&sort=TimeUTC ASC"
 
     try:
         with httpx.Client(timeout=10.0) as client:
@@ -77,7 +77,12 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
     Returns the number of new records inserted.
     """
     params = urllib.parse.urlencode(
-        {"filter": f'{{"PriceArea":"{price_area}"}}', "start": start_date, "end": end_date, "sort": "TimeUTC ASC"}
+        {
+            "filter": f'{"PriceArea":"{price_area}"}',
+            "start": start_date + "T00:00",
+            "end": end_date + "T00:00",
+            "sort": "TimeUTC ASC",
+        }
     )
     url = f"{ENERGINET_API_URL}?{params}"
 

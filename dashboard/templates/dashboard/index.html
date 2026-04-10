@@ -2,117 +2,223 @@
 
 {% block title %}Electricity Prices Dashboard - MKofoed.dev{% endblock %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script>
+    window.chartResolution = 'hour';
+    window.chartRange = 'day';
+    window.chartOffset = 0;
+
+    function loadChart() {
+        var res = window.chartResolution || 'hour';
+        var range = window.chartRange || 'day';
+        var offset = window.chartOffset || 0;
+        var url = '{% url "dashboard:htmx_price_chart" %}?range=' + range + '&resolution=' + res + '&offset=' + offset;
+        htmx.ajax('GET', url, {target: '#chart-area', swap: 'innerHTML'});
+    }
+
+    function setRange(range, btn) {
+        window.chartRange = range;
+        window.chartOffset = 0;  // Reset to current period when switching ranges
+        document.querySelectorAll('.zoom-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadChart();
+    }
+
+    function navigate(direction) {
+        window.chartOffset += direction;
+        loadChart();
+    }
+</script>
+<style>
+    .res-switch {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+    .res-switch input[type="checkbox"] { display: none; }
+    .res-switch__track {
+        position: relative;
+        width: 32px;
+        height: 18px;
+        background: var(--ds-surface, #1e293b);
+        border: 1px solid var(--ds-border, #334155);
+        border-radius: 9px;
+        cursor: pointer;
+        transition: background 200ms;
+        flex-shrink: 0;
+    }
+    .res-switch__track::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        background: var(--ds-accent, #22d3ee);
+        border-radius: 50%;
+        transition: transform 200ms;
+        box-shadow: 0 0 6px rgba(34, 211, 238, 0.5);
+    }
+    .res-switch input:checked + .res-switch__track { background: var(--ds-surface-hover, #334155); }
+    .res-switch input:checked + .res-switch__track::after { transform: translateX(14px); }
+    .res-switch__label {
+        color: var(--ds-text-muted, #64748b);
+        font-weight: 500;
+        min-width: 24px;
+        text-align: center;
+        user-select: none;
+        white-space: nowrap;
+    }
+    .res-switch__label--active { color: var(--ds-accent, #22d3ee); }
+
+    .summary-cards {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .summary-card {
+        text-align: center;
+        padding: 0.75rem 1.5rem;
+        min-width: 140px;
+    }
+    .summary-card__label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ds-text-muted, #64748b);
+        margin-bottom: 0.25rem;
+    }
+    .summary-card__price {
+        font-family: var(--ds-font-code, 'JetBrains Mono', monospace);
+        font-size: 1.75rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    .summary-card__sub {
+        font-size: 0.75rem;
+        color: var(--ds-text-muted, #64748b);
+    }
+    .summary-card--low .summary-card__price { color: var(--ds-success, #10b981); }
+    .summary-card--high .summary-card__price { color: var(--ds-danger, #ef4444); }
+    .summary-card--avg .summary-card__price { color: var(--ds-text-secondary, #94a3b8); }
+
+    .nav-arrows {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .nav-arrows__btn {
+        background: none;
+        border: 1px solid var(--ds-border, #334155);
+        color: var(--ds-text-secondary, #94a3b8);
+        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 150ms;
+        font-size: 1rem;
+    }
+    .nav-arrows__btn:hover {
+        border-color: var(--ds-accent, #22d3ee);
+        color: var(--ds-accent, #22d3ee);
+    }
+    .nav-arrows__label {
+        font-size: 0.9rem;
+        color: var(--ds-text-secondary, #94a3b8);
+        min-width: 140px;
+        text-align: center;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row mb-5">
         <div class="col-12 text-center">
             <h1 class="ds-text-primary fw-bold">Real-Time Electricity Dashboard</h1>
-            <p class="lead ds-text-secondary">Aarhus (DK1) Spot Prices - Updates every 60s</p>
+            <p class="lead ds-text-secondary">Aarhus (DK1) — Updates every 60s</p>
         </div>
     </div>
 
+    <!-- Current Price Hero Card -->
+    <div id="hero-card-container"
+         hx-get="{% url 'dashboard:htmx_hero_card' %}"
+         hx-trigger="load, every 60s"
+         hx-swap="innerHTML"
+         class="mb-4">
+        <div class="ds-card text-center py-4">
+            <p class="ds-text-secondary mb-0">Loading current price…</p>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
     <div class="row justify-content-center">
-        <!-- Chart Column -->
         <div class="col-12">
             <div class="ds-surface ds-card ds-radius-lg shadow-lg border-0 mb-4 p-4 reveal">
-                <div
-                    class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0 fw-semibold"><i class="bi bi-graph-up-arrow me-2 ds-accent"></i>Stacked Price
-                        Components (DKK/kWh)</h5>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                    <h5 class="mb-0 fw-semibold"><i class="bi bi-graph-up-arrow me-2 ds-accent"></i>Prisudvikling</h5>
 
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button id="btn-zoom-day" class="ds-btn-outline zoom-btn"
-                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=day"
-                            hx-target="#chart-scripts">1D</button>
-                        <button id="btn-zoom-week" class="ds-btn-outline zoom-btn active"
-                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=week"
-                            hx-target="#chart-scripts">1W</button>
-                        <button id="btn-zoom-month" class="ds-btn-outline zoom-btn"
-                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=month"
-                            hx-target="#chart-scripts">1M</button>
-                        <button id="btn-zoom-year" class="ds-btn-outline zoom-btn"
-                            hx-get="{% url 'dashboard:htmx_price_chart' %}?range=year"
-                            hx-target="#chart-scripts">1Y</button>
-                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div id="res-toggle" class="res-switch" style="margin-right: 0.5rem;">
+                            <span class="res-switch__label" id="res-label-15m">15m</span>
+                            <label style="display:inline-flex; margin:0;">
+                                <input type="checkbox" id="res-checkbox" checked
+                                    onchange="var c=this.checked; window.chartResolution=c?'hour':'quarter'; document.getElementById('res-label-15m').classList.toggle('res-switch__label--active',!c); document.getElementById('res-label-1h').classList.toggle('res-switch__label--active',c); loadChart();">
+                                <span class="res-switch__track"></span>
+                            </label>
+                            <span class="res-switch__label res-switch__label--active" id="res-label-1h">1h</span>
+                        </div>
 
-                    <div id="chart-indicator" class="htmx-indicator spinner-border spinner-border-sm ds-accent"
-                        role="status">
-                        <span class="visually-hidden">Loading...</span>
+                        <span style="border-left: 1px solid var(--ds-border, #334155); height: 24px;"></span>
+
+                        <!-- Period navigation -->
+                        <div class="nav-arrows">
+                            <button class="nav-arrows__btn" onclick="navigate(-1)" title="Previous period">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button class="nav-arrows__label" id="period-label" onclick="window.chartOffset=0; loadChart();" title="Back to current" style="cursor:pointer; background:none; border:none;">I dag</button>
+                            <button class="nav-arrows__btn" onclick="navigate(1)" title="Next period">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <span style="border-left: 1px solid var(--ds-border, #334155); height: 24px;"></span>
+
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Time range">
+                            <button id="btn-zoom-day" class="ds-btn-outline zoom-btn active" onclick="setRange('day', this)">1D</button>
+                            <button id="btn-zoom-week" class="ds-btn-outline zoom-btn" onclick="setRange('week', this)">1W</button>
+                            <button id="btn-zoom-month" class="ds-btn-outline zoom-btn" onclick="setRange('month', this)">1M</button>
+                            <button id="btn-zoom-year" class="ds-btn-outline zoom-btn" onclick="setRange('year', this)">1Y</button>
+                        </div>
+
+                        <div id="chart-indicator" class="htmx-indicator spinner-border spinner-border-sm ds-accent" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
                 </div>
-                <div class="" style="position: relative; height: 70vh; width: 100%;">
-                    <!-- 
-                        HTMX will GET the configured chart data every 60 seconds.
-                        The response is a block of Javascript that updates this canvas.
-                    -->
-                    <canvas id="priceChart" hx-get="{% url 'dashboard:htmx_price_chart' %}?range=default"
-                        hx-trigger="load, every 60s" hx-indicator="#chart-indicator">
-                    </canvas>
-                    <div id="chart-scripts"></div> <!-- HTMX will swap script tags in here -->
+
+                <!-- Summary cards + chart loaded together via HTMX -->
+                <div id="chart-area"
+                     hx-get="{% url 'dashboard:htmx_price_chart' %}?range=day&resolution=hour&offset=0"
+                     hx-trigger="load, every 60s"
+                     hx-swap="innerHTML"
+                     hx-indicator="#chart-indicator">
+                    <div class="text-center py-5">
+                        <div class="spinner-border spinner-border-sm ds-accent" role="status"></div>
+                        <p class="ds-text-muted mt-2">Loading chart…</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Page specific styles -->
-<style>
-    .chart-tooltip {
-        background: rgba(var(--ds-surface), 0.9);
-        color: var(--ds-text-primary);
-        border: 1px solid var(--ds-border);
-    }
-</style>
-
-<!-- Include Chart.js and Plugins -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
-<script>
-    const ctx = document.getElementById('priceChart').getContext('2d');
-
-    window.priceChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [
-                {
-                    label: 'Spotpris',
-                    data: [],
-                    backgroundColor: 'var(--ds-accent)', // Updated colors
-                },
-                {
-                    label: 'Netselskab',
-                    data: [],
-                    backgroundColor: '#10b981', // Green
-                },
-                {
-                    label: 'Forsyningstilsynet',
-                    data: [],
-                    backgroundColor: '#fd7e14', // Amber
-                },
-                {
-                    label: 'Elafgift',
-                    data: [],
-                    backgroundColor: '#ef4444', // Red
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: { color: 'var(--ds-text-secondary)' }
-                },
-                tooltip: {
-                    backgroundColor: 'var(--ds-surface)',
-                    bodyColor: 'var(--ds-text-primary)',
-                }
-            }
-        }
-    });
-</script>
 {% endblock content %}

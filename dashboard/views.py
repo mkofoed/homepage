@@ -1,37 +1,89 @@
 import json
 from dataclasses import asdict
+from datetime import datetime as dt
 
+import zoneinfo
+
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
 
+from dashboard.services.current_price import get_current_price
 from dashboard.services.price_chart import get_chart_data
 
+CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
 
-def dashboard_home(request):
-    """
-    Renders the main dashboard skeleton containing the empty chart canvas.
-    HTMX will immediately replace the canvas contents on load.
-    """
+
+def dashboard_home(request: HttpRequest) -> HttpResponse:
+    """Renders the main dashboard skeleton. HTMX loads the dynamic parts."""
     return render(request, "dashboard/index.html")
 
 
-def htmx_price_chart(request):
-    """
-    HTMX endpoint: returns chart data for the requested time range.
-    All business logic lives in dashboard.services.price_chart.
-    """
-    range_param = request.GET.get("range", "default")
-    now = timezone.now()
-    chart_data = get_chart_data(range_param=range_param, now=now)
+def htmx_price_chart(request: HttpRequest) -> HttpResponse:
+    """HTMX endpoint: returns chart data for the requested time range, resolution and offset."""
+    range_param = request.GET.get("range", "day")
+    resolution = request.GET.get("resolution", "hour")
+    offset = int(request.GET.get("offset", "0"))
 
-    # Find the current 15-minute interval to highlight "price right now"
+    if range_param == "default":
+        range_param = "day"
+    if resolution not in ("quarter", "hour"):
+        resolution = "hour"
+
+    now = timezone.now()
+    chart_data = get_chart_data(
+        range_param=range_param, now=now, resolution=resolution, offset=offset
+    )
+
     minute_bucket = (now.minute // 15) * 15
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
 
+    # Compute summary stats from the total data
+    summary = {}
+    if chart_data.data_total:
+        min_val = min(chart_data.data_total)
+        max_val = max(chart_data.data_total)
+        avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
+
+        min_idx = chart_data.data_total.index(min_val)
+        max_idx = chart_data.data_total.index(max_val)
+
+        def _hour_label(iso_str: str) -> str:
+            """Format hour label in Copenhagen time."""
+            try:
+                t = dt.fromisoformat(iso_str)
+                t_cph = t.astimezone(CPH_TZ)
+                return f"Kl. {t_cph.hour:02d}-{(t_cph.hour + 1) % 24:02d}"
+            except (ValueError, AttributeError):
+                return ""
+
+        summary = {
+            "min_price": f"{min_val:.2f}",
+            "min_hour": _hour_label(chart_data.labels[min_idx]),
+            "max_price": f"{max_val:.2f}",
+            "max_hour": _hour_label(chart_data.labels[max_idx]),
+            "avg_price": f"{avg_val:.2f}",
+        }
+
+    # Serialize chart data but exclude period_label from JSON (passed separately)
+    chart_dict = asdict(chart_data)
+    period_label = chart_dict.pop("period_label", "")
+
     context = {
-        "chart_data_json": json.dumps(asdict(chart_data)),
+        "chart_data_json": json.dumps(chart_dict),
         "current_interval_iso": current_interval.isoformat(),
         "active_range": range_param,
+        "summary_json": json.dumps(summary),
+        "period_label": period_label,
+        "offset": offset,
     }
-
     return render(request, "dashboard/partials/chart_data.html", context)
+
+
+def htmx_hero_card(request: HttpRequest) -> HttpResponse:
+    """HTMX endpoint: returns the current price hero card partial."""
+    now = timezone.now()
+    ctx = get_current_price(now)
+    if ctx is None:
+        return render(request, "dashboard/partials/hero_card.html", {"unavailable": True})
+    return render(request, "dashboard/partials/hero_card.html", {"price": ctx, "unavailable": False})

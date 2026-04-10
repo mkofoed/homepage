@@ -42,84 +42,18 @@
         <p style="color:#94a3b8;">Delivering value through technical excellence and scientific rigor.</p>
     </div>
 
-    <!-- Card 1: Software Architecture -->
-    <div class="col-md-6 animate-slide-up delay-5 reveal">
+    <!-- Card: Energy Dashboard -->
+    <div class="col-md-6 animate-slide-up reveal">
         <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
             <div class="card-body text-center p-4" style="background-color:#111827;">
                 <div class="mb-3" style="color:#22d3ee;">
-                    <i class="bi bi-diagram-3-fill display-4"></i>
+                    <i class="bi bi-lightning-charge-fill display-4"></i>
                 </div>
-                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Software Architecture</h3>
+                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Energy Dashboard</h3>
                 <p class="card-text" style="color:#94a3b8;">
-                    Designing scalable, maintainable systems using modern patterns.
-                    Expertise in .NET, Python, and microservices.
+                    Live Danish electricity spot prices at your fingertips.
                 </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 2: Data & Science -->
-    <div class="col-md-6 animate-slide-up delay-6 reveal">
-        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
-            <div class="card-body text-center p-4" style="background-color:#111827;">
-                <div class="mb-3" style="color:#22d3ee;">
-                    <i class="bi bi-graph-up-arrow display-4"></i>
-                </div>
-                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Data & Science</h3>
-                <p class="card-text" style="color:#94a3b8;">
-                    Leveraging a background in Physics to solve complex analytical problems
-                    and build data-driven applications.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 3: Cloud Solutions -->
-    <div class="col-md-6 animate-slide-up delay-7 reveal">
-        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
-            <div class="card-body text-center p-4" style="background-color:#111827;">
-                <div class="mb-3" style="color:#22d3ee;">
-                    <i class="bi bi-cloud-check-fill display-4"></i>
-                </div>
-                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Cloud Solutions</h3>
-                <p class="card-text" style="color:#94a3b8;">
-                    Building and deploying robust cloud infrastructure on Azure.
-                    Proficient in Docker, CI/CD, and DevOps practices.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Card 4: AI-Augmented Development -->
-    <div class="col-md-6 animate-slide-up delay-8 reveal">
-        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
-            <div class="card-body text-center p-4" style="background-color:#111827;">
-                <div class="mb-3" style="color:#22d3ee;">
-                    <i class="bi bi-stars display-4"></i>
-                </div>
-                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">AI-Augmented Development</h3>
-                <p class="card-text" style="color:#94a3b8;">
-                    Leveraging advanced tools like Claude Code, Antigravity, and Copilot
-                    to accelerate innovation and reach new levels of efficiency.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GitHub Stats Section -->
-<div class="row mb-5">
-    <div class="col-12 text-center mb-4 animate-fade-in">
-        <h3 class="h2 fw-bold">GitHub Activity</h3>
-        <p class="text-muted">Live stats from my GitHub profile</p>
-    </div>
-    <div class="col-md-6 mx-auto">
-        <div hx-get="{% url 'github_stats' %}" hx-trigger="load" hx-swap="innerHTML">
-            <div class="card h-100 border-0 shadow-sm">
-                <div class="card-body p-4 text-center">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                    <span class="ms-2 text-muted">Loading GitHub stats...</span>
-                </div>
+                <a href="{% url 'dashboard:home' %}" class="btn btn-primary">Explore Dashboard</a>
             </div>
         </div>
     </div>

@@ -14,6 +14,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"
         integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC"
         crossorigin="anonymous"></script>
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body style="background-color: #0a0e17; color: #f1f5f9;">
@@ -206,6 +207,7 @@
             }
         });
     </script>
+    {% block extra_js %}{% endblock %}
 </body>
 
 </html>

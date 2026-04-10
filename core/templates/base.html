@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Site Title{% endblock %}</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="{% url 'dashboard:home' %}">Energy Dashboard</a></li>
+            <!-- Additional nav items go here -->
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}<!-- Content goes here -->{% endblock %}
+    </main>
+</body>
+
+</html>

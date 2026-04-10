@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "blog",
     "showcase",
     "dashboard",
+    "visitors",
     # Enhancements
     "django_htmx",
 ]
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "visitors.middleware.VisitorTrackingMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -240,6 +242,8 @@ CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
+
+GEOIP_PATH = "/geoip/"
 
 CELERY_BEAT_SCHEDULE = {
     "poll_energinet_prices_hourly": {

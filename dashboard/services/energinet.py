@@ -62,7 +62,10 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
     if not spot_prices:
         return 0
 
-    # Bulk create, ignoring conflicts (if a record for this timestamp already exists)
-    inserted = SpotPrice.objects.bulk_create(spot_prices, ignore_conflicts=True)
+    # Bulk upsert to handle both new records and updates for existing timestamps
+    SpotPrice.objects.bulk_create(
+        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp"]
+    )
 
-    return len(inserted)
+    logger.info(f"Upserted {len(spot_prices)} spot prices. Potentially updated existing entries.")
+    return len(spot_prices)

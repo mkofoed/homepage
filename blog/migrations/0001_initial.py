@@ -4,6 +4,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
+
 class Migration(migrations.Migration):
     initial = True
 
@@ -19,19 +20,25 @@ class Migration(migrations.Migration):
                 ("title", models.CharField(max_length=200)),
                 ("slug", models.SlugField(unique=True, blank=True, max_length=200)),
                 ("content", models.TextField()),
-                ("status", models.CharField(
-                    choices=[("draft", "Draft"), ("published", "Published")],
-                    db_index=True,
-                    default="draft",
-                    max_length=10,
-                )),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("draft", "Draft"), ("published", "Published")],
+                        db_index=True,
+                        default="draft",
+                        max_length=10,
+                    ),
+                ),
                 ("created_at", models.DateTimeField(auto_now_add=True, db_index=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
-                ("author", models.ForeignKey(
-                    on_delete=django.db.models.deletion.CASCADE,
-                    related_name="posts",
-                    to=settings.AUTH_USER_MODEL,
-                )),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 "ordering": ["-created_at"],

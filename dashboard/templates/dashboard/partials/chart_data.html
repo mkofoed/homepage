@@ -1,65 +1,202 @@
+<!-- Summary cards -->
+<div class="summary-cards mb-4">
+    <div class="summary-card summary-card--low" id="summary-min"></div>
+    <div class="summary-card summary-card--high" id="summary-max"></div>
+    <div class="summary-card summary-card--avg" id="summary-avg"></div>
+</div>
+
+<!-- Chart -->
+<div style="position: relative; height: 400px;">
+    <canvas id="priceChart"></canvas>
+</div>
+
 <script>
-    (function () {
-        const newData = JSON.parse('{{ chart_data_json|escapejs }}');
-        const currentIntervalIso = '{{ current_interval_iso }}';
-        const activeRange = '{{ active_range }}';
+(function () {
+    var style = getComputedStyle(document.documentElement);
+    var getCSSVar = function(name) { return style.getPropertyValue(name).trim() || name; };
 
-        if (window.priceChart) {
-            window.priceChart.data.labels = newData.labels;
-            window.priceChart.data.datasets[0].data = newData.data_spot;
-            window.priceChart.data.datasets[1].data = newData.data_grid;
-            window.priceChart.data.datasets[2].data = newData.data_system;
-            window.priceChart.data.datasets[3].data = newData.data_tax;
+    var data = JSON.parse('{{ chart_data_json|escapejs }}');
+    var summary = JSON.parse('{{ summary_json|escapejs }}');
+    var currentIntervalIso = '{{ current_interval_iso }}';
+    var activeRange = '{{ active_range }}';
 
-            // Remove the 5th dataset (VAT) if it still exists in the Chart instance from a previous render
-            if (window.priceChart.data.datasets.length > 4) {
-                window.priceChart.data.datasets.pop();
-            }
+    // Colors — 2-tone like Danish energy providers
+    var colorElpris = getCSSVar('--ds-accent') || '#22d3ee';
+    var colorTransport = '#1e293b';  // Dark, subtle — like the provider's black bars
+    var colorHighlight = getCSSVar('--ds-success') || '#10b981';
 
-            // Highlight the current active interval with thick borders spanning ALL datasets
-            const borderColors = newData.labels.map(label => {
-                const labelTime = new Date(label).getTime();
-                const currTime = new Date(currentIntervalIso).getTime();
-                return labelTime === currTime ? '#facc15' : 'transparent';
-            });
+    // Populate summary cards
+    var minEl = document.getElementById('summary-min');
+    var maxEl = document.getElementById('summary-max');
+    var avgEl = document.getElementById('summary-avg');
 
-            const borderWidths = newData.labels.map(label => {
-                const labelTime = new Date(label).getTime();
-                const currTime = new Date(currentIntervalIso).getTime();
-                return labelTime === currTime ? { top: 2, right: 3, bottom: 2, left: 3 } : 0;
-            });
+    if (summary.min_price) {
+        minEl.innerHTML = '<div class="summary-card__label">Laveste pris ↓</div>' +
+            '<div class="summary-card__price">' + Number(summary.min_price).toFixed(2).replace('.', ',') + ' kr</div>' +
+            '<div class="summary-card__sub">' + summary.min_hour + '</div>';
+        maxEl.innerHTML = '<div class="summary-card__label">Højeste pris ↑</div>' +
+            '<div class="summary-card__price">' + Number(summary.max_price).toFixed(2).replace('.', ',') + ' kr</div>' +
+            '<div class="summary-card__sub">' + summary.max_hour + '</div>';
+        avgEl.innerHTML = '<div class="summary-card__label">Gennemsnit</div>' +
+            '<div class="summary-card__price">' + Number(summary.avg_price).toFixed(2).replace('.', ',') + ' kr</div>' +
+            '<div class="summary-card__sub">Hele perioden</div>';
+    }
 
-            // Additionally emphasize the Spot Price base layer background color
-            const spotBgColors = newData.labels.map(label => {
-                const labelTime = new Date(label).getTime();
-                const currTime = new Date(currentIntervalIso).getTime();
-                return labelTime === currTime ? '#fef08a' : '#38bdf8';
-            });
-
-            window.priceChart.data.datasets[0].backgroundColor = spotBgColors;
-
-            window.priceChart.data.datasets.forEach(dataset => {
-                dataset.borderColor = borderColors;
-                dataset.borderWidth = borderWidths;
-            });
-
-            // Update Active Buttons visually
-            document.querySelectorAll('.zoom-btn').forEach(btn => btn.classList.remove('active'));
-            const btnId = activeRange === 'default' ? 'day' : activeRange;
-            const activeBtn = document.getElementById('btn-zoom-' + btnId);
-            if (activeBtn) activeBtn.classList.add('active');
-
-            // Reset zoom bounds since we manage duration dynamically via backend limits
-            if (activeRange === 'default') {
-                const nowTime = new Date(currentIntervalIso).getTime();
-                window.priceChart.options.scales.x.min = nowTime;
-                window.priceChart.options.scales.x.max = nowTime + (6 * 60 * 60 * 1000);
-            } else {
-                delete window.priceChart.options.scales.x.min;
-                delete window.priceChart.options.scales.x.max;
-            }
-
-            window.priceChart.update();
+    // Find "now" bar
+    var nowMs = new Date(currentIntervalIso).getTime();
+    var nowIndex = -1;
+    var closestDiff = Infinity;
+    data.labels.forEach(function(label, i) {
+        var labelMs = new Date(label).getTime();
+        var diff = nowMs - labelMs;
+        if (diff >= 0 && diff < closestDiff) {
+            closestDiff = diff;
+            nowIndex = i;
         }
-    })();
+    });
+
+    // Highlight "now" in elpris dataset
+    var elprisBg = data.data_elpris.map(function(v, i) {
+        return i === nowIndex ? colorHighlight : colorElpris;
+    });
+
+    // Transport bars: use a visible dark color with border
+    var transportBorder = 'rgba(255,255,255,0.1)';
+
+    // Time scale config per range
+    var timeUnit, displayFormat;
+    if (activeRange === 'year') {
+        timeUnit = 'month';
+        displayFormat = { month: 'MMM yyyy', day: 'dd MMM' };
+    } else if (activeRange === 'month') {
+        timeUnit = 'day';
+        displayFormat = { day: 'dd MMM', hour: 'HH:mm' };
+    } else if (activeRange === 'week') {
+        timeUnit = 'day';
+        displayFormat = { day: 'EEE dd/MM', hour: 'HH:mm' };
+    } else {
+        timeUnit = 'hour';
+        displayFormat = { hour: 'HH:mm', minute: 'HH:mm' };
+    }
+
+    var chartConfig = {
+        type: 'bar',
+        data: {
+            labels: data.labels.map(function(l) { return new Date(l); }),
+            datasets: [
+                {
+                    label: 'Elpris',
+                    data: data.data_elpris,
+                    backgroundColor: elprisBg,
+                    borderWidth: 0,
+                    order: 2,
+                },
+                {
+                    label: 'Transport & afgifter',
+                    data: data.data_transport,
+                    backgroundColor: 'rgba(100, 116, 139, 0.6)',
+                    borderColor: transportBorder,
+                    borderWidth: 0.5,
+                    order: 1,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: getCSSVar('--ds-text-secondary') || '#94a3b8',
+                        font: { size: 12 },
+                        usePointStyle: true,
+                        pointStyle: 'rect',
+                    },
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#cbd5e1',
+                    footerColor: getCSSVar('--ds-accent') || '#22d3ee',
+                    footerFont: { weight: 'bold', size: 14 },
+                    padding: 12,
+                    callbacks: {
+                        title: function(items) {
+                            if (!items.length) return '';
+                            var raw = items[0].parsed.x;
+                            var d = new Date(raw);
+                            if (isNaN(d.getTime())) return '';
+                            var h = d.getHours();
+                            return d.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' }) +
+                                ' kl. ' + String(h).padStart(2,'0') + '-' + String((h+1)%24).padStart(2,'0');
+                        },
+                        label: function(item) {
+                            return '  ' + item.dataset.label + ': ' + item.parsed.y.toFixed(2).replace('.', ',') + ' kr';
+                        },
+                        footer: function(items) {
+                            var total = items.reduce(function(s, i) { return s + i.parsed.y; }, 0);
+                            return 'Total: ' + total.toFixed(2).replace('.', ',') + ' kr/kWh';
+                        },
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    type: 'time',
+                    time: {
+                        unit: timeUnit,
+                        displayFormats: displayFormat,
+                    },
+                    ticks: {
+                        color: getCSSVar('--ds-text-muted') || '#64748b',
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 24,
+                    },
+                    grid: { color: 'rgba(255,255,255,0.03)' },
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: {
+                        color: getCSSVar('--ds-text-muted') || '#64748b',
+                        callback: function(value) { return value.toFixed(1).replace('.', ',') + ' kr'; },
+                    },
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                },
+            },
+        },
+    };
+
+    // Destroy old chart, create new
+    if (window.priceChart && typeof window.priceChart.destroy === 'function') {
+        window.priceChart.destroy();
+    }
+    window.priceChart = null;
+
+    var canvas = document.getElementById('priceChart');
+    if (canvas) {
+        window.priceChart = new Chart(canvas.getContext('2d'), chartConfig);
+    }
+
+    // Show/hide resolution toggle
+    var resToggle = document.getElementById('res-toggle');
+    if (resToggle) {
+        resToggle.style.display = (activeRange === 'day') ? '' : 'none';
+    }
+
+    // Update period label
+    var periodLabel = '{{ period_label|escapejs }}';
+    var labelEl = document.getElementById('period-label');
+    if (labelEl && periodLabel) {
+        labelEl.textContent = periodLabel;
+    }
+})();
 </script>

@@ -6,11 +6,36 @@ from django.db import migrations, models
 from django.utils.text import slugify
 
 
-def populate_slugs(apps, schema_editor):
-    """Populate slug field from title for existing posts."""
+def ensure_slug_column_and_populate(apps, schema_editor):
+    """
+    Idempotent: ensure slug column exists with non-unique constraint,
+    then populate any empty slugs from post titles.
+    Handles the case where a prior failed migration left the column
+    partially set up with empty values.
+    """
+    # Drop any partially-created unique index first
+    schema_editor.execute("DROP INDEX IF EXISTS blog_post_slug_key;")
+    schema_editor.execute("DROP INDEX IF EXISTS blog_post_slug_b95473f2_like;")
+
+    # Add column if it doesn't exist
+    schema_editor.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns
+                WHERE table_name='blog_post' AND column_name='slug'
+            ) THEN
+                ALTER TABLE blog_post ADD COLUMN slug varchar(200) NOT NULL DEFAULT '';
+                ALTER TABLE blog_post ALTER COLUMN slug DROP DEFAULT;
+            END IF;
+        END
+        $$;
+    """)
+
+    # Populate empty slugs from titles using Python (handles duplicates)
     Post = apps.get_model("blog", "Post")
-    seen = {}
-    for post in Post.objects.order_by("id"):
+    seen: dict[str, bool] = {}
+    for post in Post.objects.filter(slug="").order_by("id"):
         base_slug = slugify(post.title) or f"post-{post.id}"
         slug = base_slug
         counter = 1
@@ -33,20 +58,30 @@ class Migration(migrations.Migration):
             name="post",
             options={"ordering": ["-created_at"]},
         ),
-        # Step 1: Add slug as non-unique with a default so existing rows get ''
-        migrations.AddField(
-            model_name="post",
-            name="slug",
-            field=models.SlugField(blank=True, max_length=200, default=""),
-            preserve_default=False,
+        # Step 1+2: Ensure column exists and populate slugs (idempotent)
+        migrations.RunPython(
+            ensure_slug_column_and_populate,
+            migrations.RunPython.noop,
         ),
-        # Step 2: Populate slugs from titles for all existing rows
-        migrations.RunPython(populate_slugs, migrations.RunPython.noop),
-        # Step 3: Now safe to add the unique constraint
-        migrations.AlterField(
-            model_name="post",
-            name="slug",
-            field=models.SlugField(blank=True, max_length=200, unique=True),
+        # Step 3: Add slug to Django state + create unique index
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunSQL(
+                    sql="""
+                        ALTER TABLE blog_post ALTER COLUMN slug TYPE varchar(200);
+                        CREATE UNIQUE INDEX blog_post_slug_key ON blog_post (slug);
+                        CREATE INDEX blog_post_slug_b95473f2_like ON blog_post (slug varchar_pattern_ops);
+                    """,
+                    reverse_sql="DROP INDEX IF EXISTS blog_post_slug_key; DROP INDEX IF EXISTS blog_post_slug_b95473f2_like;",
+                ),
+            ],
+            state_operations=[
+                migrations.AddField(
+                    model_name="post",
+                    name="slug",
+                    field=models.SlugField(blank=True, max_length=200, unique=True),
+                ),
+            ],
         ),
         migrations.AddField(
             model_name="post",

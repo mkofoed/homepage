@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import Any
 
-from django.db.models import Avg
+from django.db.models import Avg, QuerySet
 from django.db.models.functions import TruncDay, TruncHour
 
 from dashboard.models import SpotPrice
@@ -22,6 +23,8 @@ class ChartData:
 
 
 def get_chart_data(range_param: str, now: datetime) -> ChartData:
+    qs: QuerySet[Any]
+
     if range_param in ["day", "default"]:
         start_time = now - timedelta(days=1)
         qs = SpotPrice.objects.filter(timestamp__gte=start_time).order_by("timestamp")
@@ -55,13 +58,15 @@ def get_chart_data(range_param: str, now: datetime) -> ChartData:
 
     for item in qs:
         if range_param in ["month", "year"]:
-            ts = item["period"]
-            spot_dkk_mwh = item["avg_price_dkk"]
+            row: dict[str, Any] = item  # type: ignore[assignment]
+            ts = row["period"]
+            spot_dkk_mwh = float(row["avg_price_dkk"])
         else:
-            ts = item.timestamp
-            spot_dkk_mwh = float(item.price_dkk)
+            record: SpotPrice = item  # type: ignore[assignment]
+            ts = record.timestamp
+            spot_dkk_mwh = float(record.price_dkk)
 
-        spot_kwh = (Decimal(spot_dkk_mwh) / 1000) * DK_VAT_MULTIPLIER
+        spot_kwh = (Decimal(str(spot_dkk_mwh)) / 1000) * DK_VAT_MULTIPLIER
         tax = DK_ELECTRICITY_TAX_2026 * DK_VAT_MULTIPLIER
         system_tariff = DK_ENERGINET_SYSTEM_TARIFF * DK_VAT_MULTIPLIER
 
@@ -70,14 +75,14 @@ def get_chart_data(range_param: str, now: datetime) -> ChartData:
         is_winter = month in [10, 11, 12, 1, 2, 3]
 
         if range_param == "year":
-            grid_tariff = (0.34 if is_winter else 0.16) * DK_VAT_MULTIPLIER
+            grid_tariff = Decimal("0.34" if is_winter else "0.16") * DK_VAT_MULTIPLIER
         else:
             if 17 <= hour < 21:
-                grid_tariff = (0.70 if is_winter else 0.25) * DK_VAT_MULTIPLIER
+                grid_tariff = Decimal("0.70" if is_winter else "0.25") * DK_VAT_MULTIPLIER
             elif (6 <= hour < 17) or (21 <= hour < 24):
-                grid_tariff = (0.24 if is_winter else 0.15) * DK_VAT_MULTIPLIER
+                grid_tariff = Decimal("0.24" if is_winter else "0.15") * DK_VAT_MULTIPLIER
             else:
-                grid_tariff = 0.10 * DK_VAT_MULTIPLIER
+                grid_tariff = Decimal("0.10") * DK_VAT_MULTIPLIER
 
         labels.append(ts.isoformat())
         data_spot.append(round(float(spot_kwh), 2))

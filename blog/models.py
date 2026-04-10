@@ -1,5 +1,8 @@
+from collections.abc import Iterable
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.base import ModelBase
 from django.utils.text import slugify
 
 
@@ -27,7 +30,19 @@ class Post(models.Model):
     def __str__(self) -> str:
         return self.title
 
-    def save(self, *args: object, **kwargs: object) -> None:
+    def save(
+        self,
+        *,
+        force_insert: bool | tuple[ModelBase, ...] = False,
+        force_update: bool = False,
+        using: str | None = None,
+        update_fields: Iterable[str] | None = None,
+    ) -> None:
         if not self.slug:
             self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )

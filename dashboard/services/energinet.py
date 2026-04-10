@@ -1,3 +1,4 @@
+import json
 import logging
 import urllib.parse
 
@@ -16,7 +17,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
     Fetches the latest spot prices from Energi Data Service and saves them to the
     TimescaleDB hypertable. Returns the number of new records inserted.
     """
-    filter_val = f'{{"PriceArea":"{price_area}"}}'
+    filter_val = json.dumps({"PriceArea": price_area})
     encoded_filter = urllib.parse.quote(filter_val)
     url = f"{ENERGINET_API_URL}?limit={limit}&filter={encoded_filter}&sort=TimeUTC ASC"
 
@@ -78,7 +79,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
     """
     params = urllib.parse.urlencode(
         {
-            "filter": f'{"PriceArea":"{price_area}"}',
+            "filter": json.dumps({"PriceArea": price_area}),
             "start": start_date + "T00:00",
             "end": end_date + "T00:00",
             "sort": "TimeUTC ASC",

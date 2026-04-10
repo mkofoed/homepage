@@ -27,6 +27,14 @@ FROM dashboard_spotprice
 GROUP BY time_bucket('1 hour', "timestamp"), price_area
 WITH NO DATA;
 
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM dashboard_spotprice) THEN
+        RAISE NOTICE 'No data exists; skipping refresh step';
+        RETURN;
+    END IF;
+END $$;
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_daily
 WITH (timescaledb.continuous) AS
 SELECT
@@ -41,6 +49,7 @@ FROM dashboard_spotprice_hourly
 GROUP BY time_bucket('1 day', bucket), price_area
 WITH NO DATA;
 
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_monthly
 WITH (timescaledb.continuous) AS
 SELECT
@@ -54,6 +63,7 @@ SELECT
 FROM dashboard_spotprice_daily
 GROUP BY time_bucket('1 month', bucket), price_area
 WITH NO DATA;
+
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS dashboard_spotprice_yearly
 WITH (timescaledb.continuous) AS
@@ -71,26 +81,27 @@ WITH NO DATA;
 
 
 
+
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_hourly',
-    start_offset => INTERVAL '3 days', end_offset => INTERVAL '1 hour',
+    start_offset => INTERVAL '7 days', end_offset => INTERVAL '2 hours',
     schedule_interval => INTERVAL '24 hours',
     initial_start => '2026-04-11 02:00:00+02'::timestamptz,
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_daily',
-    start_offset => INTERVAL '7 days', end_offset => INTERVAL '1 hour',
+    start_offset => INTERVAL '14 days', end_offset => INTERVAL '2 hours',
     schedule_interval => INTERVAL '24 hours',
     initial_start => '2026-04-11 02:05:00+02'::timestamptz,
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_monthly',
-    start_offset => INTERVAL '35 days', end_offset => INTERVAL '1 day',
+    start_offset => INTERVAL '70 days', end_offset => INTERVAL '2 days',
     schedule_interval => INTERVAL '24 hours',
     initial_start => '2026-04-11 02:10:00+02'::timestamptz,
     if_not_exists => TRUE);
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_yearly',
-    start_offset => INTERVAL '400 days', end_offset => INTERVAL '1 day',
+    start_offset => INTERVAL '800 days', end_offset => INTERVAL '2 days'
     schedule_interval => INTERVAL '24 hours',
     initial_start => '2026-04-11 02:15:00+02'::timestamptz,
     if_not_exists => TRUE);

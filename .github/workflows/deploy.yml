@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
 
 jobs:
   build:
@@ -15,11 +16,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
-    - name: Login to Docker Hub
+    - name: Log in to GHCR
       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3
@@ -31,25 +33,50 @@ jobs:
         file: ./Dockerfile.prod
         push: true
         tags: |
-          mkofoeddk/homepage-web:latest
-          mkofoeddk/homepage-web:${{ github.sha }}
-        cache-from: type=registry,ref=mkofoeddk/homepage-web:buildcache
-        cache-to: type=registry,ref=mkofoeddk/homepage-web:buildcache,mode=max
+          ghcr.io/${{ github.repository_owner }}/homepage-web:latest
+          ghcr.io/${{ github.repository_owner }}/homepage-web:${{ github.sha }}
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/homepage-web:buildcache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/homepage-web:buildcache,mode=max
 
   deploy:
     needs: build
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    environment: production
     runs-on: ubuntu-latest
     steps:
-    - name: Deploy to VM
-      uses: appleboy/ssh-action@90162d1e4396c5c4b7671d60cae550a8b1ae1d0b # master
-      env:
-        ENV_FILE: ${{ secrets.ENV_FILE }}
+    - name: Check out repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+    - name: Upload files to server
+      uses: appleboy/scp-action@937d462a17770494ff381d00e3d2d722e4dbd081 # v0.1.10
       with:
         host: ${{ secrets.DROPLET_IP }}
         username: ${{ secrets.DROPLET_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: ENV_FILE
+        source: |
+          docker-compose.prod.yml
+          deploy.sh
+          rollback.sh
+          nginx/
+        target: ~/homepage
+        overwrite: true
+
+    - name: Deploy to VM
+      uses: appleboy/ssh-action@90162d1e4396c5c4b7671d60cae550a8b1ae1d0b # master
+      env:
+        ENV_FILE: ${{ secrets.ENV_FILE }}
+        IMAGE_TAG: ${{ github.sha }}
+      with:
+        host: ${{ secrets.DROPLET_IP }}
+        username: ${{ secrets.DROPLET_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: ENV_FILE,IMAGE_TAG
         script: |
           cd ~/homepage
+          chmod +x deploy.sh rollback.sh
+          install -m 600 /dev/null .env
           printf '%s' "$ENV_FILE" > .env
+          export IMAGE_TAG="$IMAGE_TAG"
           ./deploy.sh

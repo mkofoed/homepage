@@ -1,14 +1,24 @@
 services:
   web:
-    image: mkofoeddk/homepage-web:latest
+    image: ghcr.io/mkofoeddk/homepage-web:${IMAGE_TAG:-latest}
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
-    ports:
-      - "127.0.0.1:8000:8000"
+    expose:
+      - "8000"
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
     env_file:
       - .env
+    volumes:
+      - static_files:/home/app/web/staticfiles
+      - media_files:/home/app/web/mediafiles
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64M
+    networks:
+      - frontend
+      - backend
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')"]
       interval: 30s
@@ -23,22 +33,59 @@ services:
 
   redis:
     image: redis:7-alpine@sha256:8b81dd37ff027bec4e516d41acfbe9fe2460070dc6d4a4570a2ac5b9d59df065
+    command: redis-server --requirepass ${REDIS_PASSWORD:-changeme}
     volumes:
       - redis_data:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32M
+    networks:
+      - backend
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "--no-auth-warning", "ping"]
       interval: 10s
       timeout: 5s
       retries: 3
 
+  nginx:
+    image: jonasal/nginx-certbot:5-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/homepage.conf:/etc/nginx/conf.d/homepage.conf:ro
+      - ./nginx/rate-limit.conf:/etc/nginx/conf.d/00-rate-limit.conf:ro
+      - nginx_certs:/etc/letsencrypt
+      - static_files:/home/app/web/staticfiles:ro
+      - media_files:/home/app/web/mediafiles:ro
+    environment:
+      - CERTBOT_EMAIL=mikkel@mkofoed.dev
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - frontend
+    depends_on:
+      web:
+        condition: service_healthy
+
   celery_worker:
-    image: mkofoeddk/homepage-web:latest
-    command: celery -A config worker -l INFO
+    image: ghcr.io/mkofoeddk/homepage-web:${IMAGE_TAG:-latest}
+    command: celery -A config worker -l WARNING
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
     env_file:
       - .env
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64M
+    networks:
+      - backend
     depends_on:
       db:
         condition: service_healthy
@@ -46,13 +93,19 @@ services:
         condition: service_healthy
 
   celery_beat:
-    image: mkofoeddk/homepage-web:latest
-    command: celery -A config beat -l INFO
+    image: ghcr.io/mkofoeddk/homepage-web:${IMAGE_TAG:-latest}
+    command: celery -A config beat -l WARNING
     environment:
       - DJANGO_SETTINGS_MODULE=config.settings.production
     env_file:
       - .env
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64M
+    networks:
+      - backend
     depends_on:
       db:
         condition: service_healthy
@@ -61,18 +114,32 @@ services:
 
   db:
     image: timescale/timescaledb:latest-pg18@sha256:91a6c11a7c598b098cbab2d59c36895cd6b6b49fd0aa37f6cdd6d2e3e3e3d6ca
+    env_file:
+      - .env
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=homepage
+      - POSTGRES_USER=${POSTGRES_USER:-homepage_app}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-homepage}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d homepage"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-homepage_app} -d ${POSTGRES_DB:-homepage}"]
       interval: 10s
       timeout: 5s
       retries: 3
 
+networks:
+  frontend:
+  backend:
+
 volumes:
   redis_data:
+  nginx_certs:
+  static_files:
+  media_files:
   postgres_data:

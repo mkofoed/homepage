@@ -6,6 +6,7 @@ from dashboard.services.energinet import fetch_latest_spot_prices
 
 logger = logging.getLogger(__name__)
 
+
 @shared_task(bind=True, max_retries=3, default_retry_delay=300, soft_time_limit=120, time_limit=180)
 def poll_energinet_prices_task(self, limit: int = 24) -> int:
     """
@@ -18,4 +19,4 @@ def poll_energinet_prices_task(self, limit: int = 24) -> int:
         return inserted
     except Exception as exc:
         logger.exception("Failed to poll Energinet prices")
-        raise self.retry(exc=exc)
+        raise self.retry(exc=exc) from exc

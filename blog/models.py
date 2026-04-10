@@ -24,10 +24,10 @@ class Post(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+    def __str__(self) -> str:
+        return self.title
+
     def save(self, *args: object, **kwargs: object) -> None:
         if not self.slug:
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
-
-    def __str__(self) -> str:
-        return self.title

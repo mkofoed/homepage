@@ -1,6 +1,7 @@
 """
 Django development settings.
 """
+
 from typing import Any, cast
 
 from .base import *  # noqa: F401, F403

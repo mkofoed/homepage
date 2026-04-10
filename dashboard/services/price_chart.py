@@ -4,11 +4,13 @@ from decimal import Decimal
 
 from django.db.models import Avg
 from django.db.models.functions import TruncDay, TruncHour
+
 from dashboard.models import SpotPrice
 
 DK_ELECTRICITY_TAX_2026 = Decimal("0.008")
 DK_VAT_MULTIPLIER = Decimal("1.25")
 DK_ENERGINET_SYSTEM_TARIFF = Decimal("0.136")
+
 
 @dataclass
 class ChartData:
@@ -17,6 +19,7 @@ class ChartData:
     data_tax: list[float]
     data_system: list[float]
     data_grid: list[float]
+
 
 def get_chart_data(range_param: str, now: datetime) -> ChartData:
     if range_param in ["day", "default"]:
@@ -82,4 +85,6 @@ def get_chart_data(range_param: str, now: datetime) -> ChartData:
         data_system.append(round(float(system_tariff), 2))
         data_grid.append(round(float(grid_tariff), 2))
 
-    return ChartData(labels=labels, data_spot=data_spot, data_tax=data_tax, data_system=data_system, data_grid=data_grid)
+    return ChartData(
+        labels=labels, data_spot=data_spot, data_tax=data_tax, data_system=data_system, data_grid=data_grid
+    )

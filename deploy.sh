@@ -40,7 +40,7 @@ log "🔧 Ensuring TimescaleDB extension exists..."
 docker compose -f docker-compose.prod.yml exec -T db psql -U ${POSTGRES_USER:-homepage_app} -d ${POSTGRES_DB:-homepage} -c "CREATE EXTENSION IF NOT EXISTS timescaledb;" || true
 
 # Save the current tag for rollback
-PREVIOUS_TAG=$(docker compose -f docker-compose.prod.yml ps --format '{{.Image}}' 2>/dev/null | grep web | sed 's/.*://' || echo "")
+PREVIOUS_TAG=$(docker compose -f docker-compose.prod.yml ps --format '{{.Image}}' 2>/dev/null | grep 'homepage-web' | head -1 | sed 's/.*://' || echo "")
 if [ -n "$PREVIOUS_TAG" ]; then
     echo "$PREVIOUS_TAG" > "$PREVIOUS_TAG_FILE"
     log "🔖 Previous tag saved: $PREVIOUS_TAG"
@@ -65,7 +65,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 log "⏳ Waiting for containers to pass health check..."
 for i in $(seq 1 30); do
-    if curl -sf http://localhost/health/ > /dev/null 2>&1; then
+    if docker compose -f docker-compose.prod.yml exec -T web python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" > /dev/null 2>&1; then
         log "✅ Health check passed. Deployment successful!"
         break
     fi

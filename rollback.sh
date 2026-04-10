@@ -20,7 +20,7 @@ docker compose -f docker-compose.prod.yml up -d
 
 echo "⏳ Waiting for rollback health check..."
 for i in $(seq 1 30); do
-  if curl -sf http://localhost/health/ > /dev/null 2>&1; then
+  if docker compose -f docker-compose.prod.yml exec -T web python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" > /dev/null 2>&1; then
     echo "✅ Rollback successful. Running tag: $PREVIOUS_TAG"
     exit 0
   fi

@@ -69,10 +69,7 @@ FROM dashboard_spotprice_monthly
 GROUP BY time_bucket('1 year', bucket), price_area
 WITH NO DATA;
 
-CALL refresh_continuous_aggregate('dashboard_spotprice_hourly', NULL, NOW());
-CALL refresh_continuous_aggregate('dashboard_spotprice_daily', NULL, NOW());
-CALL refresh_continuous_aggregate('dashboard_spotprice_monthly', NULL, NOW());
-CALL refresh_continuous_aggregate('dashboard_spotprice_yearly', NULL, NOW());
+
 
 SELECT add_continuous_aggregate_policy('dashboard_spotprice_hourly',
     start_offset => INTERVAL '3 days', end_offset => INTERVAL '1 hour',

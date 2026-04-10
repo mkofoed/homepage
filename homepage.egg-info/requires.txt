@@ -18,7 +18,7 @@ redis>=7.2.1
 [dev]
 ruff>=0.15.4
 mypy>=1.19.1
-django-stubs>=5.2.9
+django-stubs[compatible-mypy]>=5.2.9
 djangorestframework-stubs>=3.16.8
 pre-commit>=4.5.1
 types-markdown>=3.10.2.20260211

@@ -9,23 +9,28 @@ dependencies = [
     "psycopg2-binary==2.9.11",
     "python-decouple>=3.8",
     "markdown>=3.10.2",
+    "nh3>=0.2.21",
     "sentry-sdk>=2.53.0",
-    "django-debug-toolbar>=6.2.0",
     "httpx>=0.28.1",
     "djangorestframework>=3.16.1",
     "drf-spectacular>=0.29.0",
     "psutil>=7.2.2",
     "whitenoise>=6.12.0",
     "django-health-check>=4.0.6",
-    "ruff>=0.15.4",
-    "mypy>=1.19.1",
-    "django-stubs>=5.2.9",
-    "djangorestframework-stubs>=3.16.8",
-    "pre-commit>=4.5.1",
-    "types-markdown>=3.10.2.20260211",
     "django-htmx>=1.27.0",
     "celery>=5.6.2",
     "redis>=7.2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff >= 0.15.4",
+    "mypy >= 1.19.1",
+    "django-stubs >= 5.2.9",
+    "djangorestframework-stubs >= 3.16.8",
+    "pre-commit >= 4.5.1",
+    "types-markdown >= 3.10.2.20260211",
+    "django-debug-toolbar >= 6.2.0"
 ]
 
 [tool.setuptools]
@@ -33,7 +38,7 @@ packages = []
 
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py314"
 
 [tool.ruff.lint]
 select = [

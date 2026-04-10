@@ -2,6 +2,9 @@
 FROM python:3.14-slim
 
 # Set work directory
+# Create non-root user
+RUN addgroup --system app && adduser --system --group app
+
 WORKDIR /app
 
 # Set environment variables
@@ -18,7 +21,11 @@ RUN pip install --no-cache-dir uv
 
 # Install dependencies
 COPY ./pyproject.toml .
-RUN uv pip install --system -e .
+RUN uv pip install --system -e .[dev]
 
 # Copy project
 COPY . .
+
+# Change ownership to non-root user
+RUN chown -R app:app /app
+USER app

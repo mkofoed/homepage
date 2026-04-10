@@ -1,5 +1,6 @@
 from django.urls import path
 from health_check.views import HealthCheckView
+from django.contrib.auth.decorators import login_required
 
 from . import views
 
@@ -10,5 +11,5 @@ urlpatterns = [
     path("health/", HealthCheckView.as_view(), name="health_check_home"),
     path("api/health/", views.health_check, name="health_check"),
     path("api/github-stats/", views.github_stats, name="github_stats"),
-    path("api/metrics/", views.metrics, name="metrics"),
+    path("api/metrics/", login_required(views.metrics), name="metrics"),
 ]

@@ -21,14 +21,15 @@ echo "🗄️ Starting database..."
 docker compose -f docker-compose.prod.yml up -d db
 
 # Wait for db to be ready
-sleep 5
+echo "⏳ Waiting for database to be ready..."
+timeout 60 bash -c 'until docker compose -f docker-compose.prod.yml exec -T db pg_isready -U ${SQL_USER:-postgres}; do sleep 2; done'
 
 # Run migrations and collect static files BEFORE starting web
 echo "🗄️ Running migrations..."
 docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate
 
-echo "🗄️ Backfilling Historical Spot Prices..."
-docker compose -f docker-compose.prod.yml run --rm web python manage.py backfill_spot_prices --limit 5000
+echo "🗄️ Backfilling Historical Spot Prices (first deploy only)..."
+docker compose -f docker-compose.prod.yml run --rm web python manage.py backfill_spot_prices --limit 5000 || echo "⚠️  Backfill skipped (already populated or failed)"
 
 echo "🎨 Collecting static files..."
 docker compose -f docker-compose.prod.yml run --rm web python manage.py collectstatic --noinput

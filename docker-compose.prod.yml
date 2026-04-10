@@ -1,85 +1,55 @@
 services:
   web:
-    image: mkofoeddk/homepage-web:latest
+    build: .
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000
-    expose:
-      - 8000
-    env_file:
-      - .env
-    environment:
-      - DEBUG=0
-      - DJANGO_SETTINGS_MODULE=config.settings.production
-    volumes:
-      - static_volume:/home/app/web/staticfiles
-      - media_volume:/home/app/web/mediafiles
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
-    restart: unless-stopped
-    expose:
-      - 6379
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l INFO
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   db:
     image: timescale/timescaledb:latest-pg18
-    restart: unless-stopped
-    command: postgres -c shared_preload_libraries=timescaledb
-    volumes:
-      - postgres_data:/var/lib/postgresql
     environment:
-      - POSTGRES_USER=${SQL_USER}
-      - POSTGRES_PASSWORD=${SQL_PASSWORD}
-      - POSTGRES_DB=${SQL_DATABASE}
-
-  celery_worker:
-    image: mkofoeddk/homepage-web:latest
-    command: celery -A config worker -l INFO
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - DEBUG=0
-      - DJANGO_SETTINGS_MODULE=config.settings.production
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-    depends_on:
-      - db
-      - redis
-
-  celery_beat:
-    image: mkofoeddk/homepage-web:latest
-    command: celery -A config beat -l INFO
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - DEBUG=0
-      - DJANGO_SETTINGS_MODULE=config.settings.production
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
-    depends_on:
-      - db
-      - redis
-
-  nginx:
-    image: jonasal/nginx-certbot:latest
-    restart: unless-stopped
-    environment:
-      - CERTBOT_EMAIL=mikkel@mkofoed.dev
-      - STAGING=0
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx:/etc/nginx/user_conf.d:ro
-      - letsencrypt_data:/etc/letsencrypt
-      - static_volume:/home/app/web/staticfiles
-      - media_volume:/home/app/web/mediafiles
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=homepage
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d homepage"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
-  letsencrypt_data:
+  redis_data:

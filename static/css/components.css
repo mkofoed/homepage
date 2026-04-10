@@ -23,12 +23,12 @@
 }
 
 .feature-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform var(--ds-transition-fast), box-shadow var(--ds-transition-fast);
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 26px rgba(0, 0, 0, 0.5);
     border-color: var(--color-accent-fg);
 }
 

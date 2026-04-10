@@ -4,14 +4,15 @@
 {% block title %}{{ post.title }} - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<article>
-    <h1 class="mb-3">{{ post.title }}</h1>
-    <p class="text-muted">Posted on {{ post.created_at }} by {{ post.author }}</p>
-    <hr>
-    <div class="mt-4">
-        {{ post.content|markdown|safe }}
+<article class="ds-surface" style="max-width: 720px; margin: 0 auto; background-color: var(--ds-bg);">
+    <h1 style="color: var(--ds-text-primary); font-size: 2rem;">{{ post.title }}</h1>
+    <p class="ds-text-muted">Posted on {{ post.created_at }} by {{ post.author }}</p>
+    <div class="ds-divider"></div>
+    <div class="mt-4" style="color: var(--ds-text-secondary); line-height: 1.7;">
+        {{ post.content|markdown }}
     </div>
-    <hr>
-    <a href="{% url 'blog_index' %}" class="btn btn-secondary mt-3">Back to Blog</a>
+    <div class="mt-4">
+        <a href="{% url 'blog_index' %}" class="ds-btn-outline">Back to Blog</a>
+    </div>
 </article>
 {% endblock %}

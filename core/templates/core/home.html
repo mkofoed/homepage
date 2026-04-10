@@ -4,49 +4,53 @@
 
 {% block content %}
 <!-- Hero Section -->
-<div class="hero-section text-center py-5 mb-5">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <h1 class="display-3 fw-bold animate-slide-up delay-1 mb-3">
-                    Hi, I'm <span class="text-gradient">Mikkel Kofoed</span>
-                </h1>
-                <h2 class="h4 text-muted mb-4 animate-slide-up delay-2">
-                    Senior Developer & Physicist
-                </h2>
-                <p class="lead mb-5 animate-slide-up delay-3 text-secondary">
-                    Bridging the gap between complex data and robust software solutions.
-                    Specializing in .NET, Python, and scalable cloud architecture.
-                </p>
-                <div class="animate-fade-in delay-3 d-flex justify-content-center gap-3">
-                    <a class="btn btn-primary btn-lg px-4" href="{% url 'about' %}" role="button">
-                        <i class="bi bi-person me-2"></i>About Me
-                    </a>
-                    <a class="btn btn-outline-secondary btn-lg px-4" href="{% url 'blog_index' %}" role="button">
-                        <i class="bi bi-journal-text me-2"></i>Read Blog
-                    </a>
-                </div>
-            </div>
+<div class="hero-section" style="min-height: 100vh; background: var(--ds-bg); background: radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.08) 0%, transparent 60%); display: flex; align-items: center; justify-content: center;">
+    <div class="text-center">
+        <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(36px, 5vw, 72px); animation: fadeUp 0.6s ease-out forwards;">
+            Hi, I'm <span style="color: #22d3ee; position: relative;">
+                Mikkel Kofoed
+                <span style="position: absolute; bottom: -4px; left: 50%; width: 0; height: 2px; background: #22d3ee; animation: underlineGrow 0.6s ease-out 0.3s forwards;"></span>
+            </span>
+        </h1>
+        <p style="color: #94a3b8; font-size: 1.25rem; max-width: 600px; margin: 1rem auto; animation: fadeUp 0.6s ease-out 0.15s forwards;">
+            Developer and physicist building with Python, Django, and whatever AI tooling makes the work sharper.
+        </p>
+        <p style="color: #475569; font-size: 0.9rem; margin: 0.5rem auto 1.5rem; animation: fadeUp 0.6s ease-out 0.25s forwards;">
+            Currently using: Claude Code &nbsp;·&nbsp; GitHub Copilot &nbsp;·&nbsp; OpenClaw
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center; animation: fadeUp 0.6s ease-out 0.3s forwards;">
+            <a href="{% url 'about' %}" style="display:inline-block; padding:10px 24px; background:#22d3ee; color:#0a0e17; font-weight:600; border-radius:8px; text-decoration:none;">View Work</a>
+            <a href="{% url 'blog_index' %}" style="display:inline-block; padding:10px 24px; background:transparent; color:#22d3ee; font-weight:600; border:1.5px solid #22d3ee; border-radius:8px; text-decoration:none;">Get in Touch</a>
         </div>
     </div>
 </div>
+<style>
+@keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes underlineGrow {
+    0% { width: 0; left: 50%; }
+    100% { width: 100%; left: 0; }
+}
+</style>
 
 <!-- Expertise Section -->
-<div class="row g-4 mb-5">
+<div class="row g-4 mb-5 reveal">
     <div class="col-12 text-center mb-2 animate-slide-up delay-4">
-        <h3 class="h2 fw-bold">My Expertise</h3>
-        <p class="text-muted">Delivering value through technical excellence and scientific rigor.</p>
+        <h3 class="h2 fw-bold" style="color:#f1f5f9;">My Expertise</h3>
+        <p style="color:#94a3b8;">Delivering value through technical excellence and scientific rigor.</p>
     </div>
 
     <!-- Card 1: Software Architecture -->
-    <div class="col-md-6 animate-slide-up delay-5">
-        <div class="card h-100 feature-card border-0 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3 text-primary">
+    <div class="col-md-6 animate-slide-up delay-5 reveal">
+        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
+            <div class="card-body text-center p-4" style="background-color:#111827;">
+                <div class="mb-3" style="color:#22d3ee;">
                     <i class="bi bi-diagram-3-fill display-4"></i>
                 </div>
-                <h3 class="h5 card-title fw-bold">Software Architecture</h3>
-                <p class="card-text text-muted">
+                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Software Architecture</h3>
+                <p class="card-text" style="color:#94a3b8;">
                     Designing scalable, maintainable systems using modern patterns.
                     Expertise in .NET, Python, and microservices.
                 </p>
@@ -55,14 +59,14 @@
     </div>
 
     <!-- Card 2: Data & Science -->
-    <div class="col-md-6 animate-slide-up delay-6">
-        <div class="card h-100 feature-card border-0 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3 text-primary">
+    <div class="col-md-6 animate-slide-up delay-6 reveal">
+        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
+            <div class="card-body text-center p-4" style="background-color:#111827;">
+                <div class="mb-3" style="color:#22d3ee;">
                     <i class="bi bi-graph-up-arrow display-4"></i>
                 </div>
-                <h3 class="h5 card-title fw-bold">Data & Science</h3>
-                <p class="card-text text-muted">
+                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Data & Science</h3>
+                <p class="card-text" style="color:#94a3b8;">
                     Leveraging a background in Physics to solve complex analytical problems
                     and build data-driven applications.
                 </p>
@@ -71,14 +75,14 @@
     </div>
 
     <!-- Card 3: Cloud Solutions -->
-    <div class="col-md-6 animate-slide-up delay-7">
-        <div class="card h-100 feature-card border-0 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3 text-primary">
+    <div class="col-md-6 animate-slide-up delay-7 reveal">
+        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
+            <div class="card-body text-center p-4" style="background-color:#111827;">
+                <div class="mb-3" style="color:#22d3ee;">
                     <i class="bi bi-cloud-check-fill display-4"></i>
                 </div>
-                <h3 class="h5 card-title fw-bold">Cloud Solutions</h3>
-                <p class="card-text text-muted">
+                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">Cloud Solutions</h3>
+                <p class="card-text" style="color:#94a3b8;">
                     Building and deploying robust cloud infrastructure on Azure.
                     Proficient in Docker, CI/CD, and DevOps practices.
                 </p>
@@ -87,14 +91,14 @@
     </div>
 
     <!-- Card 4: AI-Augmented Development -->
-    <div class="col-md-6 animate-slide-up delay-8">
-        <div class="card h-100 feature-card border-0 shadow-sm">
-            <div class="card-body text-center p-4">
-                <div class="mb-3 text-primary">
+    <div class="col-md-6 animate-slide-up delay-8 reveal">
+        <div class="card h-100 feature-card" style="background-color:#111827; border:1px solid #1e2d40; color:#f1f5f9;">
+            <div class="card-body text-center p-4" style="background-color:#111827;">
+                <div class="mb-3" style="color:#22d3ee;">
                     <i class="bi bi-stars display-4"></i>
                 </div>
-                <h3 class="h5 card-title fw-bold">AI-Augmented Development</h3>
-                <p class="card-text text-muted">
+                <h3 class="h5 card-title fw-bold" style="color:#f1f5f9;">AI-Augmented Development</h3>
+                <p class="card-text" style="color:#94a3b8;">
                     Leveraging advanced tools like Claude Code, Antigravity, and Copilot
                     to accelerate innovation and reach new levels of efficiency.
                 </p>

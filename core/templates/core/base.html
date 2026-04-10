@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background: var(--ds-bg); color: var(--ds-text-primary);">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}🚀 {{ SITE_NAME }}{% endblock %}</title>
+    {% load static %}
+    <link href="{% static 'css/design-system.css' %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    {% load static %}
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link rel="icon" type="image/png" href="{% static 'favicon.png' %}?v=1">
     <script src="https://unpkg.com/htmx.org@1.9.10"
@@ -15,47 +16,43 @@
         crossorigin="anonymous"></script>
 </head>
 
-<body>
+<body style="background-color: #0a0e17; color: #f1f5f9;">
     <div class="htmx-indicator"
         style="position: fixed; top: 0; left: 0; width: 100%; height: 3px; background-color: blue; z-index: 9999; display: none;">
     </div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="ds-surface" style="border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px);">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">{{ SITE_NAME }}</a>
+            <a class="navbar-brand" href="{% url 'home' %}" style="color: var(--ds-accent); font-family: 'JetBrains Mono', monospace;">{{ SITE_NAME }}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        <a class="nav-link" href="{% url 'home' %}" style="color: var(--ds-text-secondary);">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}">About</a>
+                        <a class="nav-link" href="{% url 'about' %}" style="color: var(--ds-text-secondary);">About</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: var(--ds-text-secondary);">
                             Showcase
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark">
-                            <li><a class="dropdown-item" href="{% url 'architecture' %}" hx-boost="false"><i
-                                        class="bi bi-diagram-3 me-2"></i>Architecture</a></li>
-                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}" hx-boost="false"><i
-                                        class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{% url 'swagger-ui' %}" target="_blank"><i
-                                        class="bi bi-code-slash me-2"></i>API Docs <i
-                                        class="bi bi-box-arrow-up-right small"></i></a></li>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'architecture' %}" hx-boost="false"><i class="bi bi-diagram-3 me-2"></i>Architecture</a></li>
+                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{% url 'swagger-ui' %}" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs <i class="bi bi-box-arrow-up-right small"></i></a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'blog_index' %}">Blog</a>
+                        <a class="nav-link" href="{% url 'blog_index' %}" style="color: var(--ds-text-secondary);">Blog</a>
                     </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: var(--ds-text-secondary);">
                             <i class="bi bi-person-circle me-1"></i>{{ user.username }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li>
                                 <form method="post" action="{% url 'logout' %}">
                                     {% csrf_token %}
@@ -68,12 +65,12 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}"><i
+                        <a class="nav-link" href="{% url 'login' %}" style="color: var(--ds-text-secondary);"><i
                                 class="bi bi-box-arrow-in-right me-1"></i>Login</a>
                     </li>
                     {% endif %}
                     <li class="nav-item ms-3">
-                        <button id="theme-toggle" class="btn btn-outline-light btn-sm" aria-label="Toggle theme">
+                        <button id="theme-toggle" class="btn ds-btn-outline btn-sm" aria-label="Toggle theme">
                             🌙
                         </button>
                     </li>
@@ -82,53 +79,47 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <main class="container mt-4" style="background: transparent;">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
 
-    <footer class="footer mt-auto py-5">
+    <footer class="ds-surface mt-auto py-5" style="border-top: 1px solid var(--ds-border);">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 mb-4 mb-lg-0">
                     <h5 class="text-uppercase mb-3 font-weight-bold">{{ SITE_NAME }}</h5>
-                    <p class="text-muted small">Building the web, one pixel at a time. Exploring technology, design, and
-                        the future of code.</p>
+                    <p class="ds-text-muted">Building the web, one pixel at a time. Exploring technology, design, and the future of code.</p>
                 </div>
                 <div class="col-lg-3 mb-4 mb-lg-0 ms-auto text-lg-end">
                     <h5 class="text-uppercase mb-3 font-weight-bold">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{% url 'home' %}"
-                                class="text-muted text-decoration-none footer-link">Home</a></li>
-                        <li class="mb-2"><a href="{% url 'about' %}"
-                                class="text-muted text-decoration-none footer-link">About</a></li>
-                        <li class="mb-2"><a href="{% url 'blog_index' %}"
-                                class="text-muted text-decoration-none footer-link">Blog</a></li>
+                        <li class="mb-2"><a href="{% url 'home' %}" class="ds-text-muted text-decoration-none footer-link">Home</a></li>
+                        <li class="mb-2"><a href="{% url 'about' %}" class="ds-text-muted text-decoration-none footer-link">About</a></li>
+                        <li class="mb-2"><a href="{% url 'blog_index' %}" class="ds-text-muted text-decoration-none footer-link">Blog</a></li>
                     </ul>
                 </div>
                 <div class="col-lg-3 text-lg-end">
                     <h5 class="text-uppercase mb-3 font-weight-bold">Connect</h5>
                     <ul class="list-unstyled">
                         <li class="mb-2">
-                            <a href="https://github.com/mkofoed" class="text-muted text-decoration-none footer-link"
-                                target="_blank">
+                            <a href="https://github.com/mkofoed" class="ds-text-muted text-decoration-none footer-link" target="_blank">
                                 GitHub<i class="bi bi-github ms-2"></i>
                             </a>
                         </li>
                         <li class="mb-2">
-                            <a href="https://www.linkedin.com/in/mbkofoed/"
-                                class="text-muted text-decoration-none footer-link" target="_blank">
+                            <a href="https://www.linkedin.com/in/mbkofoed/" class="ds-text-muted text-decoration-none footer-link" target="_blank">
                                 LinkedIn<i class="bi bi-linkedin ms-2"></i>
                             </a>
                         </li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4 border-secondary">
+            <hr class="my-4" style="border-color: var(--ds-border);">
             <div class="row align-items-center">
                 <div class="col-12 text-center">
-                    <p class="mb-0 text-muted small">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
-                    <p class="mb-0 text-muted small mt-2">
+                    <p class="mb-0 ds-text-muted">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
+                    <p class="mb-0 ds-text-muted mt-2">
                         <i class="bi bi-filetype-py me-1"></i>Python {{ PYTHON_VERSION }}
                         <span class="mx-2">•</span>
                         <i class="bi bi-code-square me-1"></i>Django {{ DJANGO_VERSION }}
@@ -183,6 +174,37 @@
                 initBootstrapComponents();
             });
         })();
+    </script>
+    <style>
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 400ms ease-out, transform 400ms ease-out;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            if (!prefersReducedMotion) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+            } else {
+                document.querySelectorAll('.reveal').forEach((el) => el.classList.add('visible'));
+            }
+        });
     </script>
 </body>
 

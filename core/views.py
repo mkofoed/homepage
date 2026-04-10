@@ -1,6 +1,7 @@
 import logging
 import time
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 
@@ -58,6 +59,7 @@ def github_stats(request: HttpRequest) -> HttpResponse:
     return render(request, "core/partials/github_stats.html", {"stats": stats})
 
 
+@login_required
 def metrics(request: HttpRequest) -> JsonResponse:
     """API endpoint returning server metrics."""
     from .services.system_metrics import check_database_health, get_system_metrics

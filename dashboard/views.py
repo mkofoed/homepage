@@ -1,6 +1,7 @@
 import json
 
 from django.shortcuts import render
+from dashboard.services.price_chart import get_chart_data
 
 from dashboard.models import SpotPrice
 
@@ -19,14 +20,8 @@ def htmx_price_chart(request):
     the labels and data for Chart.js, and returns it inside a script tag
     to re-render the chart.
     """
-    from datetime import timedelta
-
-    from django.db.models import Avg
-    from django.db.models.functions import TruncDay, TruncHour
-    from django.utils import timezone
-
     range_param = request.GET.get("range", "default")
-    now = timezone.now()
+    chart_data = get_chart_data(range_param=range_param, now=timezone.now())
 
     if range_param in ["day", "default"]:
         start_time = now - timedelta(days=1)
@@ -58,58 +53,7 @@ def htmx_price_chart(request):
         start_time = now - timedelta(days=7)
         qs = SpotPrice.objects.filter(timestamp__gte=start_time).order_by("timestamp")
 
-    labels = []
-    data_spot = []
-    data_tax = []
-    data_system = []
-    data_grid = []
 
-    for item in qs:
-        # Extract timestamp and base spot price
-        if range_param in ["month", "year"]:
-            ts = item["period"]
-            spot_dkk_mwh = item["avg_price_dkk"]
-        else:
-            ts = item.timestamp
-            spot_dkk_mwh = float(item.price_dkk)
-
-        spot_kwh = (float(spot_dkk_mwh) / 1000.0) * 1.25
-
-        tax = 0.008 * 1.25  # 2026 Danish Electricity Tax Rate
-        system_tariff = 0.136 * 1.25  # Current Energinet System Tariff
-
-        # Grid Tariff logic (Estimate based on standard DK1 Operator e.g. TREFOR / Radius)
-        month = ts.month
-        hour = ts.hour
-        is_winter = month in [10, 11, 12, 1, 2, 3]
-
-        if range_param == "year":
-            # Rough daily average for grid tariff
-            grid_tariff = (0.34 if is_winter else 0.16) * 1.25
-        else:
-            if 17 <= hour < 21:
-                # Peak
-                grid_tariff = (0.70 if is_winter else 0.25) * 1.25
-            elif (6 <= hour < 17) or (21 <= hour < 24):
-                # High Load (kl. 23)
-                grid_tariff = (0.24 if is_winter else 0.15) * 1.25
-            else:
-                # Low Load (00 - 06)
-                grid_tariff = 0.10 * 1.25
-
-        labels.append(ts.isoformat())
-        data_spot.append(round(spot_kwh, 2))
-        data_tax.append(round(tax, 2))
-        data_system.append(round(system_tariff, 2))
-        data_grid.append(round(grid_tariff, 2))
-
-    chart_data = {
-        "labels": labels,
-        "data_spot": data_spot,
-        "data_tax": data_tax,
-        "data_system": data_system,
-        "data_grid": data_grid,
-    }
 
     # Find the current 15-minute interval to highlight the "price right now"
     minute_bucket = (now.minute // 15) * 15

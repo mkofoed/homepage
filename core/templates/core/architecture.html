@@ -22,27 +22,26 @@
         </div>
 
         <!-- Architecture Diagram -->
-        <div class="card shadow-sm mb-5 bg-dark">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold mb-4"><i class="bi bi-diagram-3-fill me-2 text-primary"></i>System Architecture
+        <div class="ds-surface mb-5 reveal" style="box-shadow: var(--ds-shadow-card); border-radius: var(--ds-radius-lg); padding: var(--ds-space-4);">
+                <h3 class="h5 fw-bold ds-text-primary mb-4" style="border-left: 4px solid var(--ds-accent); padding-left: var(--ds-space-2);"><i class="bi bi-diagram-3-fill me-2"></i>System Architecture
                 </h3>
                 <div class="mermaid">
                     flowchart LR
                     subgraph Internet["🌐 Internet"]
-                    User["👤 User<br />Browser"]
+                    User["👤 User\nBrowser"]
                     end
 
                     subgraph Cloud["☁️ Cloudflare"]
-                    CDN["🛡️ CDN<br />DDoS Protection"]
-                    SSL["🔒 SSL<br />Termination"]
+                    CDN["🛡️ CDN\nDDoS Protection"]
+                    SSL["🔒 SSL\nTermination"]
                     end
 
                     subgraph VM["🖥️ Hetzner VM"]
                     subgraph Docker["🐳 Docker Compose"]
-                    Nginx["⚡ Nginx<br />Reverse Proxy"]
-                    Gunicorn["🦄 Gunicorn<br />WSGI Server"]
-                    Django["🐍 Django<br />Application"]
-                    Postgres[("🗄️ PostgreSQL<br />Database")]
+                    Nginx["⚡ Nginx\nReverse Proxy"]
+                    Gunicorn["🦄 Gunicorn\nWSGI Server"]
+                    Django["🐍 Django\nApplication"]
+                    Postgres[("🗄️ PostgreSQL\nDatabase")]
                     end
                     end
 
@@ -59,8 +58,40 @@
             </div>
         </div>
 
+        <!-- AI Toolchain -->
+        <div class="mb-5 reveal" style="background:#111827; border:1px solid #22d3ee33; border-radius:12px; padding:24px;">
+            <h3 class="h5 fw-bold mb-3" style="color:#f1f5f9;">
+                <i class="bi bi-cpu me-2" style="color:#22d3ee;"></i>AI-Assisted Development
+            </h3>
+            <p style="color:#94a3b8; line-height:1.7; margin-bottom:1rem;">
+                This site is built and maintained with AI-assisted workflows throughout. Not as a gimmick —
+                it's genuinely how I work. Architecture decisions, code review, deployment scripts, and even
+                content updates run through AI tooling.
+            </p>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
+                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">Claude Code</h6>
+                        <p class="small mb-0" style="color:#94a3b8;">Architecture, code review, complex problem-solving</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
+                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">GitHub Copilot</h6>
+                        <p class="small mb-0" style="color:#94a3b8;">In-editor completion and velocity</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
+                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">OpenClaw agents</h6>
+                        <p class="small mb-0" style="color:#94a3b8;">Custom AI agents for repetitive workflows and deployment</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tech Stack -->
-        <div class="card shadow-sm mb-5 bg-dark">
+        <div class="card shadow-sm mb-5 bg-dark reveal">
             <div class="card-body p-4">
                 <h3 class="h5 fw-bold mb-4"><i class="bi bi-stack me-2 text-primary"></i>Tech Stack</h3>
                 <div class="row g-3">
@@ -98,7 +129,7 @@
         </div>
 
         <!-- Live Health Check -->
-        <div class="card shadow-sm mb-5 bg-dark">
+        <div class="card shadow-sm mb-5 bg-dark reveal">
             <div class="card-body p-4">
                 <h3 class="h5 fw-bold mb-4"><i class="bi bi-heart-pulse me-2 text-primary"></i>Live Health Status</h3>
                 <div id="health-status" hx-get="{% url 'health_check' %}" hx-trigger="load, every 10s"
@@ -112,7 +143,7 @@
         </div>
 
         <!-- Deployment Pipeline -->
-        <div class="card shadow-sm mb-5 bg-dark">
+        <div class="card shadow-sm mb-5 bg-dark reveal">
             <div class="card-body p-4">
                 <h3 class="h5 fw-bold mb-4"><i class="bi bi-arrow-repeat me-2 text-primary"></i>Deployment Pipeline</h3>
                 <div class="mermaid">
@@ -137,7 +168,7 @@
         </div>
 
         <!-- Key Features -->
-        <div class="card shadow-sm bg-dark">
+        <div class="card shadow-sm bg-dark reveal">
             <div class="card-body p-4">
                 <h3 class="h5 fw-bold mb-4"><i class="bi bi-lightning-fill me-2 text-primary"></i>Key Features</h3>
                 <div class="row g-3">
@@ -193,7 +224,7 @@
         mermaid.initialize({
             startOnLoad: false,
             theme: 'dark',
-            securityLevel: 'loose',
+            securityLevel: 'strict',
             themeVariables: {
                 background: 'transparent',
                 primaryColor: '#4a5568',

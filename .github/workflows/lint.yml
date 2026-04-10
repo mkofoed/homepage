@@ -12,13 +12,13 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0aac1192d00d285ee0f4f4f7aafa099c17a7c4e0 # v5
         with:
           python-version: "3.14"
           allow-prereleases: true
@@ -34,7 +34,7 @@ jobs:
           ruff format .
 
       - name: Commit fixes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@8621da0b4fc31d342dbdbedde51917cca21e8c9c # v5
         with:
           commit_message: "style: auto-fix linting issues [skip ci]"
           commit_options: "--no-verify"

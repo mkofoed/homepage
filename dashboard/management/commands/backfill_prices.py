@@ -51,7 +51,7 @@ class Command(BaseCommand):
             current_start = start_date
 
             while current_start <= end_date:
-                current_end = min(current_start + delta - timedelta(days=1), end_date)
+                current_end = min(current_start + delta, end_date + timedelta(days=1))
 
                 logger.info(f"Fetching spot prices for range {current_start} -> {current_end}...")
                 inserted = fetch_spot_prices_for_range(

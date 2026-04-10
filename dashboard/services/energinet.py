@@ -42,7 +42,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str)
+        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.timezone.utc)
         if timestamp is None:
             continue
 
@@ -108,7 +108,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str)
+        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.timezone.utc)
         if timestamp is None:
             continue
 

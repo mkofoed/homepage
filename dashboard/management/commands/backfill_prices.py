@@ -36,10 +36,10 @@ class Command(BaseCommand):
             to_date = today.isoformat()
 
         # Validate dates
-        start_date = parse_date(from_date + "T00:00")
-        end_date = parse_date(to_date + "T00:00")
+        start_date = parse_date(from_date) or parse_date(from_date + "T00:00")
+        end_date = parse_date(to_date) or parse_date(to_date + "T00:00")
         if not start_date or not end_date:
-            raise CommandError("Invalid date formats. Use ISO format: YYYY-MM-DD.")
+            raise CommandError("Invalid date formats. Use ISO format: YYYY-MM-DD or YYYY-MM-DDTHH:MM.")
         if start_date > end_date:
             raise CommandError("'from-date' cannot be later than 'to-date'.")
 

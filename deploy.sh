@@ -63,6 +63,9 @@ docker compose -f docker-compose.prod.yml run --rm web python manage.py collects
 log "🚀 Deploying containers..."
 docker compose -f docker-compose.prod.yml up -d
 
+log "🔄 Reloading nginx config..."
+docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload || docker compose -f docker-compose.prod.yml restart nginx
+
 log "⏳ Waiting for containers to pass health check..."
 for i in $(seq 1 30); do
     if docker compose -f docker-compose.prod.yml exec -T web python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" > /dev/null 2>&1; then

@@ -40,27 +40,30 @@ def visitor_map(request: HttpRequest) -> HttpResponse:
 
     try:
         total_views = PageView.objects.count()
+        unique_visitors = PageView.objects.values("ip_hash").distinct().count()
         top_countries = list(
             PageView.objects
             .values("country_name", "country_code")
-            .annotate(count=Count("ip_hash"))
+            .annotate(count=Count("ip_hash", distinct=True))
             .order_by("-count")[:10]
         )
         device_counts = list(
             PageView.objects
             .values("device_type")
-            .annotate(count=Count("ip_hash"))
+            .annotate(count=Count("ip_hash", distinct=True))
             .order_by("-count")
         )
         unique_countries = PageView.objects.values("country_code").distinct().count()
     except ProgrammingError:
         total_views = 0
+        unique_visitors = 0
         top_countries = []
         device_counts = []
         unique_countries = 0
 
     return render(request, "core/visitor_map.html", {
         "total_views": total_views,
+        "unique_visitors": unique_visitors,
         "top_countries": top_countries,
         "device_counts": device_counts,
         "unique_countries": unique_countries,
@@ -74,11 +77,13 @@ def visitor_map_data(request: HttpRequest) -> JsonResponse:
     from django.db import ProgrammingError
 
     try:
+        # Deduplicate by ip_hash first, then aggregate locations
+        # This gives unique visitors per location, not raw page views
         points = (
             PageView.objects
             .values("latitude", "longitude", "country_name", "country_code", "city")
-            .annotate(count=Count("ip_hash"))
-            .order_by("-count")
+            .annotate(visitors=Count("ip_hash", distinct=True))
+            .order_by("-visitors")
         )
         features = []
         for p in points:
@@ -93,7 +98,7 @@ def visitor_map_data(request: HttpRequest) -> JsonResponse:
                         "country": p["country_name"],
                         "country_code": p["country_code"],
                         "city": p["city"] or p["country_name"],
-                        "count": p["count"],
+                        "count": p["visitors"],
                     },
                 })
     except ProgrammingError:

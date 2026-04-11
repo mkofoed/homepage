@@ -9,8 +9,17 @@ logger = logging.getLogger(__name__)
 
 
 def home(request: HttpRequest) -> HttpResponse:
-    """Home page view."""
-    return render(request, "core/home.html")
+    """Home page view with featured cards."""
+    from blog.models import Post
+    from .services.github_service import get_github_stats
+
+    latest_posts = Post.objects.filter(status=Post.Status.PUBLISHED).order_by("-created_at")[:3]
+    github = get_github_stats()
+
+    return render(request, "core/home.html", {
+        "latest_posts": latest_posts,
+        "github": github,
+    })
 
 
 def about(request: HttpRequest) -> HttpResponse:

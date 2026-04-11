@@ -6,27 +6,27 @@
 <!-- Hero Section -->
 <div class="hero-section" style="background: radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.10) 0%, transparent 65%); display: flex; align-items: center; justify-content: center; padding: 4rem 1rem 3rem;">
     <div class="text-center">
-        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.5rem;">
+        <div class="hero-item" style="--hero-delay:0ms; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.5rem;">
             <span style="width: 7px; height: 7px; background: #22d3ee; border-radius: 50%; display: inline-block; box-shadow: 0 0 6px #22d3ee;"></span>
             AI-augmented developer
         </div>
-        <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(36px, 5vw, 72px);">
-            Hi, I'm <span style="color: #22d3ee; position: relative;">
+        <h1 class="hero-item fw-bold" style="--hero-delay:120ms; color: #f1f5f9; font-size: clamp(36px, 5vw, 72px);">
+            Hi, I'm <span style="color: #22d3ee; position: relative; display: inline-block;">
                 Mikkel Kofoed
-                <span style="position: absolute; bottom: -4px; left: 0; width: 100%; height: 2px; background: #22d3ee;"></span>
+                <span class="name-underline"></span>
             </span>
         </h1>
-        <p style="color: #94a3b8; font-size: 1.25rem; max-width: 600px; margin: 1.25rem auto 0.75rem;">
-            Developer &amp; physicist building with Python and Django —
+        <p class="hero-item" style="--hero-delay:220ms; color: #94a3b8; font-size: 1.25rem; max-width: 600px; margin: 1.25rem auto 0.75rem;">
+            Developer &amp; physicist building with Python and Django &mdash;
             <span style="color: #e2e8f0;">shipping faster with bleeding-edge AI tooling.</span>
         </p>
         <!-- AI Tool Badges -->
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1.25rem auto;">
+        <div class="hero-item" style="--hero-delay:320ms; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1.25rem auto;">
             <span class="ai-badge"><i class="bi bi-cpu me-1"></i>Claude Code</span>
             <span class="ai-badge"><i class="bi bi-robot me-1"></i>GitHub Copilot</span>
             <span class="ai-badge"><i class="bi bi-terminal me-1"></i>OpenClaw</span>
         </div>
-        <div style="display: flex; gap: 1rem; justify-content: center;">
+        <div class="hero-item" style="--hero-delay:420ms; display: flex; gap: 1rem; justify-content: center;">
             <a href="#projects" style="display:inline-block; padding:10px 24px; background:#22d3ee; color:#0a0e17; font-weight:600; border-radius:8px; text-decoration:none;">View Work</a>
             <a href="{% url 'about' %}" style="display:inline-block; padding:10px 24px; background:transparent; color:#22d3ee; font-weight:600; border:1.5px solid #22d3ee; border-radius:8px; text-decoration:none;">About Me</a>
         </div>
@@ -212,17 +212,34 @@
 </div>
 
 <style>
+/* Hero entrance animations */
+.hero-item {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+    animation: heroFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--hero-delay, 0ms);
+}
+@keyframes heroFadeUp {
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+/* Name underline expand */
+.name-underline {
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: #22d3ee;
+    animation: underlineGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: 600ms;
+}
+@keyframes underlineGrow {
+    to { width: 100%; }
+}
 @keyframes fadeUp {
     0% { opacity: 0; transform: translateY(24px); }
     100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes underlineGrow {
-    0% { width: 0; left: 50%; }
-    100% { width: 100%; left: 0; }
-}
-.ds-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 12px rgba(34,211,238,0.1);
 }
 .ai-badge {
     background: rgba(34,211,238,0.08);

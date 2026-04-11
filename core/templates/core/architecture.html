@@ -4,276 +4,339 @@
 
 {% block content %}
 <style>
-    .mermaid svg {
-        background: transparent !important;
+    .mermaid svg { background: transparent !important; }
+    .mermaid .cluster rect { fill: transparent !important; stroke: #334155 !important; }
+    .arch-card {
+        background: var(--ds-surface, #111827);
+        border: 1px solid rgba(34,211,238,0.12);
+        border-radius: 12px;
+        padding: 1.75rem;
+        margin-bottom: 1.75rem;
     }
-
-    .mermaid .cluster rect {
-        fill: transparent !important;
-        stroke: #4a5568 !important;
+    .arch-card-title {
+        color: #f1f5f9;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-left: 3px solid #22d3ee;
+        padding-left: 0.75rem;
     }
+    .arch-card-title i { color: #22d3ee; }
+    .stack-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: rgba(34,211,238,0.08);
+        border: 1px solid rgba(34,211,238,0.2);
+        color: #22d3ee;
+        padding: 0.3rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 500;
+    }
+    .feature-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feature-row:last-child { border-bottom: none; }
+    .feature-row i { color: #22d3ee; margin-top: 2px; flex-shrink: 0; }
+    .ai-tool-card {
+        background: #0a0e17;
+        border: 1px solid #1e2d40;
+        border-radius: 8px;
+        padding: 1rem;
+        height: 100%;
+        transition: border-color 150ms;
+    }
+    .ai-tool-card:hover { border-color: rgba(34,211,238,0.35); }
+    .pipeline-step {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.65rem 1rem;
+        border-radius: 8px;
+        background: #0a0e17;
+        border: 1px solid #1e2d40;
+        font-size: 0.875rem;
+        color: #e2e8f0;
+    }
+    .pipeline-step i { color: #22d3ee; font-size: 1rem; }
+    .pipeline-arrow { color: #334155; text-align: center; font-size: 1.2rem; padding: 0.2rem 0; }
 </style>
+
+<!-- Page Hero -->
+<div style="padding: 3rem 0 2rem; text-align: center;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.25rem;">
+        <i class="bi bi-diagram-3-fill"></i> System Architecture
+    </div>
+    <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">How This Site Is Built</h1>
+    <p style="color: #94a3b8; font-size: 1.1rem; max-width: 560px; margin: 0.75rem auto 0;">
+        A full-stack Django app deployed on Hetzner — built and maintained with AI-assisted workflows throughout.
+    </p>
+</div>
+
 <div class="row justify-content-center">
-    <div class="col-lg-10">
-        <!-- Hero Section -->
-        <div class="text-center mb-5">
-            <h1 class="display-4 fw-bold mb-2">How This Site Is Built</h1>
-            <p class="lead text-muted">A deep dive into the architecture, infrastructure, and DevOps practices.</p>
+<div class="col-lg-10">
+
+    <!-- System Architecture Diagram -->
+    <div class="arch-card reveal">
+        <div class="arch-card-title"><i class="bi bi-diagram-3-fill"></i> System Architecture</div>
+        <div class="mermaid">
+            flowchart LR
+            subgraph Internet["🌐 Internet"]
+            User["👤 User\nBrowser"]
+            end
+
+            subgraph Cloud["☁️ Cloudflare"]
+            CDN["🛡️ CDN\nDDoS Protection"]
+            SSL["🔒 SSL\nTermination"]
+            end
+
+            subgraph VM["🖥️ Hetzner VM"]
+            subgraph Docker["🐳 Docker Compose"]
+            Nginx["⚡ Nginx\nReverse Proxy"]
+            Gunicorn["🦄 Gunicorn\nWSGI Server"]
+            Django["🐍 Django\nApp"]
+            Postgres[("🗄️ PostgreSQL\nTimescaleDB")]
+            Redis[("⚡ Redis\nCache")]
+            Celery["⚙️ Celery\nWorker"]
+            end
+            end
+
+            User --> CDN --> SSL --> Nginx --> Gunicorn --> Django
+            Django --> Postgres
+            Django --> Redis
+            Django --> Celery
+
+            style User fill:#1e2d40,stroke:#334155,color:#94a3b8
+            style CDN fill:#92400e,stroke:#b45309,color:#fde68a
+            style SSL fill:#92400e,stroke:#b45309,color:#fde68a
+            style Nginx fill:#14532d,stroke:#166534,color:#86efac
+            style Gunicorn fill:#1e3a5f,stroke:#1d4ed8,color:#93c5fd
+            style Django fill:#14532d,stroke:#166534,color:#86efac
+            style Postgres fill:#312e81,stroke:#4338ca,color:#c7d2fe
+            style Redis fill:#7f1d1d,stroke:#b91c1c,color:#fca5a5
+            style Celery fill:#1e3a5f,stroke:#1d4ed8,color:#93c5fd
         </div>
+    </div>
 
-        <!-- Architecture Diagram -->
-        <div class="ds-surface mb-5 reveal" style="box-shadow: var(--ds-shadow-card); border-radius: var(--ds-radius-lg); padding: var(--ds-space-4);">
-                <h3 class="h5 fw-bold ds-text-primary mb-4" style="border-left: 4px solid var(--ds-accent); padding-left: var(--ds-space-2);"><i class="bi bi-diagram-3-fill me-2"></i>System Architecture
-                </h3>
-                <div class="mermaid">
-                    flowchart LR
-                    subgraph Internet["🌐 Internet"]
-                    User["👤 User\nBrowser"]
-                    end
-
-                    subgraph Cloud["☁️ Cloudflare"]
-                    CDN["🛡️ CDN\nDDoS Protection"]
-                    SSL["🔒 SSL\nTermination"]
-                    end
-
-                    subgraph VM["🖥️ Hetzner VM"]
-                    subgraph Docker["🐳 Docker Compose"]
-                    Nginx["⚡ Nginx\nReverse Proxy"]
-                    Gunicorn["🦄 Gunicorn\nWSGI Server"]
-                    Django["🐍 Django\nApplication"]
-                    Postgres[("🗄️ PostgreSQL\nDatabase")]
-                    end
-                    end
-
-                    User --> CDN --> SSL --> Nginx --> Gunicorn --> Django --> Postgres
-
-                    style User fill:#4a5568,stroke:#718096,color:#fff
-                    style CDN fill:#f6ad55,stroke:#ed8936,color:#000
-                    style SSL fill:#f6ad55,stroke:#ed8936,color:#000
-                    style Nginx fill:#48bb78,stroke:#38a169,color:#000
-                    style Gunicorn fill:#4299e1,stroke:#3182ce,color:#fff
-                    style Django fill:#38a169,stroke:#2f855a,color:#fff
-                    style Postgres fill:#667eea,stroke:#5a67d8,color:#fff
+    <!-- AI Toolchain -->
+    <div class="arch-card reveal">
+        <div class="arch-card-title"><i class="bi bi-cpu-fill"></i> AI-Assisted Development</div>
+        <p style="color: #94a3b8; line-height: 1.7; margin-bottom: 1.25rem;">
+            This site is built and maintained with AI-assisted workflows throughout — not as a gimmick, but as a genuine
+            force multiplier. Architecture decisions, code review, deployment scripts, and even frontend changes run
+            through AI tooling daily.
+        </p>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="ai-tool-card">
+                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                        <i class="bi bi-braces me-1"></i>Claude Code
+                    </div>
+                    <p class="small mb-0" style="color:#94a3b8;">Architecture, code review, and complex problem-solving in the terminal</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ai-tool-card">
+                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                        <i class="bi bi-github me-1"></i>GitHub Copilot
+                    </div>
+                    <p class="small mb-0" style="color:#94a3b8;">In-editor completions for velocity — Python, HTML, CSS</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="ai-tool-card">
+                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                        <i class="bi bi-terminal-fill me-1"></i>OpenClaw
+                    </div>
+                    <p class="small mb-0" style="color:#94a3b8;">Persistent AI agent — visual QA, autonomous background tasks, Telegram integration</p>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- AI Toolchain -->
-        <div class="mb-5 reveal" style="background:#111827; border:1px solid #22d3ee33; border-radius:12px; padding:24px;">
-            <h3 class="h5 fw-bold mb-3" style="color:#f1f5f9;">
-                <i class="bi bi-cpu me-2" style="color:#22d3ee;"></i>AI-Assisted Development
-            </h3>
-            <p style="color:#94a3b8; line-height:1.7; margin-bottom:1rem;">
-                This site is built and maintained with AI-assisted workflows throughout. Not as a gimmick —
-                it's genuinely how I work. Architecture decisions, code review, deployment scripts, and even
-                content updates run through AI tooling.
-            </p>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
-                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">Claude Code</h6>
-                        <p class="small mb-0" style="color:#94a3b8;">Architecture, code review, complex problem-solving</p>
+    <!-- Tech Stack -->
+    <div class="arch-card reveal">
+        <div class="arch-card-title"><i class="bi bi-stack"></i> Tech Stack</div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Backend</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="stack-badge"><i class="bi bi-filetype-py"></i> Python {{ PYTHON_VERSION }}</span>
+                    <span class="stack-badge"><i class="bi bi-code-square"></i> Django {{ DJANGO_VERSION }}</span>
+                    <span class="stack-badge">Gunicorn</span>
+                    <span class="stack-badge">Celery</span>
+                    <span class="stack-badge">DRF</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Data</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="stack-badge"><i class="bi bi-database"></i> PostgreSQL 18</span>
+                    <span class="stack-badge">TimescaleDB</span>
+                    <span class="stack-badge"><i class="bi bi-lightning-fill"></i> Redis</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Infrastructure</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="stack-badge"><i class="bi bi-boxes"></i> Docker Compose</span>
+                    <span class="stack-badge">Nginx</span>
+                    <span class="stack-badge">Cloudflare</span>
+                    <span class="stack-badge">Hetzner</span>
+                    <span class="stack-badge">Watchtower</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Frontend</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="stack-badge">HTMX</span>
+                    <span class="stack-badge">Bootstrap 5</span>
+                    <span class="stack-badge">Chart.js</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Tooling</div>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="stack-badge">uv</span>
+                    <span class="stack-badge">Sentry</span>
+                    <span class="stack-badge">GitHub Actions</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deployment Pipeline -->
+    <div class="arch-card reveal">
+        <div class="arch-card-title"><i class="bi bi-arrow-repeat"></i> Deployment Pipeline</div>
+        <div class="row g-0 align-items-center" style="max-width: 600px;">
+            <div class="col"><div class="pipeline-step"><i class="bi bi-git"></i> Push to main</div></div>
+            <div class="col-auto px-2 pipeline-arrow">→</div>
+            <div class="col"><div class="pipeline-step"><i class="bi bi-hammer"></i> Build Docker image</div></div>
+            <div class="col-auto px-2 pipeline-arrow">→</div>
+            <div class="col"><div class="pipeline-step"><i class="bi bi-cloud-upload"></i> Push to Docker Hub</div></div>
+        </div>
+        <div class="row g-0 align-items-center mt-2" style="max-width: 600px;">
+            <div class="col"><div class="pipeline-step"><i class="bi bi-terminal"></i> SSH to server</div></div>
+            <div class="col-auto px-2 pipeline-arrow">→</div>
+            <div class="col"><div class="pipeline-step"><i class="bi bi-cloud-download"></i> Pull image</div></div>
+            <div class="col-auto px-2 pipeline-arrow">→</div>
+            <div class="col"><div class="pipeline-step"><i class="bi bi-check2-circle"></i> Deploy + migrate</div></div>
+        </div>
+        <div class="mt-4 d-flex gap-2 flex-wrap">
+            <a href="https://github.com/mkofoed/homepage" target="_blank" class="btn btn-sm" style="background:transparent; color:#22d3ee; border:1px solid rgba(34,211,238,0.3); border-radius:6px; padding:5px 16px;">
+                <i class="bi bi-github me-1"></i>View on GitHub
+            </a>
+            <a href="https://github.com/mkofoed/homepage/actions" target="_blank" class="btn btn-sm" style="background:transparent; color:#22d3ee; border:1px solid rgba(34,211,238,0.3); border-radius:6px; padding:5px 16px;">
+                <i class="bi bi-play-circle me-1"></i>View Actions
+            </a>
+        </div>
+    </div>
+
+    <!-- Key Features + Live Health -->
+    <div class="row g-4 reveal">
+        <div class="col-md-7">
+            <div class="arch-card" style="margin-bottom:0; height:100%;">
+                <div class="arch-card-title"><i class="bi bi-lightning-fill"></i> Key Features</div>
+                <div class="feature-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Fast dependency management</div>
+                        <div class="small" style="color:#94a3b8;"><code>uv</code> for 10–100× faster Python package installs</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
-                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">GitHub Copilot</h6>
-                        <p class="small mb-0" style="color:#94a3b8;">In-editor completion and velocity</p>
+                <div class="feature-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Zero-downtime deploys</div>
+                        <div class="small" style="color:#94a3b8;">Docker Compose rolling updates via Watchtower</div>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div style="background:#0a0e17; border:1px solid #1e2d40; border-radius:8px; padding:16px;">
-                        <h6 class="fw-bold mb-1" style="color:#22d3ee;">OpenClaw agents</h6>
-                        <p class="small mb-0" style="color:#94a3b8;">Custom AI agents for repetitive workflows and deployment</p>
+                <div class="feature-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Automatic SSL</div>
+                        <div class="small" style="color:#94a3b8;">Let's Encrypt via nginx-certbot container</div>
+                    </div>
+                </div>
+                <div class="feature-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Time-series data</div>
+                        <div class="small" style="color:#94a3b8;">TimescaleDB hypertables for electricity spot prices</div>
+                    </div>
+                </div>
+                <div class="feature-row">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Error tracking</div>
+                        <div class="small" style="color:#94a3b8;">Sentry integration for production monitoring</div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Tech Stack -->
-        <div class="card shadow-sm mb-5 bg-dark reveal">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold mb-4"><i class="bi bi-stack me-2 text-primary"></i>Tech Stack</h3>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
-                            <h6 class="fw-bold mb-2"><i class="bi bi-code-slash me-2"></i>Backend</h6>
-                            <ul class="list-unstyled mb-0 small">
-                                <li><span class="badge bg-success me-2">Python {{ PYTHON_VERSION }}</span></li>
-                                <li class="mt-1"><span class="badge bg-success me-2">Django {{ DJANGO_VERSION }}</span>
-                                </li>
-                                <li class="mt-1"><span class="badge bg-secondary me-2">Gunicorn</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
-                            <h6 class="fw-bold mb-2"><i class="bi bi-database me-2"></i>Database</h6>
-                            <ul class="list-unstyled mb-0 small">
-                                <li><span class="badge bg-primary me-2">PostgreSQL</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="p-3 rounded" style="background-color: rgba(255,255,255,0.05);">
-                            <h6 class="fw-bold mb-2"><i class="bi bi-box me-2"></i>Infrastructure</h6>
-                            <ul class="list-unstyled mb-0 small">
-                                <li><span class="badge bg-info text-dark me-2">Docker</span></li>
-                                <li class="mt-1"><span class="badge bg-info text-dark me-2">Nginx</span></li>
-                                <li class="mt-1"><span class="badge bg-warning text-dark me-2">Cloudflare</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Live Health Check -->
-        <div class="card shadow-sm mb-5 bg-dark reveal">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold mb-4"><i class="bi bi-heart-pulse me-2 text-primary"></i>Live Health Status</h3>
-                <div id="health-status" hx-get="{% url 'health_check' %}" hx-trigger="load, every 10s"
-                    hx-swap="innerHTML">
-                    <div class="d-flex align-items-center">
-                        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                        <span class="text-muted">Loading health status...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Deployment Pipeline -->
-        <div class="card shadow-sm mb-5 bg-dark reveal">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold mb-4"><i class="bi bi-arrow-repeat me-2 text-primary"></i>Deployment Pipeline</h3>
-                <div class="mermaid">
-                    graph LR
-                    A["📝 Push to main"] --> B["🔨 Build Docker Image"]
-                    B --> C["📦 Push to Docker Hub"]
-                    C --> D["🔗 SSH to Server"]
-                    D --> E["⬇️ Pull Image"]
-                    E --> F["🚀 Deploy Containers"]
-                    F --> G["✅ Run Migrations"]
-                </div>
-                <div class="mt-4">
-                    <a href="https://github.com/mkofoed/homepage" target="_blank" class="btn btn-outline-light btn-sm">
-                        <i class="bi bi-github me-2"></i>View on GitHub
-                    </a>
-                    <a href="https://github.com/mkofoed/homepage/actions" target="_blank"
-                        class="btn btn-outline-primary btn-sm ms-2">
-                        <i class="bi bi-play-circle me-2"></i>View Actions
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Features -->
-        <div class="card shadow-sm bg-dark reveal">
-            <div class="card-body p-4">
-                <h3 class="h5 fw-bold mb-4"><i class="bi bi-lightning-fill me-2 text-primary"></i>Key Features</h3>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Fast Dependency Management</h6>
-                                <p class="text-muted small mb-0">Using <code>uv</code> for 10-100x faster Python package
-                                    installs</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Automatic SSL</h6>
-                                <p class="text-muted small mb-0">Let's Encrypt certificates via nginx-certbot container
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Zero-Downtime Deploys</h6>
-                                <p class="text-muted small mb-0">Docker Compose with rolling container updates</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Error Tracking</h6>
-                                <p class="text-muted small mb-0">Sentry integration for production error monitoring</p>
-                            </div>
-                        </div>
+        <div class="col-md-5">
+            <div class="arch-card" style="margin-bottom:0; height:100%;">
+                <div class="arch-card-title"><i class="bi bi-heart-pulse-fill"></i> Live Health</div>
+                <div id="health-status" hx-get="{% url 'health_check' %}" hx-trigger="load, every 10s" hx-swap="innerHTML">
+                    <div class="d-flex align-items-center gap-2" style="color:#64748b;">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        Checking...
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+</div>
 </div>
 
-<!-- Mermaid JS for diagrams -->
+<!-- Mermaid -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script>
-    // Initialize Mermaid with dark theme
-    (function () {
-        mermaid.initialize({
-            startOnLoad: false,
-            theme: 'dark',
-            securityLevel: 'strict',
-            themeVariables: {
-                background: 'transparent',
-                primaryColor: '#4a5568',
-                secondaryColor: '#2d3748',
-                tertiaryColor: '#1a202c'
-            }
-        });
-
-        // Render all mermaid diagrams
-        mermaid.run();
-    })();
+    mermaid.initialize({
+        startOnLoad: false,
+        theme: 'dark',
+        securityLevel: 'strict',
+        themeVariables: {
+            background: 'transparent',
+            primaryColor: '#1e2d40',
+            secondaryColor: '#0a0e17',
+            tertiaryColor: '#111827'
+        }
+    });
+    mermaid.run();
 </script>
 
-<!-- HTMX handler for health check response -->
 <script>
     document.body.addEventListener('htmx:afterSwap', function (event) {
         if (event.detail.target.id === 'health-status') {
             try {
                 const data = JSON.parse(event.detail.xhr.responseText);
-                const statusClass = data.status === 'healthy' ? 'success' : 'danger';
-                const statusIcon = data.status === 'healthy' ? 'check-circle-fill' : 'x-circle-fill';
-
+                const ok = data.status === 'healthy';
                 event.detail.target.innerHTML = `
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-${statusIcon} text-${statusClass} me-2"></i>
-                                <span class="fw-bold">Status:</span>
-                                <span class="badge bg-${statusClass} ms-2">${data.status.toUpperCase()}</span>
-                            </div>
+                    <div class="d-flex flex-column gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-${ok ? 'check-circle-fill' : 'x-circle-fill'}" style="color:${ok ? '#22d3ee' : '#f87171'}"></i>
+                            <span style="color:#f1f5f9; font-weight:600;">${data.status.toUpperCase()}</span>
                         </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-database me-2 text-primary"></i>
-                                <span class="fw-bold">Database:</span>
-                                <span class="ms-2">${data.database.response_ms}ms</span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-speedometer2 me-2 text-primary"></i>
-                                <span class="fw-bold">Response:</span>
-                                <span class="ms-2">${data.response_time_ms}ms</span>
-                            </div>
+                        <div class="small" style="color:#64748b;">
+                            <i class="bi bi-database me-1"></i>DB ${data.database.response_ms}ms
+                            &nbsp;·&nbsp;
+                            <i class="bi bi-speedometer2 me-1"></i>Response ${data.response_time_ms}ms
                         </div>
                     </div>
                 `;
             } catch (e) {
-                event.detail.target.innerHTML = '<span class="text-danger">Failed to parse health data</span>';
+                event.detail.target.innerHTML = '<span style="color:#f87171;">Failed to load health data</span>';
             }
         }
     });

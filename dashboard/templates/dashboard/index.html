@@ -36,7 +36,16 @@
     function setRange(range, btn) {
         window.chartRange = range;
         window.chartOffset = 0;
+        // Reset resolution to hour when leaving day view
+        if (range !== 'day') window.chartResolution = 'hour';
         document.querySelectorAll('.zoom-btn').forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadChart();
+    }
+
+    function setResolution(res, btn) {
+        window.chartResolution = res;
+        document.querySelectorAll('.res-btn').forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
         loadChart();
     }
@@ -88,6 +97,30 @@
     .chart-controls__ranges {
         display: flex;
         gap: 0.25rem;
+    }
+    .chart-controls__resolution {
+        display: flex;
+        gap: 0.25rem;
+    }
+    .res-btn {
+        padding: 0.25rem 0.6rem;
+        border-radius: var(--ds-radius-sm, 4px);
+        border: 1px solid var(--ds-border, #1e2d40);
+        background: var(--ds-surface, #111827);
+        color: var(--ds-text-secondary, #94a3b8);
+        font-size: 0.75rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 150ms;
+    }
+    .res-btn:hover {
+        border-color: var(--ds-accent, #22d3ee);
+        color: var(--ds-text-primary, #f1f5f9);
+    }
+    .res-btn.active {
+        background: var(--ds-accent, #22d3ee);
+        color: #0a0e17;
+        border-color: var(--ds-accent, #22d3ee);
     }
     .chart-controls__nav {
         display: flex;
@@ -161,6 +194,10 @@
             <button class="zoom-btn" onclick="setRange('week', this)">Uge</button>
             <button class="zoom-btn" onclick="setRange('month', this)">M&aring;ned</button>
             <button class="zoom-btn" onclick="setRange('year', this)">&Aring;r</button>
+        </div>
+        <div id="res-toggle" class="chart-controls__resolution">
+            <button class="res-btn active" onclick="setResolution('hour', this)">1t</button>
+            <button class="res-btn" onclick="setResolution('quarter', this)">15m</button>
         </div>
         <div class="chart-controls__nav">
             <button class="nav-btn" onclick="navigate(-1)" title="Forrige">&larr;</button>

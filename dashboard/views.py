@@ -50,20 +50,35 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         min_idx = chart_data.data_total.index(min_val)
         max_idx = chart_data.data_total.index(max_val)
 
-        def _hour_label(iso_str: str) -> str:
-            """Format hour label in Copenhagen time."""
+        def _time_label(iso_str: str, res: str, rng: str) -> str:
+            """Format time label in Copenhagen time, resolution and range aware."""
+            da_days = ['man', 'tir', 'ons', 'tor', 'fre', 'lør', 'søn']
+            da_months = ['', 'jan', 'feb', 'mar', 'apr', 'maj', 'jun',
+                         'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
             try:
                 t = dt.fromisoformat(iso_str)
                 t_cph = t.astimezone(CPH_TZ)
+                wd = da_days[t_cph.weekday()]
+                mo = da_months[t_cph.month]
+                if rng == "year":
+                    return mo.capitalize()
+                if rng == "month":
+                    return f"{wd} {t_cph.day}. {mo}"
+                if rng == "week":
+                    return f"{wd} {t_cph.day}/{t_cph.month} kl. {t_cph.hour:02d}"
+                if res == "quarter":
+                    from datetime import timedelta as _td
+                    end = t_cph + _td(minutes=15)
+                    return f"Kl. {t_cph.hour:02d}:{t_cph.minute:02d}-{end.hour:02d}:{end.minute:02d}"
                 return f"Kl. {t_cph.hour:02d}-{(t_cph.hour + 1) % 24:02d}"
-            except ValueError, AttributeError:
+            except (ValueError, AttributeError):
                 return ""
 
         summary = {
             "min_price": f"{min_val:.2f}",
-            "min_hour": _hour_label(chart_data.labels[min_idx]),
+            "min_hour": _time_label(chart_data.labels[min_idx], resolution, range_param),
             "max_price": f"{max_val:.2f}",
-            "max_hour": _hour_label(chart_data.labels[max_idx]),
+            "max_hour": _time_label(chart_data.labels[max_idx], resolution, range_param),
             "avg_price": f"{avg_val:.2f}",
         }
 

@@ -35,6 +35,8 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/homepage-web:latest
           ghcr.io/${{ github.repository_owner }}/homepage-web:${{ github.sha }}
+        build-args: |
+          MAXMIND_LICENSE_KEY=${{ secrets.MAXMIND_LICENSE_KEY }}
         cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/homepage-web:buildcache
         cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/homepage-web:buildcache,mode=max
 

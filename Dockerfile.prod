@@ -28,6 +28,19 @@ RUN uv pip install --system .
 COPY . .
 
 
+################
+# GEOIP FETCH  #
+################
+FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650 AS geoip
+
+ARG MAXMIND_LICENSE_KEY
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /geoip && \
+    curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" \
+    | tar -xz --strip-components=1 -C /geoip --wildcards '*.mmdb' && \
+    ls /geoip/
+
+
 #########
 # FINAL #
 #########
@@ -55,6 +68,9 @@ RUN apt-get update && \
 # copy pre-installed Python packages from builder
 COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
+
+# copy GeoIP database
+COPY --from=geoip /geoip/ /geoip/
 
 # copy project
 COPY --from=builder /usr/src/app $APP_HOME

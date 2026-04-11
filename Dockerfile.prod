@@ -69,9 +69,6 @@ RUN apt-get update && \
 COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
 COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
-# copy GeoIP database
-COPY --from=geoip /geoip/ /geoip/
-
 # copy project
 COPY --from=builder /usr/src/app $APP_HOME
 

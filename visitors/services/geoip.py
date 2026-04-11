@@ -1,11 +1,13 @@
 import datetime
 import hashlib
 import logging
+
+import httpx
 from dataclasses import dataclass
 
-from django.contrib.gis.geoip2 import GeoIP2
-
 logger = logging.getLogger(__name__)
+
+IP_API_URL = "http://ip-api.com/json/{ip}?fields=status,country,countryCode,city,lat,lon"
 
 
 @dataclass(frozen=True)
@@ -25,16 +27,22 @@ def hash_ip(ip: str) -> str:
 
 def lookup_ip(ip: str) -> GeoLocation | None:
     try:
-        g = GeoIP2()
-        data = g.city(ip)
+        response = httpx.get(IP_API_URL.format(ip=ip), timeout=5.0)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("status") != "success":
+            logger.warning("ip-api.com lookup failed for IP: %s", data.get("message", "unknown"))
+            return None
+
         return GeoLocation(
             ip_hash=hash_ip(ip),
-            country_code=data.get("country_code", "") or "",
-            country_name=data.get("country_name", "") or "",
+            country_code=data.get("countryCode", "") or "",
+            country_name=data.get("country", "") or "",
             city=data.get("city", "") or "",
-            latitude=round(data.get("latitude", 0.0) or 0.0, 2),
-            longitude=round(data.get("longitude", 0.0) or 0.0, 2),
+            latitude=round(data.get("lat", 0.0) or 0.0, 2),
+            longitude=round(data.get("lon", 0.0) or 0.0, 2),
         )
     except Exception:
-        logger.warning("GeoIP lookup failed for IP", exc_info=True)
+        logger.warning("ip-api.com lookup failed", exc_info=True)
         return None

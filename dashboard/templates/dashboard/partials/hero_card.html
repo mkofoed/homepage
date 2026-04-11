@@ -16,16 +16,16 @@
     <div class="d-flex flex-column flex-md-row align-items-center justify-content-between">
         <!-- Left: Big price -->
         <div class="flex-grow-1 text-center text-md-start py-3 px-3">
-            <p class="ds-text-secondary mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Spot price right now</p>
+            <p class="ds-text-secondary mb-1" style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em;">Spotpris lige nu</p>
             <h1 class="hero-card__price mb-1">{{ price.current_price }}</h1>
-            <p class="ds-text-muted mb-0" style="font-size: 0.85rem;">DKK/kWh incl. VAT &middot; spot {{ price.spot_price }}</p>
+            <p class="ds-text-muted mb-0" style="font-size: 0.85rem;">DKK/kWh inkl. moms &middot; spot {{ price.spot_price }}</p>
         </div>
 
         <!-- Right: Stats -->
         <div class="flex-shrink-0 text-center text-md-end py-3 px-3" style="min-width: 180px;">
             <!-- Trend vs yesterday -->
             <div class="mb-3">
-                <p class="ds-text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">vs yesterday</p>
+                <p class="ds-text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">ift. i går</p>
                 {% if price.trend_direction == 'up' %}
                     <span class="hero-card__trend" style="color: var(--ds-danger, #ef4444);">
                         <i class="bi bi-arrow-up-right"></i> +{{ price.trend_pct }}%
@@ -40,14 +40,14 @@
                     </span>
                 {% else %}
                     <span class="ds-text-muted" style="font-size: 0.9rem;">
-                        <i class="bi bi-dash"></i> No data yet
+                        <i class="bi bi-dash"></i> Ingen data endnu
                     </span>
                 {% endif %}
             </div>
 
             <!-- Today's range -->
             <div>
-                <p class="ds-text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Today's range</p>
+                <p class="ds-text-secondary mb-1" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Dagens interval</p>
                 <span style="font-size: 1.1rem; font-weight: 500;">
                     <span style="color: var(--ds-success, #10b981);">{{ price.day_min }}</span>
                     <span class="ds-text-muted mx-1">–</span>

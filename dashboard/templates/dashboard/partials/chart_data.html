@@ -1,14 +1,57 @@
 <!-- Summary cards -->
 <div class="summary-cards mb-4">
-    <div class="summary-card summary-card--low" id="summary-min"></div>
-    <div class="summary-card summary-card--high" id="summary-max"></div>
-    <div class="summary-card summary-card--avg" id="summary-avg"></div>
+    <div class="summary-card" id="summary-min"></div>
+    <div class="summary-card" id="summary-max"></div>
+    <div class="summary-card" id="summary-avg"></div>
 </div>
 
 <!-- Chart -->
-<div style="position: relative; height: 400px;">
-    <canvas id="priceChart"></canvas>
+<div class="ds-card" style="padding: var(--ds-space-4);">
+    <div style="position: relative; height: 400px;">
+        <canvas id="priceChart"></canvas>
+    </div>
 </div>
+
+<style>
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--ds-space-4, 16px);
+}
+.summary-card {
+    background: var(--ds-surface, #111827);
+    border: 1px solid var(--ds-border, #1e2d40);
+    border-radius: var(--ds-radius-lg, 12px);
+    padding: var(--ds-space-4, 16px) var(--ds-space-5, 24px);
+    text-align: center;
+    box-shadow: var(--ds-shadow-card, 0 4px 24px rgba(0,0,0,0.4));
+}
+.summary-card__label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ds-text-muted, #64748b);
+    margin-bottom: 4px;
+}
+.summary-card__price {
+    font-family: var(--ds-font-code, 'JetBrains Mono', monospace);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ds-text-primary, #f1f5f9);
+}
+.summary-card__sub {
+    font-size: 0.75rem;
+    color: var(--ds-text-muted, #64748b);
+    margin-top: 2px;
+}
+.summary-card--low .summary-card__price { color: var(--ds-success, #10b981); }
+.summary-card--high .summary-card__price { color: var(--ds-danger, #ef4444); }
+
+@media (max-width: 640px) {
+    .summary-cards { grid-template-columns: 1fr; }
+}
+</style>
 
 <script>
 (function () {
@@ -20,9 +63,7 @@
     var currentIntervalIso = '{{ current_interval_iso }}';
     var activeRange = '{{ active_range }}';
 
-    // Colors — 2-tone like Danish energy providers
     var colorElpris = getCSSVar('--ds-accent') || '#22d3ee';
-    var colorTransport = '#1e293b';  // Dark, subtle — like the provider's black bars
     var colorHighlight = getCSSVar('--ds-success') || '#10b981';
 
     // Populate summary cards
@@ -31,10 +72,12 @@
     var avgEl = document.getElementById('summary-avg');
 
     if (summary.min_price) {
-        minEl.innerHTML = '<div class="summary-card__label">Laveste pris ↓</div>' +
+        minEl.className = 'summary-card summary-card--low';
+        minEl.innerHTML = '<div class="summary-card__label">Laveste pris \u2193</div>' +
             '<div class="summary-card__price">' + Number(summary.min_price).toFixed(2).replace('.', ',') + ' kr</div>' +
             '<div class="summary-card__sub">' + summary.min_hour + '</div>';
-        maxEl.innerHTML = '<div class="summary-card__label">Højeste pris ↑</div>' +
+        maxEl.className = 'summary-card summary-card--high';
+        maxEl.innerHTML = '<div class="summary-card__label">H\u00f8jeste pris \u2191</div>' +
             '<div class="summary-card__price">' + Number(summary.max_price).toFixed(2).replace('.', ',') + ' kr</div>' +
             '<div class="summary-card__sub">' + summary.max_hour + '</div>';
         avgEl.innerHTML = '<div class="summary-card__label">Gennemsnit</div>' +
@@ -59,9 +102,6 @@
     var elprisBg = data.data_elpris.map(function(v, i) {
         return i === nowIndex ? colorHighlight : colorElpris;
     });
-
-    // Transport bars: use a visible dark color with border
-    var transportBorder = 'rgba(255,255,255,0.1)';
 
     // Time scale config per range
     var timeUnit, displayFormat;
@@ -94,9 +134,8 @@
                 {
                     label: 'Transport & afgifter',
                     data: data.data_transport,
-                    backgroundColor: 'rgba(100, 116, 139, 0.6)',
-                    borderColor: transportBorder,
-                    borderWidth: 0.5,
+                    backgroundColor: 'rgba(100, 116, 139, 0.5)',
+                    borderWidth: 0,
                     order: 1,
                 },
             ],
@@ -104,10 +143,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false,
-            },
+            interaction: { mode: 'index', intersect: false },
             plugins: {
                 legend: {
                     labels: {
@@ -129,8 +165,7 @@
                     callbacks: {
                         title: function(items) {
                             if (!items.length) return '';
-                            var raw = items[0].parsed.x;
-                            var d = new Date(raw);
+                            var d = new Date(items[0].parsed.x);
                             if (isNaN(d.getTime())) return '';
                             var h = d.getHours();
                             return d.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' }) +
@@ -150,10 +185,7 @@
                 x: {
                     stacked: true,
                     type: 'time',
-                    time: {
-                        unit: timeUnit,
-                        displayFormats: displayFormat,
-                    },
+                    time: { unit: timeUnit, displayFormats: displayFormat },
                     ticks: {
                         color: getCSSVar('--ds-text-muted') || '#64748b',
                         maxRotation: 0,
@@ -175,7 +207,6 @@
         },
     };
 
-    // Destroy old chart, create new
     if (window.priceChart && typeof window.priceChart.destroy === 'function') {
         window.priceChart.destroy();
     }
@@ -186,13 +217,11 @@
         window.priceChart = new Chart(canvas.getContext('2d'), chartConfig);
     }
 
-    // Show/hide resolution toggle
     var resToggle = document.getElementById('res-toggle');
     if (resToggle) {
         resToggle.style.display = (activeRange === 'day') ? '' : 'none';
     }
 
-    // Update period label
     var periodLabel = '{{ period_label|escapejs }}';
     var labelEl = document.getElementById('period-label');
     if (labelEl && periodLabel) {

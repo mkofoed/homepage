@@ -300,11 +300,11 @@
         </div>
         <div class="col-md-5">
             <div class="arch-card" style="margin-bottom:0; height:100%;">
-                <div class="arch-card-title"><i class="bi bi-heart-pulse-fill"></i> Live Health</div>
-                <div id="health-status" hx-get="{% url 'health_check' %}" hx-trigger="load, every 10s" hx-swap="innerHTML">
+                <div class="arch-card-title"><i class="bi bi-heart-pulse-fill"></i> Live Server Stats</div>
+                <div id="server-stats" hx-get="{% url 'public_metrics' %}" hx-trigger="load, every 10s" hx-swap="innerHTML">
                     <div class="d-flex align-items-center gap-2" style="color:#64748b;">
                         <div class="spinner-border spinner-border-sm" role="status"></div>
-                        Checking...
+                        Loading...
                     </div>
                 </div>
             </div>
@@ -341,25 +341,46 @@
 
 <script>
     document.body.addEventListener('htmx:afterSwap', function (event) {
-        if (event.detail.target.id === 'health-status') {
+        if (event.detail.target.id === 'server-stats') {
             try {
-                const data = JSON.parse(event.detail.xhr.responseText);
-                const ok = data.status === 'healthy';
+                const d = JSON.parse(event.detail.xhr.responseText);
+                const dbOk = d.db_response_ms < 200;
+                const cpuColor = d.cpu_percent > 80 ? '#f87171' : d.cpu_percent > 50 ? '#fb923c' : '#22d3ee';
+                const memColor = d.memory_percent > 80 ? '#f87171' : d.memory_percent > 60 ? '#fb923c' : '#22d3ee';
                 event.detail.target.innerHTML = `
-                    <div class="d-flex flex-column gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-${ok ? 'check-circle-fill' : 'x-circle-fill'}" style="color:${ok ? '#22d3ee' : '#f87171'}"></i>
-                            <span style="color:#f1f5f9; font-weight:600;">${data.status.toUpperCase()}</span>
+                    <div class="d-flex flex-column gap-3">
+                        <div>
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem;">
+                                <span style="color:#94a3b8;"><i class="bi bi-cpu me-1"></i>CPU</span>
+                                <span style="color:${cpuColor}; font-family:'JetBrains Mono',monospace;">${d.cpu_percent}%</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;">
+                                <div style="width:${d.cpu_percent}%;height:100%;background:${cpuColor};border-radius:2px;transition:width 0.6s;"></div>
+                            </div>
                         </div>
-                        <div class="small" style="color:#64748b;">
-                            <i class="bi bi-database me-1"></i>DB ${data.database.response_ms}ms
-                            &nbsp;·&nbsp;
-                            <i class="bi bi-speedometer2 me-1"></i>Response ${data.response_time_ms}ms
+                        <div>
+                            <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem;">
+                                <span style="color:#94a3b8;"><i class="bi bi-memory me-1"></i>Memory</span>
+                                <span style="color:${memColor}; font-family:'JetBrains Mono',monospace;">${d.memory_percent}%</span>
+                            </div>
+                            <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;">
+                                <div style="width:${d.memory_percent}%;height:100%;background:${memColor};border-radius:2px;transition:width 0.6s;"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3" style="font-size:0.8rem;">
+                            <div>
+                                <span style="color:#64748b;"><i class="bi bi-database me-1"></i>DB</span>
+                                <span style="color:${dbOk ? '#22d3ee' : '#f87171'}; font-family:'JetBrains Mono',monospace;"> ${d.db_response_ms}ms</span>
+                            </div>
+                            <div>
+                                <span style="color:#64748b;"><i class="bi bi-filetype-py me-1"></i></span>
+                                <span style="color:#64748b; font-family:'JetBrains Mono',monospace;">py${d.python_version}</span>
+                            </div>
                         </div>
                     </div>
                 `;
             } catch (e) {
-                event.detail.target.innerHTML = '<span style="color:#f87171;">Failed to load health data</span>';
+                event.detail.target.innerHTML = '<span style="color:#f87171;">Failed to load stats</span>';
             }
         }
     });

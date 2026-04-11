@@ -1,0 +1,295 @@
+{% extends 'core/base.html' %}
+
+{% block title %}API Playground - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<style>
+    .playground-card {
+        background: #111827;
+        border: 1px solid rgba(34,211,238,0.12);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .playground-title {
+        color: #f1f5f9;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-left: 3px solid #22d3ee;
+        padding-left: 0.75rem;
+    }
+    .playground-title i { color: #22d3ee; }
+    .api-input {
+        background: #0a0e17;
+        border: 1px solid #1e2d40;
+        border-radius: 6px;
+        color: #f1f5f9;
+        padding: 0.5rem 0.75rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85rem;
+        width: 100%;
+        transition: border-color 150ms;
+    }
+    .api-input:focus {
+        outline: none;
+        border-color: rgba(34,211,238,0.4);
+        box-shadow: 0 0 0 2px rgba(34,211,238,0.08);
+    }
+    .api-btn {
+        background: rgba(34,211,238,0.1);
+        border: 1px solid rgba(34,211,238,0.3);
+        color: #22d3ee;
+        border-radius: 6px;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+        cursor: pointer;
+        transition: background 150ms, border-color 150ms;
+        white-space: nowrap;
+    }
+    .api-btn:hover {
+        background: rgba(34,211,238,0.18);
+        border-color: rgba(34,211,238,0.5);
+    }
+    .api-btn:active { transform: scale(0.97); }
+    .api-result {
+        background: #0a0e17;
+        border: 1px solid #1e2d40;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8rem;
+        color: #94a3b8;
+        min-height: 48px;
+        margin-top: 0.75rem;
+        white-space: pre-wrap;
+        word-break: break-all;
+        transition: border-color 200ms;
+    }
+    .api-result.success { border-color: rgba(34,211,238,0.3); color: #e2e8f0; }
+    .api-result.error { border-color: rgba(248,113,113,0.3); color: #fca5a5; }
+    .method-badge {
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(34,211,238,0.1);
+        color: #22d3ee;
+        border: 1px solid rgba(34,211,238,0.2);
+    }
+    .method-badge.post {
+        background: rgba(251,146,60,0.1);
+        color: #fb923c;
+        border-color: rgba(251,146,60,0.2);
+    }
+    select.api-input { cursor: pointer; }
+    label { color: #64748b; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; display: block; margin-bottom: 0.3rem; }
+</style>
+
+<!-- Page Hero -->
+<div class="reveal" style="padding: 3rem 0 2rem; text-align: center;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.25rem;">
+        <i class="bi bi-code-slash"></i> Interactive API
+    </div>
+    <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">API Playground</h1>
+    <p style="color: #94a3b8; font-size: 1.1rem; max-width: 520px; margin: 0.75rem auto 0;">
+        Try the live API endpoints directly in your browser. Built with Django REST Framework.
+    </p>
+</div>
+
+<div class="row justify-content-center">
+<div class="col-lg-9">
+
+    <!-- Echo -->
+    <div class="playground-card reveal">
+        <div class="playground-title">
+            <span class="method-badge">GET</span>
+            <i class="bi bi-arrow-left-right"></i> Echo
+        </div>
+        <p style="color:#94a3b8; font-size:0.875rem; margin-bottom:1rem;">Returns your message back with some extras — length and reversed.</p>
+        <div class="d-flex gap-2">
+            <div style="flex:1;">
+                <label>Message</label>
+                <input id="echo-input" class="api-input" type="text" value="Hello from the playground!" placeholder="Type anything...">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="api-btn" onclick="runEcho()"><i class="bi bi-play-fill me-1"></i>Run</button>
+            </div>
+        </div>
+        <div id="echo-result" class="api-result">Hit Run to try it →</div>
+    </div>
+
+    <!-- Random Quote -->
+    <div class="playground-card reveal">
+        <div class="playground-title">
+            <span class="method-badge">GET</span>
+            <i class="bi bi-chat-quote-fill"></i> Random Quote
+        </div>
+        <p style="color:#94a3b8; font-size:0.875rem; margin-bottom:1rem;">Get a random programming quote. Different every time.</p>
+        <button class="api-btn" onclick="runQuote()"><i class="bi bi-shuffle me-1"></i>Get Quote</button>
+        <div id="quote-result" class="api-result">Hit Get Quote →</div>
+    </div>
+
+    <!-- Calculator -->
+    <div class="playground-card reveal">
+        <div class="playground-title">
+            <span class="method-badge post">POST</span>
+            <i class="bi bi-calculator-fill"></i> Calculator
+        </div>
+        <p style="color:#94a3b8; font-size:0.875rem; margin-bottom:1rem;">Basic arithmetic via a POST request with a JSON body.</p>
+        <div class="row g-2">
+            <div class="col-4">
+                <label>A</label>
+                <input id="calc-a" class="api-input" type="number" value="42">
+            </div>
+            <div class="col-4">
+                <label>B</label>
+                <input id="calc-b" class="api-input" type="number" value="7">
+            </div>
+            <div class="col-4">
+                <label>Operation</label>
+                <select id="calc-op" class="api-input">
+                    <option value="add">add</option>
+                    <option value="subtract">subtract</option>
+                    <option value="multiply" selected>multiply</option>
+                    <option value="divide">divide</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-2">
+            <button class="api-btn" onclick="runCalc()"><i class="bi bi-play-fill me-1"></i>Calculate</button>
+        </div>
+        <div id="calc-result" class="api-result">Hit Calculate →</div>
+    </div>
+
+    <!-- Fibonacci -->
+    <div class="playground-card reveal">
+        <div class="playground-title">
+            <span class="method-badge">GET</span>
+            <i class="bi bi-123"></i> Fibonacci
+        </div>
+        <p style="color:#94a3b8; font-size:0.875rem; margin-bottom:1rem;">Generate the first N numbers in the Fibonacci sequence. Max 50.</p>
+        <div class="d-flex gap-2">
+            <div style="width:120px;">
+                <label>N</label>
+                <input id="fib-n" class="api-input" type="number" value="10" min="1" max="50">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="api-btn" onclick="runFib()"><i class="bi bi-play-fill me-1"></i>Generate</button>
+            </div>
+        </div>
+        <div id="fib-result" class="api-result">Hit Generate →</div>
+    </div>
+
+    <!-- Palindrome -->
+    <div class="playground-card reveal">
+        <div class="playground-title">
+            <span class="method-badge">GET</span>
+            <i class="bi bi-symmetry-horizontal"></i> Palindrome Checker
+        </div>
+        <p style="color:#94a3b8; font-size:0.875rem; margin-bottom:1rem;">Check if a word or phrase reads the same forwards and backwards.</p>
+        <div class="d-flex gap-2">
+            <div style="flex:1;">
+                <label>Text</label>
+                <input id="palindrome-input" class="api-input" type="text" value="A man a plan a canal Panama" placeholder="Enter some text...">
+            </div>
+            <div style="display:flex; align-items:flex-end;">
+                <button class="api-btn" onclick="runPalindrome()"><i class="bi bi-play-fill me-1"></i>Check</button>
+            </div>
+        </div>
+        <div id="palindrome-result" class="api-result">Hit Check →</div>
+    </div>
+
+    <div class="reveal text-center" style="padding-bottom: 2rem;">
+        <a href="/api/docs/" target="_blank" class="api-btn" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none;">
+            <i class="bi bi-box-arrow-up-right"></i> Full API Docs (Swagger)
+        </a>
+    </div>
+
+</div>
+</div>
+
+<script>
+const BASE = '/api/showcase';
+
+function showResult(id, data, ok=true) {
+    const el = document.getElementById(id);
+    el.textContent = JSON.stringify(data, null, 2);
+    el.className = 'api-result ' + (ok ? 'success' : 'error');
+}
+
+function showLoading(id) {
+    const el = document.getElementById(id);
+    el.textContent = 'Loading...';
+    el.className = 'api-result';
+}
+
+async function runEcho() {
+    const msg = document.getElementById('echo-input').value;
+    showLoading('echo-result');
+    try {
+        const r = await fetch(`${BASE}/echo/?message=${encodeURIComponent(msg)}`);
+        showResult('echo-result', await r.json(), r.ok);
+    } catch(e) { showResult('echo-result', {error: e.message}, false); }
+}
+
+async function runQuote() {
+    showLoading('quote-result');
+    try {
+        const r = await fetch(`${BASE}/random-quote/`);
+        const d = await r.json();
+        showResult('quote-result', d, r.ok);
+    } catch(e) { showResult('quote-result', {error: e.message}, false); }
+}
+
+async function runCalc() {
+    showLoading('calc-result');
+    const body = {
+        a: parseFloat(document.getElementById('calc-a').value),
+        b: parseFloat(document.getElementById('calc-b').value),
+        operation: document.getElementById('calc-op').value,
+    };
+    try {
+        const r = await fetch(`${BASE}/calculate/`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+            body: JSON.stringify(body),
+        });
+        showResult('calc-result', await r.json(), r.ok);
+    } catch(e) { showResult('calc-result', {error: e.message}, false); }
+}
+
+async function runFib() {
+    showLoading('fib-result');
+    const n = document.getElementById('fib-n').value;
+    try {
+        const r = await fetch(`${BASE}/fibonacci/?n=${n}`);
+        showResult('fib-result', await r.json(), r.ok);
+    } catch(e) { showResult('fib-result', {error: e.message}, false); }
+}
+
+async function runPalindrome() {
+    showLoading('palindrome-result');
+    const text = document.getElementById('palindrome-input').value;
+    try {
+        const r = await fetch(`${BASE}/palindrome/?text=${encodeURIComponent(text)}`);
+        showResult('palindrome-result', await r.json(), r.ok);
+    } catch(e) { showResult('palindrome-result', {error: e.message}, false); }
+}
+
+function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+}
+
+// Allow Enter key to trigger run on text inputs
+document.getElementById('echo-input').addEventListener('keydown', e => e.key === 'Enter' && runEcho());
+document.getElementById('palindrome-input').addEventListener('keydown', e => e.key === 'Enter' && runPalindrome());
+</script>
+{% endblock %}

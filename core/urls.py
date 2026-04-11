@@ -8,9 +8,11 @@ urlpatterns = [
     path("about/", views.about, name="about"),
     path("architecture/", views.architecture, name="architecture"),
     path("visitors/", views.visitor_map, name="visitor_map"),
+    path("api/playground/", views.api_playground, name="api_playground"),
     path("health/", views.health_check, name="health_check_home"),
     path("api/health/", views.health_check, name="health_check"),
     path("api/github-stats/", views.github_stats, name="github_stats"),
     path("api/metrics/", login_required(views.metrics), name="metrics"),
+    path("api/metrics/public/", views.public_metrics, name="public_metrics"),
     path("api/visitors/map/", views.visitor_map_data, name="visitor_map_data"),
 ]

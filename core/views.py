@@ -142,8 +142,30 @@ def github_stats(request: HttpRequest) -> HttpResponse:
     return render(request, "core/partials/github_stats.html", {"stats": stats})
 
 
-@login_required
-def metrics(request: HttpRequest) -> JsonResponse:
+def public_metrics(request: HttpRequest) -> JsonResponse:
+    """Public API endpoint returning lightweight server stats for the architecture page."""
+    from .services.system_metrics import check_database_health, get_system_metrics
+    import django
+    import sys
+
+    metrics_data = get_system_metrics()
+    _, db_response_ms = check_database_health()
+
+    return JsonResponse({
+        "cpu_percent": metrics_data["cpu_percent"],
+        "memory_percent": metrics_data["memory_percent"],
+        "db_response_ms": db_response_ms,
+        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+        "django_version": django.__version__,
+    })
+
+
+def api_playground(request: HttpRequest) -> HttpResponse:
+    """Interactive API playground showcase page."""
+    return render(request, "core/api_playground.html")
+
+
+
     """API endpoint returning server metrics."""
     from .services.system_metrics import check_database_health, get_system_metrics
 

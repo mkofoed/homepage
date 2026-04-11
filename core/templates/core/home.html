@@ -128,19 +128,19 @@
             </div>
         </div>
 
-        <!-- Card: API -->
+        <!-- Card: API Playground -->
         <div class="col-md-6">
             <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
                 <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-code-slash" style="font-size: 2.5rem;"></i>
+                    <i class="bi bi-play-circle-fill" style="font-size: 2.5rem;"></i>
                 </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">REST API</h3>
+                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">API Playground</h3>
                 <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Django REST Framework + drf-spectacular powering a fully documented API — electricity prices, health checks, and more.
+                    Try the live REST API in your browser &mdash; echo, calculator, Fibonacci, palindrome. Built with Django REST Framework.
                 </p>
                 <div class="text-center mt-auto">
-                    <a href="/api/docs/" target="_blank" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        API Docs &rarr;
+                    <a href="{% url 'api_playground' %}" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
+                        Try It &rarr;
                     </a>
                 </div>
             </div>

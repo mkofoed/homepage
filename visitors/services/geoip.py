@@ -40,8 +40,8 @@ def lookup_ip(ip: str) -> GeoLocation | None:
             country_code=data.get("countryCode", "") or "",
             country_name=data.get("country", "") or "",
             city=data.get("city", "") or "",
-            latitude=round(data.get("lat", 0.0) or 0.0, 2),
-            longitude=round(data.get("lon", 0.0) or 0.0, 2),
+            latitude=round(round(data.get("lat", 0.0) or 0.0, 0) / 0.5) * 0.5,
+            longitude=round(round(data.get("lon", 0.0) or 0.0, 0) / 0.5) * 0.5,
         )
     except Exception:
         logger.warning("ip-api.com lookup failed", exc_info=True)

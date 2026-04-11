@@ -1,0 +1,263 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Visitor Map - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<style>
+    #visitor-map {
+        height: 520px;
+        border-radius: 12px;
+        border: 1px solid rgba(34,211,238,0.15);
+        overflow: hidden;
+        background: #0a0e17;
+    }
+    .stat-card {
+        background: #111827;
+        border: 1px solid rgba(34,211,238,0.12);
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        text-align: center;
+    }
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #22d3ee;
+        font-family: 'JetBrains Mono', monospace;
+        line-height: 1.1;
+    }
+    .stat-card .stat-label {
+        font-size: 0.8rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 0.3rem;
+    }
+    .country-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .country-row:last-child { border-bottom: none; }
+    .country-bar-bg {
+        flex: 1;
+        height: 4px;
+        background: rgba(255,255,255,0.06);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    .country-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #22d3ee, #06b6d4);
+        border-radius: 2px;
+        transition: width 1s cubic-bezier(0.22,1,0.36,1);
+    }
+    .section-title {
+        color: #f1f5f9;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        border-left: 3px solid #22d3ee;
+        padding-left: 0.75rem;
+    }
+    .section-title i { color: #22d3ee; }
+    /* Leaflet popup dark style */
+    .leaflet-popup-content-wrapper {
+        background: #111827 !important;
+        border: 1px solid rgba(34,211,238,0.25) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+        color: #f1f5f9 !important;
+    }
+    .leaflet-popup-tip { background: #111827 !important; }
+    .leaflet-popup-content { margin: 10px 14px !important; }
+</style>
+
+<!-- Page Hero -->
+<div class="reveal" style="padding: 3rem 0 2rem; text-align: center;">
+    <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.25rem;">
+        <i class="bi bi-globe2"></i> Live Visitor Map
+    </div>
+    <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">Where Visitors Come From</h1>
+    <p style="color: #94a3b8; font-size: 1.1rem; max-width: 520px; margin: 0.75rem auto 0;">
+        Real visitor data — anonymised, no cookies, no tracking scripts. Just GeoIP on the server.
+    </p>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4 reveal-stagger">
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_views }}</div>
+            <div class="stat-label">Page Views</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card">
+            <div class="stat-value">{{ unique_countries }}</div>
+            <div class="stat-label">Countries</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" id="stat-desktop">
+            <div class="stat-value">—</div>
+            <div class="stat-label">Desktop</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card" id="stat-mobile">
+            <div class="stat-value">—</div>
+            <div class="stat-label">Mobile</div>
+        </div>
+    </div>
+</div>
+
+<!-- Map -->
+<div class="reveal" style="background: #111827; border: 1px solid rgba(34,211,238,0.12); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.75rem;">
+    <div class="section-title"><i class="bi bi-map-fill"></i> Visitor Locations</div>
+    <div id="visitor-map"></div>
+    <p style="color: #475569; font-size: 0.75rem; margin-top: 0.75rem; margin-bottom: 0;">
+        <i class="bi bi-shield-check me-1"></i>IPs are hashed daily — no individual is tracked across sessions.
+    </p>
+</div>
+
+<!-- Bottom: Top Countries + Device Split -->
+<div class="row g-4 reveal-stagger">
+    <div class="col-md-7">
+        <div style="background: #111827; border: 1px solid rgba(34,211,238,0.12); border-radius: 12px; padding: 1.5rem; height: 100%;">
+            <div class="section-title"><i class="bi bi-flag-fill"></i> Top Countries</div>
+            {% if top_countries %}
+                {% with max_count=top_countries.0.count %}
+                {% for c in top_countries %}
+                <div class="country-row">
+                    <span style="font-size: 0.85rem; color: #94a3b8; width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ c.country_name }}
+                    </span>
+                    <div class="country-bar-bg">
+                        <div class="country-bar-fill" style="width: {% widthratio c.count max_count 100 %}%"></div>
+                    </div>
+                    <span style="font-size: 0.8rem; color: #22d3ee; font-family: 'JetBrains Mono', monospace; width: 32px; text-align: right;">{{ c.count }}</span>
+                </div>
+                {% endfor %}
+                {% endwith %}
+            {% else %}
+                <p style="color: #475569; font-size: 0.9rem;">No visitor data yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div style="background: #111827; border: 1px solid rgba(34,211,238,0.12); border-radius: 12px; padding: 1.5rem; height: 100%;">
+            <div class="section-title"><i class="bi bi-phone-fill"></i> Device Split</div>
+            <canvas id="device-chart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Leaflet + MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+
+<script>
+(function () {
+    // --- Map ---
+    const map = L.map('visitor-map', {
+        center: [30, 10],
+        zoom: 2,
+        zoomControl: true,
+        attributionControl: false,
+    });
+
+    // Dark tile layer (CartoDB Dark Matter — no API key needed)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 18,
+    }).addTo(map);
+
+    L.control.attribution({ prefix: false })
+        .addAttribution('© <a href="https://carto.com" style="color:#22d3ee">CARTO</a> © <a href="https://www.openstreetmap.org/copyright" style="color:#22d3ee">OSM</a>')
+        .addTo(map);
+
+    // Custom cyan marker
+    const dotIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:10px;height:10px;background:#22d3ee;border-radius:50%;box-shadow:0 0 6px rgba(34,211,238,0.7);border:2px solid rgba(34,211,238,0.3);"></div>',
+        iconSize: [10, 10],
+        iconAnchor: [5, 5],
+    });
+
+    const clusters = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        iconCreateFunction: function (cluster) {
+            const count = cluster.getChildCount();
+            const size = count > 50 ? 40 : count > 10 ? 32 : 24;
+            return L.divIcon({
+                html: `<div style="width:${size}px;height:${size}px;background:rgba(34,211,238,0.15);border:1.5px solid rgba(34,211,238,0.5);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${size > 30 ? 12 : 10}px;font-weight:700;color:#22d3ee;font-family:'JetBrains Mono',monospace;">${count}</div>`,
+                className: '',
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2],
+            });
+        },
+    });
+
+    fetch("{% url 'visitor_map_data' %}")
+        .then(r => r.json())
+        .then(geojson => {
+            geojson.features.forEach(f => {
+                const [lng, lat] = f.geometry.coordinates;
+                const { city, country, count } = f.properties;
+                const marker = L.marker([lat, lng], { icon: dotIcon });
+                marker.bindPopup(`
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
+                        <div style="color:#22d3ee;font-weight:700;">${city}</div>
+                        <div style="color:#94a3b8;">${country}</div>
+                        <div style="color:#64748b;margin-top:4px;">${count} view${count !== 1 ? 's' : ''}</div>
+                    </div>
+                `);
+                clusters.addLayer(marker);
+            });
+            map.addLayer(clusters);
+        });
+
+    // --- Device chart ---
+    const deviceData = {{ device_counts|safe }};
+    const labels = deviceData.map(d => d.device_type.charAt(0).toUpperCase() + d.device_type.slice(1));
+    const counts = deviceData.map(d => d.count);
+
+    // Update stat cards
+    deviceData.forEach(d => {
+        const el = document.getElementById('stat-' + d.device_type);
+        if (el) el.querySelector('.stat-value').textContent = d.count;
+    });
+
+    const ctx = document.getElementById('device-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data: counts,
+                backgroundColor: ['rgba(34,211,238,0.7)', 'rgba(99,102,241,0.7)', 'rgba(251,146,60,0.7)'],
+                borderColor: ['#22d3ee', '#6366f1', '#fb923c'],
+                borderWidth: 1.5,
+            }],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    labels: { color: '#94a3b8', font: { family: 'JetBrains Mono' } },
+                },
+            },
+            cutout: '65%',
+        },
+    });
+})();
+</script>
+{% endblock %}

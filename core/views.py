@@ -32,6 +32,75 @@ def architecture(request: HttpRequest) -> HttpResponse:
     return render(request, "core/architecture.html")
 
 
+def visitor_map(request: HttpRequest) -> HttpResponse:
+    """Visitor map showcase page."""
+    from visitors.models import PageView
+    from django.db.models import Count
+    from django.db import ProgrammingError
+
+    try:
+        total_views = PageView.objects.count()
+        top_countries = list(
+            PageView.objects
+            .values("country_name", "country_code")
+            .annotate(count=Count("ip_hash"))
+            .order_by("-count")[:10]
+        )
+        device_counts = list(
+            PageView.objects
+            .values("device_type")
+            .annotate(count=Count("ip_hash"))
+            .order_by("-count")
+        )
+        unique_countries = PageView.objects.values("country_code").distinct().count()
+    except ProgrammingError:
+        total_views = 0
+        top_countries = []
+        device_counts = []
+        unique_countries = 0
+
+    return render(request, "core/visitor_map.html", {
+        "total_views": total_views,
+        "top_countries": top_countries,
+        "device_counts": device_counts,
+        "unique_countries": unique_countries,
+    })
+
+
+def visitor_map_data(request: HttpRequest) -> JsonResponse:
+    """API endpoint returning visitor geo data for the map."""
+    from visitors.models import PageView
+    from django.db.models import Count
+    from django.db import ProgrammingError
+
+    try:
+        points = (
+            PageView.objects
+            .values("latitude", "longitude", "country_name", "country_code", "city")
+            .annotate(count=Count("ip_hash"))
+            .order_by("-count")
+        )
+        features = []
+        for p in points:
+            if p["latitude"] and p["longitude"]:
+                features.append({
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [p["longitude"], p["latitude"]],
+                    },
+                    "properties": {
+                        "country": p["country_name"],
+                        "country_code": p["country_code"],
+                        "city": p["city"] or p["country_name"],
+                        "count": p["count"],
+                    },
+                })
+    except ProgrammingError:
+        features = []
+
+    return JsonResponse({"type": "FeatureCollection", "features": features})
+
 def health_check(request: HttpRequest) -> JsonResponse:
     """API endpoint returning system health metrics."""
     from .services.system_metrics import check_database_health

@@ -14,7 +14,6 @@ from dashboard.services.price_chart import (
     _grid_tariff_ex_vat,
 )
 
-CACHE_KEY = "hero:current_price"
 CACHE_TIMEOUT = 60
 
 
@@ -57,7 +56,8 @@ def _hourly_avg_spot(hour_start: datetime, price_area: str) -> Decimal | None:
 def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceContext | None:
     """Return current price context. Averages all quarters in the current hour."""
 
-    cached_value = cache.get(CACHE_KEY)
+    cache_key = f"hero:current_price:{price_area}"
+    cached_value = cache.get(cache_key)
     if cached_value is not None:
         return cached_value
 
@@ -69,7 +69,7 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
 
     if avg_spot_mwh is None:
         # Try most recent hour with data
-        latest = SpotPrice.objects.order_by("-timestamp").first()
+        latest = SpotPrice.objects.filter(price_area=price_area).order_by("-timestamp").first()
         if latest is None:
             return None
         fallback_hour = latest.timestamp.replace(minute=0, second=0, microsecond=0)
@@ -143,5 +143,5 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
         stale=stale,
     )
 
-    cache.set(CACHE_KEY, price_context, timeout=CACHE_TIMEOUT)
+    cache.set(cache_key, price_context, timeout=CACHE_TIMEOUT)
     return price_context

@@ -15,7 +15,7 @@ CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
 
 def dashboard_home(request: HttpRequest) -> HttpResponse:
     """Renders the main dashboard skeleton. HTMX loads the dynamic parts."""
-    return render(request, "dashboard/index.html")
+    return render(request, "dashboard/index.html", {"active_area": "DK1"})
 
 
 def htmx_price_chart(request: HttpRequest) -> HttpResponse:

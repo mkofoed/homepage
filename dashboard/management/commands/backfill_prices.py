@@ -46,7 +46,7 @@ class Command(BaseCommand):
         logger.info(f"Starting backfill for range {start_date} -> {end_date}.")
 
         try:
-            price_areas = ["DK1", "DK2"] if options.get("area") == "all" else [options.get("area")]
+            price_areas = ["DK1", "DK2"]
             total_inserted = 0
             delta = timedelta(days=7)  # Chunk by week
             current_start = start_date

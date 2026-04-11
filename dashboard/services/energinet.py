@@ -67,7 +67,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
 
     # Bulk upsert to handle both new records and updates for existing timestamps
     SpotPrice.objects.bulk_create(
-        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp"]
+        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
     )
 
     logger.info(f"Upserted {len(spot_prices)} spot prices. Potentially updated existing entries.")
@@ -133,7 +133,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         return 0
 
     SpotPrice.objects.bulk_create(
-        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp"]
+        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
     )
 
     logger.info(f"Upserted {len(spot_prices)} spot prices for range {start_date} -> {end_date}.")

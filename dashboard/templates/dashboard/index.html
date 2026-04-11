@@ -23,6 +23,10 @@
     function setArea(area) {
         window.priceArea = area;
         document.querySelectorAll('.area-radio').forEach(function(r) { r.checked = (r.value === area); });
+        // Update subtitle
+        var names = {DK1: 'DK Vest', DK2: 'DK \u00d8st'};
+        var sub = document.getElementById('area-subtitle');
+        if (sub) sub.textContent = (names[area] || area) + ' \u00b7 Updates every 60s';
         loadChart();
         htmx.ajax('GET', '{% url "dashboard:htmx_hero_card" %}?area=' + area, {
             target: '#hero-card-container',
@@ -81,11 +85,10 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="row">
     <div class="row mb-5">
         <div class="col-12 text-center">
             <h1 class="ds-text-primary fw-bold">Real-Time Electricity Dashboard</h1>
-            <p class="lead ds-text-secondary">Aarhus (DK1)  Updates every 60s</p>
+            <p id="area-subtitle" class="lead ds-text-secondary">DK Vest · Updates every 60s</p>
         </div>
     </div>
 
@@ -93,18 +96,12 @@
     <div class="area-switch">
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK1" {% if active_area == "DK1" %}checked{% endif %}
-                   onchange="setArea('DK1')"
-                   hx-get="{% url 'dashboard:htmx_price_chart' %}?area=DK1"
-                   hx-target="#chart-area"
-                   hx-swap="innerHTML">
+                   onchange="setArea('DK1')">
             <span class="area-switch__button">DK1 (Vest)</span>
         </label>
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK2" {% if active_area == "DK2" %}checked{% endif %}
-                   onchange="setArea('DK2')"
-                   hx-get="{% url 'dashboard:htmx_price_chart' %}?area=DK2"
-                   hx-target="#chart-area"
-                   hx-swap="innerHTML">
+                   onchange="setArea('DK2')">
             <span class="area-switch__button">DK2 (Øst)</span>
         </label>
     </div>
@@ -118,6 +115,16 @@
         <div class="ds-card text-center py-4">
             <p class="ds-text-secondary mb-0">Loading current price Updated every 60 sec</p>
         </div>
-</div>
+    </div>
+
+    <!-- Chart Area (loaded by HTMX via loadChart()) -->
+    <div id="chart-area"
+         hx-get="{% url 'dashboard:htmx_price_chart' %}?area={{ active_area|default:'DK1' }}"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+        <div class="ds-card text-center py-4">
+            <p class="ds-text-secondary mb-0">Loading chart...</p>
+        </div>
+    </div>
 </div>
 {% endblock %}

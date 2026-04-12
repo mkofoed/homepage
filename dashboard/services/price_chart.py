@@ -191,7 +191,7 @@ def get_chart_data(
 
         total = elpris + transport
 
-        labels.append(ts.isoformat())
+        labels.append(ts.astimezone(CPH_TZ).strftime("%Y-%m-%dT%H:%M:%S"))
         data_elpris.append(round(elpris, 4))
         data_transport.append(round(transport, 4))
         data_total.append(round(total, 4))

@@ -37,8 +37,11 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         range_param=range_param, now=now, resolution=resolution, offset=offset, price_area=price_area
     )
 
+    import zoneinfo
+    CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
     minute_bucket = (now.minute // 15) * 15
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
+    current_interval_cph = current_interval.astimezone(CPH_TZ).strftime("%Y-%m-%dT%H:%M:%S")
 
     # Compute summary stats from the total data
     summary = {}
@@ -88,7 +91,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
 
     context = {
         "chart_data_json": json.dumps(chart_dict),
-        "current_interval_iso": current_interval.isoformat(),
+        "current_interval_iso": current_interval_cph,
         "active_range": range_param,
         "summary_json": json.dumps(summary),
         "active_area": price_area,

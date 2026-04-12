@@ -17,7 +17,7 @@
         var offset = window.chartOffset || 0;
         var area = window.priceArea || 'DK1';
         var url = '{% url "dashboard:htmx_price_chart" %}?range=' + range + '&resolution=' + res + '&offset=' + offset + '&area=' + area;
-        htmx.ajax('GET', url, {target: '#chart-area', swap: 'innerHTML'});
+        htmx.ajax('GET', url, {target: '#chart-area', swap: 'innerHTML', scroll: false});
     }
 
     function setArea(area) {

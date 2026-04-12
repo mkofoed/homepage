@@ -54,6 +54,12 @@
         window.chartOffset += direction;
         loadChart();
     }
+
+    function jumpToNow() {
+        if (window.chartOffset === 0) return;
+        window.chartOffset = 0;
+        loadChart();
+    }
 </script>
 <style>
     .area-switch {
@@ -201,7 +207,7 @@
         </div>
         <div class="chart-controls__nav">
             <button class="nav-btn" onclick="navigate(-1)" title="Forrige">&larr;</button>
-            <span id="period-label" class="ds-text-secondary" style="font-size: 0.85rem; min-width: 120px; text-align: center;">I dag</span>
+            <span id="period-label" class="ds-text-secondary" onclick="jumpToNow()" title="Gå til i dag" style="font-size: 0.85rem; min-width: 120px; text-align: center; cursor: pointer; transition: color 150ms;" onmouseover="this.style.color='var(--ds-accent)'" onmouseout="this.style.color=''">I dag</span>
             <button class="nav-btn" onclick="navigate(1)" title="N&aelig;ste">&rarr;</button>
         </div>
     </div>

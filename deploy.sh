@@ -57,6 +57,20 @@ if ! docker compose -f docker-compose.prod.yml run --rm web python manage.py mig
     exit 1
 fi
 
+log "📊 Backfilling today's spot prices..."
+docker compose -f docker-compose.prod.yml run --rm web python manage.py shell -c "
+import datetime, zoneinfo
+from dashboard.services.energinet import fetch_spot_prices_for_range
+CPH = zoneinfo.ZoneInfo('Europe/Copenhagen')
+from django.utils import timezone
+now = timezone.now().astimezone(CPH)
+today = now.strftime('%Y-%m-%d')
+tomorrow = (now.replace(hour=0,minute=0,second=0,microsecond=0) + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+for area in ['DK1', 'DK2']:
+    n = fetch_spot_prices_for_range(today, tomorrow, area)
+    print(f'{area}: {n} records for {today}')
+" || true
+
 log "🎨 Collecting static files..."
 docker compose -f docker-compose.prod.yml run --rm web python manage.py collectstatic --noinput
 

@@ -145,11 +145,30 @@ def github_stats(request: HttpRequest) -> HttpResponse:
 def public_metrics(request: HttpRequest) -> JsonResponse:
     """Public API endpoint returning lightweight server stats for the architecture page."""
     from .services.system_metrics import check_database_health, get_system_metrics
+    from django.db import connection
     import django
     import sys
 
     metrics_data = get_system_metrics()
     _, db_response_ms = check_database_health()
+
+    # Hypertable row counts via TimescaleDB approximate count (fast)
+    hypertable_stats = []
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    hypertable_name,
+                    approximate_row_count(format('%I.%I', hypertable_schema, hypertable_name)::regclass) AS row_count
+                FROM timescaledb_information.hypertables
+                ORDER BY hypertable_name;
+            """)
+            hypertable_stats = [
+                {"table": row[0], "rows": row[1]}
+                for row in cursor.fetchall()
+            ]
+    except Exception:
+        pass
 
     return JsonResponse({
         "cpu_percent": metrics_data["cpu_percent"],
@@ -157,6 +176,7 @@ def public_metrics(request: HttpRequest) -> JsonResponse:
         "db_response_ms": db_response_ms,
         "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         "django_version": django.__version__,
+        "hypertables": hypertable_stats,
     })
 
 

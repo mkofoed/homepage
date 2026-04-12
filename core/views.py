@@ -153,22 +153,26 @@ def public_metrics(request: HttpRequest) -> JsonResponse:
     _, db_response_ms = check_database_health()
 
     # Hypertable row counts via TimescaleDB approximate count (fast)
-    hypertable_stats = []
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT
-                    hypertable_name,
-                    approximate_row_count(format('%I.%I', hypertable_schema, hypertable_name)::regclass) AS row_count
-                FROM timescaledb_information.hypertables
-                ORDER BY hypertable_name;
-            """)
-            hypertable_stats = [
-                {"table": row[0], "rows": row[1]}
-                for row in cursor.fetchall()
-            ]
-    except Exception:
-        pass
+    # Cached in Redis for 60s — numbers change slowly (hourly ingest)
+    from django.core.cache import cache
+    hypertable_stats = cache.get("hypertable_stats")
+    if hypertable_stats is None:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT
+                        hypertable_name,
+                        approximate_row_count(format('%I.%I', hypertable_schema, hypertable_name)::regclass) AS row_count
+                    FROM timescaledb_information.hypertables
+                    ORDER BY hypertable_name;
+                """)
+                hypertable_stats = [
+                    {"table": row[0], "rows": row[1]}
+                    for row in cursor.fetchall()
+                ]
+                cache.set("hypertable_stats", hypertable_stats, timeout=60)
+        except Exception:
+            hypertable_stats = []
 
     return JsonResponse({
         "cpu_percent": metrics_data["cpu_percent"],

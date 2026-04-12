@@ -165,6 +165,16 @@ def api_playground(request: HttpRequest) -> HttpResponse:
     return render(request, "core/api_playground.html")
 
 
+@login_required
+def metrics(request: HttpRequest) -> JsonResponse:
+    """API endpoint returning server metrics."""
+    from .services.system_metrics import check_database_health, get_system_metrics
+
+    metrics_data = get_system_metrics()
+    _, db_response_ms = check_database_health()
+    metrics_data["db_response_ms"] = db_response_ms
+
+    return JsonResponse(metrics_data)
 
     """API endpoint returning server metrics."""
     from .services.system_metrics import check_database_health, get_system_metrics

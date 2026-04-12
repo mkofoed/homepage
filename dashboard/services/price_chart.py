@@ -54,9 +54,6 @@ def _period_bounds(range_param: str, now: datetime, offset: int = 0) -> tuple[da
         base = now_cph.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=offset)
         start_cph = base
         end_cph = base + timedelta(days=1)
-        # For today (offset=0), include tomorrow's day-ahead prices
-        if offset == 0:
-            end_cph = base + timedelta(days=2)
         label = base.strftime("%-d. %b %Y")
 
     elif range_param == "week":

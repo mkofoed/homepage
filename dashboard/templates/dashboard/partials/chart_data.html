@@ -49,7 +49,10 @@
 .summary-card--high .summary-card__price { color: var(--ds-danger, #ef4444); }
 
 @media (max-width: 640px) {
-    .summary-cards { grid-template-columns: 1fr; }
+    .summary-cards { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .summary-card { padding: 10px 8px; }
+    .summary-card__price { font-size: 1.1rem; }
+    .summary-card__label { font-size: 0.65rem; }
 }
 </style>
 
@@ -190,7 +193,7 @@
                         color: getCSSVar('--ds-text-muted') || '#64748b',
                         maxRotation: 0,
                         autoSkip: true,
-                        maxTicksLimit: 24,
+                        maxTicksLimit: window.innerWidth < 640 ? 6 : 12,
                     },
                     grid: { color: 'rgba(255,255,255,0.03)' },
                 },

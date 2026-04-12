@@ -20,7 +20,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
     """
     filter_val = json.dumps({"PriceArea": price_area})
     encoded_filter = urllib.parse.quote(filter_val)
-    url = f"{ENERGINET_API_URL}?limit={limit}&filter={encoded_filter}&sort=TimeUTC ASC"
+    url = f"{ENERGINET_API_URL}?limit={limit}&filter={encoded_filter}&sort=TimeUTC DESC"
 
     try:
         with httpx.Client(timeout=10.0) as client:

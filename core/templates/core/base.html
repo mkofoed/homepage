@@ -21,7 +21,7 @@
     <div class="htmx-indicator"
         style="position: fixed; top: 0; left: 0; width: 100%; height: 3px; background-color: blue; z-index: 9999; display: none;">
     </div>
-    <nav class="ds-surface" style="border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px);">
+    <nav class="ds-surface navbar navbar-expand-lg" style="border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px);">
         <div class="container">
             <a class="navbar-brand" href="{% url 'home' %}" style="color: var(--ds-accent); font-family: 'JetBrains Mono', monospace;">{{ SITE_NAME }}</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -236,7 +236,7 @@
                             observer.unobserve(entry.target);
                         }
                     });
-                }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+                }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
 
                 document.querySelectorAll('.reveal, .reveal-stagger').forEach((el) => observer.observe(el));
             } else {

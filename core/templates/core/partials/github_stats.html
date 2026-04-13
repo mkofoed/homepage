@@ -17,15 +17,15 @@
 
         <div class="row g-2 mb-3">
             <div class="col-4 text-center">
-                <div class="fw-bold">{{ stats.public_repos }}</div>
+                <div class="font-bold">{{ stats.public_repos }}</div>
                 <div class="text-muted small">Repos</div>
             </div>
             <div class="col-4 text-center">
-                <div class="fw-bold">{{ stats.total_stars }}</div>
+                <div class="font-bold">{{ stats.total_stars }}</div>
                 <div class="text-muted small">Stars</div>
             </div>
             <div class="col-4 text-center">
-                <div class="fw-bold">{{ stats.followers }}</div>
+                <div class="font-bold">{{ stats.followers }}</div>
                 <div class="text-muted small">Followers</div>
             </div>
         </div>
@@ -33,7 +33,7 @@
         {% if stats.top_languages %}
         <div>
             <div class="text-muted small mb-2">Top Languages</div>
-            <div class="d-flex flex-wrap gap-1">
+            <div class="flex flex-wrap gap-1">
                 {% for lang, count in stats.top_languages %}
                 <span class="badge bg-secondary">{{ lang }}</span>
                 {% endfor %}

@@ -4,7 +4,7 @@
 {% block title %}Blog - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="grid md:grid-cols-2 gap-4">
     <div class="col-md-8">
         <h1 class="mb-4">Latest Post</h1>
         {% if latest_post %}
@@ -25,7 +25,7 @@
         <p>No posts yet.</p>
         {% endif %}
     </div>
-    <div class="col-md-4">
+    <div >
         <h3 class="mb-3">Recent Posts</h3>
         <div class="list-group mb-3 reveal">
             {% for post in recent_posts %}

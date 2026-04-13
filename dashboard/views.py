@@ -78,41 +78,35 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
 
         if range_param in ('week', 'month', 'year'):
             from dashboard.models import SpotPrice
-            from django.db.models import Min, Max
             from dashboard.services.price_chart import _period_bounds, DK_VAT_MULTIPLIER, DK_ELAFGIFT, DK_ELSPAREBIDRAG, DK_ENERGINET_TARIFF, _grid_tariff_ex_vat
             from decimal import Decimal as _D
 
             start_time, end_time, _ = _period_bounds(range_param, now, offset)
-            agg = SpotPrice.objects.filter(
+            rows = list(SpotPrice.objects.filter(
                 timestamp__gte=start_time, timestamp__lt=end_time, price_area=price_area
-            ).aggregate(min_dkk=Min('price_dkk'), max_dkk=Max('price_dkk'))
+            ).only('timestamp', 'price_dkk'))
 
-            min_record = SpotPrice.objects.filter(
-                timestamp__gte=start_time, timestamp__lt=end_time,
-                price_area=price_area, price_dkk=agg['min_dkk']
-            ).first()
-            max_record = SpotPrice.objects.filter(
-                timestamp__gte=start_time, timestamp__lt=end_time,
-                price_area=price_area, price_dkk=agg['max_dkk']
-            ).first()
-
-            def _spot_to_total(spot_dkk_mwh, hour, month):
-                spot_kwh = float((_D(str(float(spot_dkk_mwh))) / 1000) * DK_VAT_MULTIPLIER)
+            def _total(r):
+                t_cph = r.timestamp.astimezone(CPH_TZ)
+                spot_kwh = float((_D(str(float(r.price_dkk))) / 1000) * DK_VAT_MULTIPLIER)
                 tax = float((DK_ELAFGIFT + DK_ELSPAREBIDRAG) * DK_VAT_MULTIPLIER)
                 energinet = float(DK_ENERGINET_TARIFF * DK_VAT_MULTIPLIER)
-                grid = float(_grid_tariff_ex_vat(hour, month) * DK_VAT_MULTIPLIER)
+                grid = float(_grid_tariff_ex_vat(t_cph.hour, t_cph.month) * DK_VAT_MULTIPLIER)
                 return spot_kwh + tax + energinet + grid
+
+            if rows:
+                min_record = min(rows, key=_total)
+                max_record = max(rows, key=_total)
+                min_val = _total(min_record)
+                max_val = _total(max_record)
+            else:
+                min_record = max_record = None
+                min_val = max_val = 0.0
+
+            avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
 
             min_ts = min_record.timestamp.astimezone(CPH_TZ).isoformat() if min_record else chart_data.labels[0]
             max_ts = max_record.timestamp.astimezone(CPH_TZ).isoformat() if max_record else chart_data.labels[0]
-            min_h = min_record.timestamp.astimezone(CPH_TZ).hour if min_record else 0
-            max_h = max_record.timestamp.astimezone(CPH_TZ).hour if max_record else 0
-            min_mo = min_record.timestamp.astimezone(CPH_TZ).month if min_record else now.month
-            max_mo = max_record.timestamp.astimezone(CPH_TZ).month if max_record else now.month
-
-            min_val = _spot_to_total(agg['min_dkk'], min_h, min_mo)
-            max_val = _spot_to_total(agg['max_dkk'], max_h, max_mo)
-            avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
 
             summary = {
                 "min_price": f"{min_val:.2f}",

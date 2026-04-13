@@ -20,166 +20,257 @@
 
 <body>
     <div class="htmx-indicator"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 3px; background-color: blue; z-index: 9999; display: none;">
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 3px; background-color: var(--ds-accent); z-index: 9999; display: none;">
     </div>
-    <nav class="ds-surface navbar navbar-expand-lg" style="border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px);">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}" style="color: var(--ds-accent); font-family: 'JetBrains Mono', monospace;">{{ SITE_NAME }}</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'home' %}" style="color: var(--ds-text-secondary);">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'about' %}" style="color: var(--ds-text-secondary);">About</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: var(--ds-text-secondary);">
-                            Showcase
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'architecture' %}" hx-boost="false"><i class="bi bi-diagram-3 me-2"></i>Architecture</a></li>
-                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{% url 'visitor_map' %}" hx-boost="false"><i class="bi bi-globe2 me-2"></i>Visitor Map</a></li>
-                            <li><a class="dropdown-item" href="{% url 'api_playground' %}" hx-boost="false"><i class="bi bi-play-circle me-2"></i>API Playground</a></li>
-                            <li><a class="dropdown-item" href="{% url 'swagger-ui' %}" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs <i class="bi bi-box-arrow-up-right small"></i></a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'blog_index' %}" style="color: var(--ds-text-secondary);">Blog</a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color: var(--ds-text-secondary);">
-                            <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <form method="post" action="{% url 'logout' %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">
-                                        <i class="bi bi-box-arrow-right me-2"></i>Logout
-                                    </button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}" style="color: var(--ds-text-secondary);"><i
-                                class="bi bi-box-arrow-in-right me-1"></i>Login</a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item ms-3">
-                        <button id="theme-toggle" class="btn ds-btn-outline btn-sm" aria-label="Toggle theme">
-                            🌙
+
+    <!-- ── Navigation ─────────────────────────────────────────── -->
+    <nav id="main-nav" style="background: var(--ds-surface); border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px); position: relative; z-index: 50;">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex items-center justify-between h-14">
+
+                <!-- Brand -->
+                <a href="{% url 'home' %}" style="color: var(--ds-accent); font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 1rem; text-decoration: none;">{{ SITE_NAME }}</a>
+
+                <!-- Desktop links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="{% url 'home' %}" class="nav-link">Home</a>
+                    <a href="{% url 'about' %}" class="nav-link">About</a>
+
+                    <!-- Showcase dropdown -->
+                    <div class="relative" id="showcase-dropdown">
+                        <button onclick="toggleDropdown('showcase-menu')" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;">
+                            Showcase <i class="bi bi-chevron-down" style="font-size:0.65rem; margin-left:2px;"></i>
                         </button>
-                    </li>
-                </ul>
+                        <div id="showcase-menu" class="dropdown-panel hidden">
+                            <a href="{% url 'architecture' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-diagram-3 me-2"></i>Architecture</a>
+                            <a href="{% url 'dashboard:home' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                            <a href="{% url 'visitor_map' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-globe2 me-2"></i>Visitor Map</a>
+                            <a href="{% url 'api_playground' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-play-circle me-2"></i>API Playground</a>
+                            <a href="{% url 'swagger-ui' %}" class="dropdown-panel-item" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem;"></i></a>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'blog_index' %}" class="nav-link">Blog</a>
+
+                    {% if user.is_authenticated %}
+                    <div class="relative">
+                        <button onclick="toggleDropdown('user-menu')" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;">
+                            <i class="bi bi-person-circle" style="margin-right:4px;"></i>{{ user.username }}
+                            <i class="bi bi-chevron-down" style="font-size:0.65rem; margin-left:2px;"></i>
+                        </button>
+                        <div id="user-menu" class="dropdown-panel hidden" style="right:0; left:auto;">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-panel-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer;">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="nav-link"><i class="bi bi-box-arrow-in-right" style="margin-right:4px;"></i>Login</a>
+                    {% endif %}
+
+                    <button id="theme-toggle" class="ml-2 px-3 py-1 rounded-md text-sm font-medium"
+                        style="background: transparent; border: 1.5px solid var(--ds-accent); color: var(--ds-accent); cursor: pointer; transition: background 150ms;"
+                        aria-label="Toggle theme">🌙</button>
+                </div>
+
+                <!-- Mobile: theme + hamburger -->
+                <div class="flex md:hidden items-center gap-2">
+                    <button id="theme-toggle-mobile" class="px-2 py-1 rounded text-sm"
+                        style="background: transparent; border: 1px solid var(--ds-accent); color: var(--ds-accent); cursor: pointer;"
+                        aria-label="Toggle theme">🌙</button>
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded"
+                        style="color: var(--ds-text-secondary); background: transparent; border: none; cursor: pointer;"
+                        aria-label="Menu">
+                        <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden" style="background: var(--ds-surface); border-top: 1px solid var(--ds-border); padding: 0.5rem 0;">
+            <div class="max-w-6xl mx-auto px-4 flex flex-col gap-1 pb-2">
+                <a href="{% url 'home' %}" class="mobile-nav-link">Home</a>
+                <a href="{% url 'about' %}" class="mobile-nav-link">About</a>
+                <div class="ds-text-muted" style="padding: 0.4rem 0.75rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em;">Showcase</div>
+                <a href="{% url 'architecture' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-diagram-3 me-2"></i>Architecture</a>
+                <a href="{% url 'dashboard:home' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+                <a href="{% url 'visitor_map' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-globe2 me-2"></i>Visitor Map</a>
+                <a href="{% url 'api_playground' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-play-circle me-2"></i>API Playground</a>
+                <a href="{% url 'swagger-ui' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs</a>
+                <a href="{% url 'blog_index' %}" class="mobile-nav-link">Blog</a>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="mobile-nav-link" style="width:100%; text-align:left; background:none; border:none; cursor:pointer;">
+                        <i class="bi bi-box-arrow-right me-2"></i>Logout
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="mobile-nav-link"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <main class="container mt-4" style="background: transparent;">
-        {% block content %}
-        {% endblock %}
+    <!-- ── Main content ───────────────────────────────────────── -->
+    <main class="max-w-6xl mx-auto px-4 mt-6" style="background: transparent;">
+        {% block content %}{% endblock %}
     </main>
 
-    <footer class="ds-surface mt-auto py-5" style="border-top: 1px solid var(--ds-border);">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4 mb-lg-0">
-                    <h5 class="text-uppercase mb-3 font-weight-bold">{{ SITE_NAME }}</h5>
-                    <p class="ds-text-muted">Django developer &amp; physicist, building AI-first in Aarhus.</p>
+    <!-- ── Footer ─────────────────────────────────────────────── -->
+    <footer class="ds-surface mt-16 py-12" style="border-top: 1px solid var(--ds-border);">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">{{ SITE_NAME }}</h5>
+                    <p class="ds-text-muted text-sm">Django developer &amp; physicist, building AI-first in Aarhus.</p>
                 </div>
-                <div class="col-lg-3 mb-4 mb-lg-0 ms-auto text-lg-end">
-                    <h5 class="text-uppercase mb-3 font-weight-bold">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><a href="{% url 'home' %}" class="ds-text-muted text-decoration-none footer-link">Home</a></li>
-                        <li class="mb-2"><a href="{% url 'about' %}" class="ds-text-muted text-decoration-none footer-link">About</a></li>
-                        <li class="mb-2"><a href="{% url 'blog_index' %}" class="ds-text-muted text-decoration-none footer-link">Blog</a></li>
+                <div>
+                    <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">Quick Links</h5>
+                    <ul class="space-y-2" style="list-style: none; padding: 0; margin: 0;">
+                        <li><a href="{% url 'home' %}" class="ds-text-muted footer-link text-sm" style="text-decoration: none;">Home</a></li>
+                        <li><a href="{% url 'about' %}" class="ds-text-muted footer-link text-sm" style="text-decoration: none;">About</a></li>
+                        <li><a href="{% url 'blog_index' %}" class="ds-text-muted footer-link text-sm" style="text-decoration: none;">Blog</a></li>
                     </ul>
                 </div>
-                <div class="col-lg-3 text-lg-end">
-                    <h5 class="text-uppercase mb-3 font-weight-bold">Connect</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="https://github.com/mkofoed" class="ds-text-muted text-decoration-none footer-link" target="_blank">
-                                GitHub<i class="bi bi-github ms-2"></i>
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="https://www.linkedin.com/in/mbkofoed/" class="ds-text-muted text-decoration-none footer-link" target="_blank">
-                                LinkedIn<i class="bi bi-linkedin ms-2"></i>
-                            </a>
-                        </li>
+                <div class="md:text-right">
+                    <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">Connect</h5>
+                    <ul class="space-y-2" style="list-style: none; padding: 0; margin: 0;">
+                        <li><a href="https://github.com/mkofoed" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank">GitHub <i class="bi bi-github"></i></a></li>
+                        <li><a href="https://www.linkedin.com/in/mbkofoed/" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank">LinkedIn <i class="bi bi-linkedin"></i></a></li>
                     </ul>
                 </div>
             </div>
-            <hr class="my-4" style="border-color: var(--ds-border);">
-            <div class="row align-items-center">
-                <div class="col-12 text-center">
-                    <p class="mb-0 ds-text-muted">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
-                    <p class="mb-0 ds-text-muted mt-2">
-                        <i class="bi bi-filetype-py me-1"></i>Python {{ PYTHON_VERSION }}
-                        <span class="mx-2">•</span>
-                        <i class="bi bi-code-square me-1"></i>Django {{ DJANGO_VERSION }}
-                    </p>
-                </div>
+            <hr class="my-6" style="border-color: var(--ds-border);">
+            <div class="text-center">
+                <p class="ds-text-muted text-sm mb-1">&copy; {% now "Y" %} {{ SITE_NAME }}. All rights reserved.</p>
+                <p class="ds-text-muted text-sm mb-0">
+                    <i class="bi bi-filetype-py me-1"></i>Python {{ PYTHON_VERSION }}
+                    <span class="mx-2">&bull;</span>
+                    <i class="bi bi-code-square me-1"></i>Django {{ DJANGO_VERSION }}
+                </p>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- ── Scripts ────────────────────────────────────────────── -->
     <script>
-        (function () {
-            function initTheme() {
-                const themeToggle = document.getElementById('theme-toggle');
-                if (!themeToggle) return;
+        // Nav: dropdown toggles
+        function toggleDropdown(id) {
+            const menu = document.getElementById(id);
+            const isHidden = menu.classList.contains('hidden');
+            document.querySelectorAll('.dropdown-panel').forEach(m => m.classList.add('hidden'));
+            if (isHidden) menu.classList.remove('hidden');
+        }
 
-                const html = document.documentElement;
-                const icon = themeToggle.querySelector('span') || themeToggle;
+        // Nav: mobile hamburger
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            const icon = document.querySelector('#mobile-menu-btn i');
+            menu.classList.toggle('hidden');
+            icon.className = menu.classList.contains('hidden') ? 'bi bi-list' : 'bi bi-x';
+            icon.style.fontSize = '1.5rem';
+        }
 
-                // Check for saved theme preference
-                const savedTheme = localStorage.getItem('theme') || 'dark';
-                html.setAttribute('data-theme', savedTheme);
-                icon.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+        // Close dropdowns on outside click
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('[id$="-dropdown"]') && !e.target.closest('[onclick*="toggleDropdown"]')) {
+                document.querySelectorAll('.dropdown-panel').forEach(m => m.classList.add('hidden'));
+            }
+        });
 
-                // Use onclick to avoid duplicate listeners if re-run
-                themeToggle.onclick = () => {
-                    const currentTheme = html.getAttribute('data-theme');
-                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
-                    html.setAttribute('data-theme', newTheme);
-                    localStorage.setItem('theme', newTheme);
-                    icon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        // Theme toggle (desktop + mobile)
+        function initTheme() {
+            const toggles = [
+                document.getElementById('theme-toggle'),
+                document.getElementById('theme-toggle-mobile')
+            ];
+            const html = document.documentElement;
+            const saved = localStorage.getItem('theme') || 'dark';
+            html.setAttribute('data-theme', saved);
+            toggles.forEach(t => { if (t) t.textContent = saved === 'dark' ? '🌙' : '☀️'; });
+            toggles.forEach(t => {
+                if (!t) return;
+                t.onclick = () => {
+                    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                    html.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
+                    toggles.forEach(b => { if (b) b.textContent = next === 'dark' ? '🌙' : '☀️'; });
                 };
-            }
-
-            function initBootstrapComponents() {
-                // Dispose existing and re-initialize all Bootstrap dropdowns
-                document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(el => {
-                    const existing = bootstrap.Dropdown.getInstance(el);
-                    if (existing) existing.dispose();
-                    new bootstrap.Dropdown(el);
-                });
-            }
-
-            // Run on initial load
-            initTheme();
-            initBootstrapComponents();
-
-            // Re-initialize after HTMX content settles (more reliable than afterSwap)
-            document.body.addEventListener('htmx:afterSettle', function () {
-                initTheme();
-                initBootstrapComponents();
             });
-        })();
+        }
+        initTheme();
+        document.body.addEventListener('htmx:afterSettle', initTheme);
     </script>
+
     <style>
+        /* Nav link styles */
+        .nav-link {
+            color: var(--ds-text-secondary);
+            font-size: 0.875rem;
+            padding: 0.375rem 0.625rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            transition: color 150ms, background 150ms;
+            display: inline-flex;
+            align-items: center;
+        }
+        .nav-link:hover { color: var(--ds-text-primary); background: rgba(255,255,255,0.05); }
+
+        /* Mobile nav link */
+        .mobile-nav-link {
+            color: var(--ds-text-secondary);
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            text-decoration: none;
+            display: block;
+            transition: color 150ms, background 150ms;
+        }
+        .mobile-nav-link:hover { color: var(--ds-text-primary); background: rgba(255,255,255,0.05); }
+
+        /* Dropdown panel */
+        .dropdown-panel {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 200px;
+            background: var(--ds-surface);
+            border: 1px solid rgba(34,211,238,0.15);
+            border-radius: 10px;
+            padding: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+        .dropdown-panel::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, #22d3ee, transparent);
+            border-radius: 8px 8px 0 0;
+            margin: -6px -6px 6px;
+            opacity: 0.6;
+        }
+        .dropdown-panel-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: var(--ds-text-secondary);
+            text-decoration: none;
+            transition: background 150ms, color 150ms;
+        }
+        .dropdown-panel-item:hover { background: rgba(34,211,238,0.08); color: var(--ds-accent); }
+
+        /* Footer links */
+        .footer-link { transition: color 150ms; }
+        .footer-link:hover { color: var(--ds-accent) !important; }
+
         /* --- Scroll-reveal base --- */
         .reveal {
             opacity: 0;
@@ -190,16 +281,9 @@
                 transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
                 filter 0.55s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-        }
-        /* Stagger delay variants — apply to children via JS */
-        .reveal[style*='--reveal-delay'] {
-            transition-delay: var(--reveal-delay, 0ms);
-        }
-        /* Stagger container — children animate in sequence */
+        .reveal.visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+        .reveal[style*='--reveal-delay'] { transition-delay: var(--reveal-delay, 0ms); }
+
         .reveal-stagger > * {
             opacity: 0;
             transform: translateY(22px);
@@ -209,12 +293,7 @@
                 transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
                 filter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .reveal-stagger.visible > * {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-        }
-        /* Generate stagger delays for up to 8 children */
+        .reveal-stagger.visible > * { opacity: 1; transform: translateY(0); filter: blur(0); }
         .reveal-stagger.visible > *:nth-child(1) { transition-delay: 0ms; }
         .reveal-stagger.visible > *:nth-child(2) { transition-delay: 80ms; }
         .reveal-stagger.visible > *:nth-child(3) { transition-delay: 160ms; }
@@ -224,21 +303,19 @@
         .reveal-stagger.visible > *:nth-child(7) { transition-delay: 480ms; }
         .reveal-stagger.visible > *:nth-child(8) { transition-delay: 560ms; }
     </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
             if (!prefersReducedMotion) {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             entry.target.classList.add('visible');
-                            // Once visible, no need to keep observing
                             observer.unobserve(entry.target);
                         }
                     });
                 }, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
-
                 document.querySelectorAll('.reveal, .reveal-stagger').forEach((el) => observer.observe(el));
             } else {
                 document.querySelectorAll('.reveal, .reveal-stagger').forEach((el) => el.classList.add('visible'));

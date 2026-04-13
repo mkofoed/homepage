@@ -82,6 +82,72 @@
   box-sizing: border-box;
 }
 
+/* === Light theme tokens === */
+[data-theme="light"] {
+  --ds-bg:                #f8fafc;
+  --ds-surface:           #ffffff;
+  --ds-surface-elevated:  #f1f5f9;
+  --ds-border:            #e2e8f0;
+  --ds-accent:            #0891b2;
+  --ds-accent-hover:      #0e7490;
+  --ds-accent-glow:       rgba(8, 145, 178, 0.12);
+  --ds-text-primary:      #0f172a;
+  --ds-text-secondary:    #475569;
+  --ds-text-muted:        #94a3b8;
+  --ds-shadow-card:       0 2px 12px rgba(0, 0, 0, 0.08);
+  --ds-glow-sm:           0 0 10px rgba(8, 145, 178, 0.15);
+  --ds-glow-md:           0 0 20px rgba(8, 145, 178, 0.2);
+  --ds-glow-lg:           0 0 40px rgba(8, 145, 178, 0.25);
+
+  /* Bootstrap token overrides */
+  --bs-body-bg:                   #f8fafc;
+  --bs-body-color:                #0f172a;
+  --bs-card-bg:                   #ffffff;
+  --bs-card-border-color:         #e2e8f0;
+  --bs-card-color:                #0f172a;
+  --bs-border-color:              #e2e8f0;
+  --bs-border-color-translucent:  rgba(226,232,240,0.5);
+  --bs-secondary-color:           #475569;
+  --bs-secondary-bg:              #f1f5f9;
+  --bs-tertiary-bg:               #e2e8f0;
+  --bs-tertiary-color:            #64748b;
+  --bs-emphasis-color:            #0f172a;
+  --bs-link-color:                #0891b2;
+  --bs-link-hover-color:          #0e7490;
+  --bs-primary:                   #0891b2;
+  --bs-primary-rgb:               8, 145, 178;
+  --bs-nav-link-color:            #475569;
+  --bs-nav-link-hover-color:      #0891b2;
+  --bs-navbar-color:              #475569;
+  --bs-navbar-hover-color:        #0891b2;
+  --bs-navbar-active-color:       #0891b2;
+  --bs-dropdown-bg:               #ffffff;
+  --bs-dropdown-border-color:     #e2e8f0;
+  --bs-dropdown-color:            #0f172a;
+  --bs-dropdown-link-color:       #0f172a;
+  --bs-dropdown-link-hover-color: #0891b2;
+  --bs-dropdown-link-hover-bg:    #f1f5f9;
+  --bs-dropdown-link-active-bg:   #0891b2;
+  --bs-dropdown-divider-bg:       #e2e8f0;
+}
+
+/* Light mode !important overrides (needed to beat Bootstrap's hardcoded styles) */
+[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+[data-theme="light"] .card,
+[data-theme="light"] .card-body { background-color: #ffffff !important; color: #0f172a !important; border-color: #e2e8f0 !important; }
+[data-theme="light"] .text-muted { color: #64748b !important; }
+[data-theme="light"] .text-secondary { color: #475569 !important; }
+[data-theme="light"] .navbar { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+[data-theme="light"] .dropdown-menu { background-color: #ffffff; border-color: #e2e8f0; }
+[data-theme="light"] .dropdown-item { color: #0f172a; }
+[data-theme="light"] .dropdown-item:hover { background-color: #f1f5f9; color: #0891b2; }
+[data-theme="light"] .ds-card { background-color: #ffffff; border-color: #e2e8f0; }
+[data-theme="light"] .ds-surface { background-color: #ffffff; border-color: #e2e8f0; }
+[data-theme="light"] .navbar-toggler-icon { filter: none; }
+
 html {
   background-color: var(--ds-bg);
   color: var(--ds-text-primary);
@@ -345,3 +411,54 @@ body {
 .navbar-toggler-icon {
   filter: invert(1);
 }
+
+/* === Light mode: fix hardcoded inline colours in templates === */
+/* These override the most common hardcoded hex values used in inline styles */
+[data-theme="light"] {
+  /* Most common hardcoded dark text colours -> make dark */
+  color-scheme: light;
+}
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] h4,
+[data-theme="light"] h5,
+[data-theme="light"] h6 { color: #0f172a !important; }
+[data-theme="light"] p,
+[data-theme="light"] li,
+[data-theme="light"] span:not([style*="color:#22d3ee"]):not([style*="color: #22d3ee"]):not([style*="color:#0891"]) { color: inherit; }
+/* Background overrides for hardcoded dark containers */
+[data-theme="light"] [style*="background-color: #0a0e17"],
+[data-theme="light"] [style*="background-color:#0a0e17"] { background-color: #f8fafc !important; }
+[data-theme="light"] [style*="background-color: #111827"],
+[data-theme="light"] [style*="background-color:#111827"] { background-color: #ffffff !important; }
+[data-theme="light"] [style*="background: #0a0e17"],
+[data-theme="light"] [style*="background:#0a0e17"] { background: #f8fafc !important; }
+/* Text colour overrides for hardcoded values */
+[data-theme="light"] [style*="color: #f1f5f9"],
+[data-theme="light"] [style*="color:#f1f5f9"] { color: #0f172a !important; }
+[data-theme="light"] [style*="color: #94a3b8"],
+[data-theme="light"] [style*="color:#94a3b8"] { color: #475569 !important; }
+[data-theme="light"] [style*="color: #64748b"],
+[data-theme="light"] [style*="color:#64748b"] { color: #64748b !important; }
+[data-theme="light"] [style*="color: #e2e8f0"],
+[data-theme="light"] [style*="color:#e2e8f0"] { color: #334155 !important; }
+/* Border overrides */
+[data-theme="light"] [style*="border.*#1e2d40"] { border-color: #e2e8f0 !important; }
+/* Radial gradient hero background */
+[data-theme="light"] .hero-section { background: radial-gradient(ellipse at 50% 0%, rgba(8,145,178,0.08) 0%, transparent 65%) !important; }
+/* arch-cards and playground cards */
+[data-theme="light"] .arch-card { background: #ffffff !important; border-color: rgba(8,145,178,0.15) !important; }
+[data-theme="light"] .arch-card-title { color: #0f172a !important; }
+[data-theme="light"] .ai-tool-card { background: #f8fafc !important; border-color: #e2e8f0 !important; }
+[data-theme="light"] .playground-card { background: #ffffff !important; border-color: rgba(8,145,178,0.15) !important; }
+[data-theme="light"] .stat-card { background: #ffffff !important; border-color: rgba(8,145,178,0.15) !important; }
+[data-theme="light"] .country-row { border-color: rgba(0,0,0,0.06) !important; }
+/* Footer */
+[data-theme="light"] footer,
+[data-theme="light"] .ds-surface { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+/* Summary cards on dashboard */
+[data-theme="light"] .summary-card { background: #ffffff !important; border-color: #e2e8f0 !important; }
+[data-theme="light"] .summary-card__price { color: #0f172a !important; }
+[data-theme="light"] .summary-card--low .summary-card__price { color: #059669 !important; }
+[data-theme="light"] .summary-card--high .summary-card__price { color: #dc2626 !important; }

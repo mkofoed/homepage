@@ -14,7 +14,7 @@
             <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed"
                  style="width: 96px; height: 96px; border-radius: 50%; border: 3px solid rgba(34,211,238,0.4); box-shadow: 0 0 24px rgba(34,211,238,0.2);">
         </div>
-        <h1 class="hero-item fw-bold" style="--hero-delay:120ms; color: #f1f5f9; font-size: clamp(36px, 5vw, 72px);">
+        <h1 class="hero-item font-bold" style="--hero-delay:120ms; color: #f1f5f9; font-size: clamp(36px, 5vw, 72px);">
             Hi, I'm <span style="color: #22d3ee; position: relative; display: inline-block;">
                 Mikkel Kofoed
                 <span class="name-underline"></span>
@@ -25,12 +25,12 @@
             <span style="color: #e2e8f0;">Not as a trend. As a genuine competitive advantage.</span>
         </p>
         <!-- AI Tool Badges -->
-        <div class="hero-item" style="--hero-delay:320ms; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin: 1.25rem auto;">
+        <div class="hero-item flex flex-wrap gap-2 justify-center" style="--hero-delay:320ms; margin: 1.25rem auto;">
             <span class="ai-badge"><i class="bi bi-cpu me-1"></i>Claude Code</span>
             <span class="ai-badge"><i class="bi bi-robot me-1"></i>GitHub Copilot</span>
             <span class="ai-badge"><i class="bi bi-terminal me-1"></i>OpenClaw</span>
         </div>
-        <div class="hero-item" style="--hero-delay:420ms; display: flex; gap: 1rem; justify-content: center;">
+        <div class="hero-item flex gap-4 justify-center" style="--hero-delay:420ms;">
             <a href="#projects" style="display:inline-block; padding:10px 24px; background:#22d3ee; color:#0a0e17; font-weight:600; border-radius:8px; text-decoration:none;">View Work</a>
             <a href="{% url 'about' %}" style="display:inline-block; padding:10px 24px; background:transparent; color:#22d3ee; font-weight:600; border:1.5px solid #22d3ee; border-radius:8px; text-decoration:none;">About Me</a>
         </div>
@@ -39,258 +39,230 @@
 
 <!-- AI Stack Banner -->
 <div class="reveal" style="border-top: 1px solid rgba(34,211,238,0.1); border-bottom: 1px solid rgba(34,211,238,0.1); background: rgba(34,211,238,0.03); padding: 1.25rem 0; overflow: hidden;">
-    <div class="container">
-        <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 2rem;">
-            <span style="color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">AI Stack</span>
-            <div class="ai-stack-item"><i class="bi bi-braces"></i> Claude Sonnet 4.6</div>
-            <div class="ai-stack-item"><i class="bi bi-github"></i> GitHub Copilot</div>
-            <div class="ai-stack-item"><i class="bi bi-terminal-fill"></i> Claude Code</div>
-            <div class="ai-stack-item"><i class="bi bi-cpu-fill"></i> OpenClaw Agent</div>
-            <div class="ai-stack-item"><i class="bi bi-search"></i> Cursor / Windsurf</div>
-        </div>
+    <div class="flex flex-wrap items-center justify-center gap-8 px-4">
+        <span style="color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">AI Stack</span>
+        <div class="ai-stack-item"><i class="bi bi-braces"></i> Claude Sonnet 4.6</div>
+        <div class="ai-stack-item"><i class="bi bi-github"></i> GitHub Copilot</div>
+        <div class="ai-stack-item"><i class="bi bi-terminal-fill"></i> Claude Code</div>
+        <div class="ai-stack-item"><i class="bi bi-cpu-fill"></i> OpenClaw Agent</div>
+        <div class="ai-stack-item"><i class="bi bi-search"></i> Cursor / Windsurf</div>
     </div>
 </div>
 
 <!-- Projects & Tools Section -->
-<div class="container py-5" id="projects">
+<div class="py-12" id="projects">
     <!-- Skills strip -->
-    <div class="reveal mb-5">
-        <div class="text-center mb-4">
-            <h2 class="fw-bold" style="color: #f1f5f9;">Skills &amp; Stack</h2>
+    <div class="reveal mb-12">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold" style="color: #f1f5f9;">Skills &amp; Stack</h2>
             <p style="color: #94a3b8;">What I reach for when the problem is hard.</p>
         </div>
-        <div class="row g-3">
-            <div class="col-md-3 col-6">
-                <div style="background:#111827; border:1px solid rgba(34,211,238,0.15); border-radius:10px; padding:1rem; text-align:center;">
-                    <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-cpu-fill"></i></div>
-                    <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">AI Tooling</div>
-                    <div style="color:#64748b; font-size:0.75rem;">Claude Code &middot; Copilot &middot; OpenClaw</div>
-                </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div style="background:#111827; border:1px solid rgba(34,211,238,0.15); border-radius:10px; padding:1rem; text-align:center;">
+                <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-cpu-fill"></i></div>
+                <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">AI Tooling</div>
+                <div style="color:#64748b; font-size:0.75rem;">Claude Code &middot; Copilot &middot; OpenClaw</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
-                    <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-filetype-py"></i></div>
-                    <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">Python / Django</div>
-                    <div style="color:#64748b; font-size:0.75rem;">DRF &middot; Celery &middot; PostgreSQL</div>
-                </div>
+            <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
+                <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-filetype-py"></i></div>
+                <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">Python / Django</div>
+                <div style="color:#64748b; font-size:0.75rem;">DRF &middot; Celery &middot; PostgreSQL</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
-                    <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-braces"></i></div>
-                    <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">.NET / C#</div>
-                    <div style="color:#64748b; font-size:0.75rem;">ASP.NET Core &middot; Azure &middot; EF Core</div>
-                </div>
+            <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
+                <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-braces"></i></div>
+                <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">.NET / C#</div>
+                <div style="color:#64748b; font-size:0.75rem;">ASP.NET Core &middot; Azure &middot; EF Core</div>
             </div>
-            <div class="col-md-3 col-6">
-                <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
-                    <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-boxes"></i></div>
-                    <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">Infrastructure</div>
-                    <div style="color:#64748b; font-size:0.75rem;">Docker &middot; Linux &middot; GitHub Actions</div>
-                </div>
+            <div style="background:#111827; border:1px solid #1e2d40; border-radius:10px; padding:1rem; text-align:center;">
+                <div style="color:#22d3ee; font-size:1.5rem; margin-bottom:0.5rem;"><i class="bi bi-boxes"></i></div>
+                <div style="color:#f1f5f9; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem;">Infrastructure</div>
+                <div style="color:#64748b; font-size:0.75rem;">Docker &middot; Linux &middot; GitHub Actions</div>
             </div>
         </div>
     </div>
 
     <!-- Projects grid -->
-    <div class="text-center mb-4">
-        <h2 class="fw-bold" style="color: #f1f5f9;">Projects &amp; Tools</h2>
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold" style="color: #f1f5f9;">Projects &amp; Tools</h2>
         <p style="color: #94a3b8;">Things I've built or am building.</p>
     </div>
 
-    <div class="row g-4 mb-5 reveal-stagger">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 reveal-stagger">
         <!-- Card: Energy Dashboard -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-lightning-charge-fill" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">Elpris Dashboard</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Live Danish electricity spot prices with hourly and 15-min resolution. DK1/DK2 switching, transport tariffs, and historical data back to April 2025.
-                </p>
-                <div class="text-center mt-auto">
-                    <a href="{% url 'dashboard:home' %}" class="btn btn-sm" style="background: var(--ds-accent); color: #0a0e17; font-weight: 600; border-radius: 6px; padding: 6px 20px;">
-                        Explore Dashboard &rarr;
-                    </a>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-lightning-charge-fill" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Elpris Dashboard</h3>
+            <p class="text-sm text-center mb-4" style="color: #94a3b8;">
+                Live Danish electricity spot prices with hourly and 15-min resolution. DK1/DK2 switching, transport tariffs, and historical data back to April 2025.
+            </p>
+            <div class="text-center mt-auto">
+                <a href="{% url 'dashboard:home' %}" style="display:inline-block; padding:6px 20px; background: var(--ds-accent); color: #0a0e17; font-weight: 600; border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    Explore Dashboard &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: Architecture -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-diagram-3-fill" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">Tech Stack</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Django 6, PostgreSQL 18, Redis, Celery, HTMX, Docker Compose &mdash; deployed on Hetzner with Nginx and GitHub Actions for zero-downtime updates.
-                </p>
-                <div class="text-center mt-auto">
-                    <a href="{% url 'architecture' %}" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        View Architecture &rarr;
-                    </a>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-diagram-3-fill" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Tech Stack</h3>
+            <p class="text-sm text-center mb-4" style="color: #94a3b8;">
+                Django 6, PostgreSQL 18, Redis, Celery, HTMX, Docker Compose &mdash; deployed on Hetzner with Nginx and GitHub Actions for zero-downtime updates.
+            </p>
+            <div class="text-center mt-auto">
+                <a href="{% url 'architecture' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    View Architecture &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: Visitor Map -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-globe2" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">Visitor Map</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Live map of where visitors come from — anonymised GeoIP, no cookies. Country breakdown and device split.
-                </p>
-                <div class="text-center mt-auto">
-                    <a href="{% url 'visitor_map' %}" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        View Map &rarr;
-                    </a>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-globe2" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Visitor Map</h3>
+            <p class="text-sm text-center mb-4" style="color: #94a3b8;">
+                Live map of where visitors come from — anonymised GeoIP, no cookies. Country breakdown and device split.
+            </p>
+            <div class="text-center mt-auto">
+                <a href="{% url 'visitor_map' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    View Map &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: AI Tools -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-robot" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">AI Tooling</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Daily-driving Claude Code, GitHub Copilot, and OpenClaw for agentic workflows — from code review to autonomous background tasks.
-                </p>
-                <div class="d-flex flex-wrap gap-1 justify-content-center mt-2">
-                    <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Claude Code</span>
-                    <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Copilot</span>
-                    <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">OpenClaw</span>
-                    <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Cursor</span>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-robot" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">AI Tooling</h3>
+            <p class="text-sm text-center mb-3" style="color: #94a3b8;">
+                Daily-driving Claude Code, GitHub Copilot, and OpenClaw for agentic workflows — from code review to autonomous background tasks.
+            </p>
+            <div class="flex flex-wrap gap-1 justify-center mt-2">
+                <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Claude Code</span>
+                <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Copilot</span>
+                <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">OpenClaw</span>
+                <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Cursor</span>
             </div>
         </div>
 
         <!-- Card: API Playground -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-play-circle-fill" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">API Playground</h3>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Try the live REST API in your browser &mdash; echo, calculator, Fibonacci, palindrome. Built with Django REST Framework.
-                </p>
-                <div class="text-center mt-auto">
-                    <a href="{% url 'api_playground' %}" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        Try It &rarr;
-                    </a>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-play-circle-fill" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">API Playground</h3>
+            <p class="text-sm text-center mb-4" style="color: #94a3b8;">
+                Try the live REST API in your browser &mdash; echo, calculator, Fibonacci, palindrome. Built with Django REST Framework.
+            </p>
+            <div class="text-center mt-auto">
+                <a href="{% url 'api_playground' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    Try It &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: Blog -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-journal-text" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">Blog</h3>
-                {% if latest_posts %}
-                <ul style="list-style: none; padding: 0; margin: 0;">
-                    {% for post in latest_posts %}
-                    <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--ds-border, #1e2d40);">
-                        <a href="{% url 'blog_detail' post.slug %}" style="color: #f1f5f9; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
-                            {{ post.title }}
-                        </a>
-                        <span style="color: #64748b; font-size: 0.75rem; display: block;">
-                            {{ post.created_at|date:"j. M Y" }}
-                        </span>
-                    </li>
-                    {% endfor %}
-                </ul>
-                {% else %}
-                <p style="color: #64748b; font-size: 0.9rem; text-align: center;">
-                    Coming soon &mdash; writing about Python, physics, and building things with AI.
-                </p>
-                {% endif %}
-                <div class="text-center mt-3">
-                    <a href="{% url 'blog_index' %}" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        Read Blog &rarr;
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-journal-text" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Blog</h3>
+            {% if latest_posts %}
+            <ul style="list-style: none; padding: 0; margin: 0;">
+                {% for post in latest_posts %}
+                <li style="padding: 0.4rem 0; border-bottom: 1px solid var(--ds-border, #1e2d40);">
+                    <a href="{% url 'blog_detail' post.slug %}" style="color: #f1f5f9; text-decoration: none; font-size: 0.9rem; font-weight: 500;">
+                        {{ post.title }}
                     </a>
-                </div>
+                    <span style="color: #64748b; font-size: 0.75rem; display: block;">
+                        {{ post.created_at|date:"j. M Y" }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-sm text-center mb-4" style="color: #64748b;">
+                Coming soon &mdash; writing about Python, physics, and building things with AI.
+            </p>
+            {% endif %}
+            <div class="text-center mt-3">
+                <a href="{% url 'blog_index' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    Read Blog &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: GitHub -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-github" style="font-size: 2.5rem;"></i>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-github" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">GitHub</h3>
+            {% if github %}
+            <div class="flex items-center justify-center mb-3 gap-2">
+                <img src="{{ github.avatar_url }}" alt="{{ github.name }}" style="width:32px;height:32px;border-radius:50%;">
+                <a href="{{ github.profile_url }}" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
+                    @{{ github.username }}
+                </a>
+            </div>
+            <div class="flex justify-center gap-8 mb-3">
+                <div class="text-center">
+                    <div class="font-bold" style="color: #f1f5f9;">{{ github.public_repos }}</div>
+                    <div style="color: #64748b; font-size: 0.75rem;">Repos</div>
                 </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">GitHub</h3>
-                {% if github %}
-                <div class="d-flex align-items-center justify-content-center mb-3">
-                    <img src="{{ github.avatar_url }}" alt="{{ github.name }}" class="rounded-circle me-2" width="32" height="32">
-                    <a href="{{ github.profile_url }}" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
-                        @{{ github.username }}
-                    </a>
+                <div class="text-center">
+                    <div class="font-bold" style="color: #f1f5f9;">{{ github.total_stars }}</div>
+                    <div style="color: #64748b; font-size: 0.75rem;">Stars</div>
                 </div>
-                <div class="d-flex justify-content-center gap-4 mb-3">
-                    <div class="text-center">
-                        <div class="fw-bold" style="color: #f1f5f9;">{{ github.public_repos }}</div>
-                        <div style="color: #64748b; font-size: 0.75rem;">Repos</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="fw-bold" style="color: #f1f5f9;">{{ github.total_stars }}</div>
-                        <div style="color: #64748b; font-size: 0.75rem;">Stars</div>
-                    </div>
-                    <div class="text-center">
-                        <div class="fw-bold" style="color: #f1f5f9;">{{ github.followers }}</div>
-                        <div style="color: #64748b; font-size: 0.75rem;">Followers</div>
-                    </div>
+                <div class="text-center">
+                    <div class="font-bold" style="color: #f1f5f9;">{{ github.followers }}</div>
+                    <div style="color: #64748b; font-size: 0.75rem;">Followers</div>
                 </div>
-                {% if github.top_languages %}
-                <div class="d-flex flex-wrap gap-1 justify-content-center">
-                    {% for lang, count in github.top_languages %}
-                    <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">{{ lang }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% else %}
-                <p style="color: #64748b; font-size: 0.9rem; text-align: center;">
-                    GitHub stats loading...
-                </p>
-                {% endif %}
-                <div class="text-center mt-3">
-                    <a href="https://github.com/mkofoed" target="_blank" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        View GitHub &rarr;
-                    </a>
-                </div>
+            </div>
+            {% if github.top_languages %}
+            <div class="flex flex-wrap gap-1 justify-center">
+                {% for lang, count in github.top_languages %}
+                <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">{{ lang }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <p class="text-sm text-center" style="color: #64748b;">GitHub stats loading...</p>
+            {% endif %}
+            <div class="text-center mt-3">
+                <a href="https://github.com/mkofoed" target="_blank" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    View GitHub &rarr;
+                </a>
             </div>
         </div>
 
         <!-- Card: LinkedIn -->
-        <div class="col-md-6">
-            <div class="ds-card h-100" style="padding: var(--ds-space-4); transition: transform 150ms, box-shadow 150ms;">
-                <div class="text-center mb-3" style="color: var(--ds-accent);">
-                    <i class="bi bi-linkedin" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="h5 fw-bold text-center" style="color: #f1f5f9;">LinkedIn</h3>
-                <div class="d-flex align-items-center justify-content-center mb-3">
-                    <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed" class="rounded-circle me-2" width="32" height="32">
-                    <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
-                        Mikkel Kofoed
-                    </a>
-                </div>
-                <p style="color: #94a3b8; font-size: 0.9rem; text-align: center;">
-                    Senior software developer &mdash; Python, .NET, and AI-augmented workflows.
-                </p>
-                <div class="text-center mt-auto">
-                    <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" class="btn btn-sm" style="background: transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; padding: 6px 20px;">
-                        View Profile &rarr;
-                    </a>
-                </div>
+        <div class="ds-card flex flex-col h-full">
+            <div class="text-center mb-3" style="color: var(--ds-accent);">
+                <i class="bi bi-linkedin" style="font-size: 2.5rem;"></i>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">LinkedIn</h3>
+            <div class="flex items-center justify-center mb-3 gap-2">
+                <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed" style="width:32px;height:32px;border-radius:50%;">
+                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
+                    Mikkel Kofoed
+                </a>
+            </div>
+            <p class="text-sm text-center mb-4" style="color: #94a3b8;">
+                Senior software developer &mdash; Python, .NET, and AI-augmented workflows.
+            </p>
+            <div class="text-center mt-auto">
+                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                    View Profile &rarr;
+                </a>
             </div>
         </div>
     </div>
@@ -319,13 +291,7 @@
     animation: underlineGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     animation-delay: 600ms;
 }
-@keyframes underlineGrow {
-    to { width: 100%; }
-}
-@keyframes fadeUp {
-    0% { opacity: 0; transform: translateY(24px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
+@keyframes underlineGrow { to { width: 100%; } }
 .ai-badge {
     background: rgba(34,211,238,0.08);
     border: 1px solid rgba(34,211,238,0.25);
@@ -337,10 +303,7 @@
     font-family: 'JetBrains Mono', monospace;
     transition: background 200ms, border-color 200ms;
 }
-.ai-badge:hover {
-    background: rgba(34,211,238,0.15);
-    border-color: rgba(34,211,238,0.5);
-}
+.ai-badge:hover { background: rgba(34,211,238,0.15); border-color: rgba(34,211,238,0.5); }
 .ai-stack-item {
     display: flex;
     align-items: center;
@@ -350,8 +313,6 @@
     font-family: 'JetBrains Mono', monospace;
     transition: color 200ms;
 }
-.ai-stack-item:hover {
-    color: #94a3b8;
-}
+.ai-stack-item:hover { color: #94a3b8; }
 </style>
 {% endblock %}

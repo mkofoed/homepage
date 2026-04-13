@@ -94,8 +94,8 @@
     </p>
 </div>
 
-<div class="row justify-content-center">
-<div class="col-lg-10">
+<div class="max-w-4xl mx-auto">
+<div >
 
     <!-- System Architecture Diagram -->
     <div class="arch-card reveal">
@@ -150,29 +150,29 @@
             force multiplier. Architecture decisions, code review, deployment scripts, and even frontend changes run
             through AI tooling daily.
         </p>
-        <div class="row g-3 reveal-stagger">
-            <div class="col-md-4">
+        <div class="grid md:grid-cols-3 gap-3 reveal-stagger">
+            <div >
                 <div class="ai-tool-card">
-                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                    <div class="font-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
                         <i class="bi bi-braces me-1"></i>Claude Code
                     </div>
-                    <p class="small mb-0" style="color:#94a3b8;">Architecture, code review, and complex problem-solving in the terminal</p>
+                    <p class="text-sm mb-0" style="color:#94a3b8;">Architecture, code review, and complex problem-solving in the terminal</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div class="ai-tool-card">
-                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                    <div class="font-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
                         <i class="bi bi-github me-1"></i>GitHub Copilot
                     </div>
-                    <p class="small mb-0" style="color:#94a3b8;">In-editor completions for velocity — Python, HTML, CSS</p>
+                    <p class="text-sm mb-0" style="color:#94a3b8;">In-editor completions for velocity — Python, HTML, CSS</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div class="ai-tool-card">
-                    <div class="fw-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
+                    <div class="font-bold mb-1" style="color:#22d3ee; font-size:0.9rem;">
                         <i class="bi bi-terminal-fill me-1"></i>OpenClaw
                     </div>
-                    <p class="small mb-0" style="color:#94a3b8;">Persistent AI agent — visual QA, autonomous background tasks, Telegram integration</p>
+                    <p class="text-sm mb-0" style="color:#94a3b8;">Persistent AI agent — visual QA, autonomous background tasks, Telegram integration</p>
                 </div>
             </div>
         </div>
@@ -181,10 +181,10 @@
     <!-- Tech Stack -->
     <div class="arch-card reveal">
         <div class="arch-card-title"><i class="bi bi-stack"></i> Tech Stack</div>
-        <div class="row g-4 reveal-stagger">
-            <div class="col-md-4">
+        <div class="grid md:grid-cols-2 gap-4 reveal-stagger">
+            <div >
                 <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Backend</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
                     <span class="stack-badge"><i class="bi bi-filetype-py"></i> Python {{ PYTHON_VERSION }}</span>
                     <span class="stack-badge"><i class="bi bi-code-square"></i> Django {{ DJANGO_VERSION }}</span>
                     <span class="stack-badge">Gunicorn</span>
@@ -192,17 +192,17 @@
                     <span class="stack-badge">DRF</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Data</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
                     <span class="stack-badge"><i class="bi bi-database"></i> PostgreSQL 18</span>
                     <span class="stack-badge">TimescaleDB</span>
                     <span class="stack-badge"><i class="bi bi-lightning-fill"></i> Redis</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Infrastructure</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
                     <span class="stack-badge"><i class="bi bi-boxes"></i> Docker Compose</span>
                     <span class="stack-badge">Nginx</span>
                     <span class="stack-badge">Cloudflare</span>
@@ -210,17 +210,17 @@
                     <span class="stack-badge">GitHub Actions</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Frontend</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
                     <span class="stack-badge">HTMX</span>
                     <span class="stack-badge">Bootstrap 5</span>
                     <span class="stack-badge">Chart.js</span>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div >
                 <div style="color:#64748b; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.75rem;">Tooling</div>
-                <div class="d-flex flex-wrap gap-2">
+                <div class="flex flex-wrap gap-2">
                     <span class="stack-badge">uv</span>
                     <span class="stack-badge">Sentry</span>
                     <span class="stack-badge">GitHub Actions</span>
@@ -257,8 +257,8 @@
     </div>
 
     <!-- Key Features + Live Health -->
-    <div class="row g-4 reveal-stagger">
-        <div class="col-md-7">
+    <div class="grid md:grid-cols-2 gap-4 reveal-stagger">
+        <div class="md:col-span-2">
             <div class="arch-card" style="margin-bottom:0; height:100%;">
                 <div class="arch-card-title"><i class="bi bi-lightning-fill"></i> Key Features</div>
                 <div class="feature-row">
@@ -298,7 +298,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-5">
+        <div >
             <div class="arch-card" style="margin-bottom:0; height:100%;">
                 <div class="arch-card-title"><i class="bi bi-heart-pulse-fill"></i> Live Server Stats</div>
                 <div id="server-stats"
@@ -306,7 +306,7 @@
                      hx-trigger="load, every 10s"
                      hx-swap="none"
                      hx-on::after-request="renderServerStats(event)">
-                    <div class="d-flex align-items-center gap-2" style="color:#64748b;">
+                    <div class="flex items-center gap-2" style="color:#64748b;">
                         <div class="spinner-border spinner-border-sm" role="status"></div>
                         Loading...
                     </div>
@@ -353,9 +353,9 @@
             const memColor = d.memory_percent > 80 ? '#f87171' : d.memory_percent > 60 ? '#fb923c' : '#22d3ee';
             const dbOk = d.db_response_ms < 200;
             el.innerHTML = `
-                <div class="d-flex flex-column gap-3">
+                <div class="flex flex-col gap-3">
                     <div>
-                        <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem;">
+                        <div class="flex justify-between mb-1" style="font-size:0.8rem;">
                             <span style="color:#94a3b8;"><i class="bi bi-cpu me-1"></i>CPU</span>
                             <span style="color:${cpuColor}; font-family:'JetBrains Mono',monospace;">${d.cpu_percent}%</span>
                         </div>
@@ -364,7 +364,7 @@
                         </div>
                     </div>
                     <div>
-                        <div class="d-flex justify-content-between mb-1" style="font-size:0.8rem;">
+                        <div class="flex justify-between mb-1" style="font-size:0.8rem;">
                             <span style="color:#94a3b8;"><i class="bi bi-memory me-1"></i>Memory</span>
                             <span style="color:${memColor}; font-family:'JetBrains Mono',monospace;">${d.memory_percent}%</span>
                         </div>

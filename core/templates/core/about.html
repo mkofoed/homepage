@@ -13,172 +13,165 @@
     border-radius: 50%;
     background: #22d3ee;
   }
-  .section-heading i { color: #22d3ee; }
 </style>
 
-<div class="row justify-content-center">
-    <div class="col-lg-10">
+<div class="max-w-4xl mx-auto">
 
-        <!-- Hero Section -->
-        <div class="text-center mb-5 py-4">
-            <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed"
-                 style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(34,211,238,0.4); box-shadow: 0 0 32px rgba(34,211,238,0.2); margin-bottom: 1.25rem;">
-            <h1 style="color: #f1f5f9; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;">Mikkel Kofoed</h1>
-            <p style="color: #22d3ee; font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem;">Senior Developer &middot; Physicist &middot; AI-first</p>
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">@Fellowmind &middot; Aarhus, Denmark</p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="https://github.com/mkofoed" target="_blank"
-                   style="display:inline-block; padding:8px 20px; background:transparent; color:#22d3ee; font-weight:600; border:1.5px solid #22d3ee; border-radius:8px; text-decoration:none; font-size:0.9rem;">
-                    <i class="bi bi-github me-2"></i>GitHub
-                </a>
-                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank"
-                   style="display:inline-block; padding:8px 20px; background:#22d3ee; color:#0a0e17; font-weight:600; border-radius:8px; text-decoration:none; font-size:0.9rem;">
-                    <i class="bi bi-linkedin me-2"></i>LinkedIn
-                </a>
-            </div>
+    <!-- Hero Section -->
+    <div class="text-center mb-10 py-8">
+        <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed"
+             style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid rgba(34,211,238,0.4); box-shadow: 0 0 32px rgba(34,211,238,0.2); margin-bottom: 1.25rem;">
+        <h1 style="color: #f1f5f9; font-size: clamp(2rem, 4vw, 3rem); font-weight: 700;">Mikkel Kofoed</h1>
+        <p style="color: #22d3ee; font-size: 1rem; font-weight: 500; margin-bottom: 0.25rem;">Senior Developer &middot; Physicist &middot; AI-first</p>
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;">@Fellowmind &middot; Aarhus, Denmark</p>
+        <div class="flex justify-center gap-3">
+            <a href="https://github.com/mkofoed" target="_blank"
+               style="display:inline-block; padding:8px 20px; background:transparent; color:#22d3ee; font-weight:600; border:1.5px solid #22d3ee; border-radius:8px; text-decoration:none; font-size:0.9rem;">
+                <i class="bi bi-github me-2"></i>GitHub
+            </a>
+            <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank"
+               style="display:inline-block; padding:8px 20px; background:#22d3ee; color:#0a0e17; font-weight:600; border-radius:8px; text-decoration:none; font-size:0.9rem;">
+                <i class="bi bi-linkedin me-2"></i>LinkedIn
+            </a>
         </div>
-
-        <!-- About Summary -->
-        <div class="mb-4 reveal" style="background:#111827; border:1px solid #1e2d40; border-radius:12px; padding:24px;">
-            <h3 class="h5 fw-bold mb-3" style="color:#f1f5f9;">
-                <i class="bi bi-person-lines-fill me-2" style="color:#22d3ee;"></i>About Me
-            </h3>
-            <p class="lead mb-0" style="color:#94a3b8; line-height:1.7;">
-                Developer and physicist who went all-in on AI tooling before it was mainstream.
-                I've spent time across large-scale public sector systems, energy data, and .NET enterprise consulting &mdash;
-                and I've found that the people who move fastest are the ones who treat AI as a genuine part of their craft,
-                not a shortcut.
-            </p>
-        </div>
-
-        <!-- How I Work -->
-        <div class="mb-5 reveal" style="background:#111827; border:1px solid #22d3ee33; border-radius:12px; padding:24px;">
-            <h3 class="h5 fw-bold mb-3" style="color:#f1f5f9;">
-                <i class="bi bi-cpu me-2" style="color:#22d3ee;"></i>AI-First, Not AI-Assisted
-            </h3>
-            <p class="mb-3" style="color:#94a3b8; line-height:1.7;">
-                Most developers use AI as a spell-checker for code. I use it differently &mdash; agentic workflows,
-                persistent background agents, autonomous code review, visual QA, and deployment pipelines
-                orchestrated by AI. The goal is to stay in the hard-thinking layer and let everything else run.
-            </p>
-            <p class="mb-0" style="color:#94a3b8; line-height:1.7;">
-                This site is a live example: it's built, maintained, and iterated on with AI assistance from architecture
-                to deployment. The visitor map, electricity dashboard, and this very page were all built in
-                conversation with an AI agent running on my own server.
-            </p>
-            <div class="mt-4 d-flex flex-wrap gap-2">
-                <span class="ds-badge"><i class="bi bi-stars me-1"></i>Claude Code</span>
-                <span class="ds-badge">GitHub Copilot</span>
-                <span class="ds-badge">OpenClaw agents</span>
-                <span class="ds-badge">Custom AI workflows</span>
-            </div>
-        </div>
-
-        <div class="row reveal">
-            <!-- Experience Section -->
-            <div class="col-md-8 mb-4">
-                <h3 class="h5 fw-bold mb-4" style="color:#f1f5f9;">
-                    <i class="bi bi-briefcase-fill me-2" style="color:#22d3ee;"></i>Experience
-                </h3>
-
-                <!-- Experience Item -->
-                <div class="ps-4 mb-4 position-relative" style="border-left: 2px solid #22d3ee;">
-                    <div class="timeline-dot"></div>
-                    <h4 class="h6 fw-bold mb-1" style="color:#f1f5f9;">Senior Developer</h4>
-                    <p class="small mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/fellowmind" target="_blank" style="color:#22d3ee; text-decoration:none;">Fellowmind</a> • Apr 2023 - Present</p>
-                    <p class="small mb-0" style="color:#94a3b8;">
-                        Specializing in .NET and Azure cloud solutions. Architecting and developing scalable
-                        applications, integrating complex data systems, and driving technical excellence in software
-                        delivery.
-                    </p>
-                </div>
-
-                <!-- Experience Item -->
-                <div class="ps-4 mb-4 position-relative" style="border-left: 2px solid #1e2d40;">
-                    <div class="timeline-dot" style="background:#475569;"></div>
-                    <h4 class="h6 fw-bold mb-1" style="color:#f1f5f9;">Software Engineer</h4>
-                    <p class="small mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/entolabs/" target="_blank" style="color:#22d3ee; text-decoration:none;">Ento Labs</a> • Apr 2022 - Mar 2023</p>
-                    <p class="small mb-0" style="color:#94a3b8;">
-                        Full stack development focusing on energy data analysis and visualization. Built robust backend
-                        services with Python/Django and responsive frontends.
-                    </p>
-                </div>
-
-                <!-- Experience Item -->
-                <div class="ps-4 mb-4 position-relative" style="border-left: 2px solid #1e2d40;">
-                    <div class="timeline-dot" style="background:#475569;"></div>
-                    <h4 class="h6 fw-bold mb-1" style="color:#f1f5f9;">Senior IT Consultant</h4>
-                    <p class="small mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/netcompany-a-s/" target="_blank" style="color:#22d3ee; text-decoration:none;">Netcompany</a> • May 2019 - Apr 2022</p>
-                    <p class="small mb-0" style="color:#94a3b8;">
-                        Worked on large-scale public sector IT projects. Promoted from IT Consultant (May 2019 - Dec
-                        2021) to Senior IT Consultant (Jan 2022 - Apr 2022). Focused on PostgreSQL and critical system
-                        reliability.
-                    </p>
-                </div>
-
-                <!-- Experience Item -->
-                <div class="ps-4 mb-4 position-relative" style="border-left: 2px solid #1e2d40;">
-                    <div class="timeline-dot" style="background:#475569;"></div>
-                    <h4 class="h6 fw-bold mb-1" style="color:#f1f5f9;">Developer</h4>
-                    <p class="small mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/plecto" target="_blank" style="color:#22d3ee; text-decoration:none;">Plecto</a> • Nov 2017 - May 2019</p>
-                    <p class="small mb-0" style="color:#94a3b8;">
-                        Developed real-time dashboard solutions using Redis and PostgreSQL. Focused on performance
-                        optimization and user experience.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Skills Section -->
-            <div class="col-md-4">
-                <h3 class="h5 fw-bold mb-4" style="color:#f1f5f9;">
-                    <i class="bi bi-tools me-2" style="color:#22d3ee;"></i>Skills
-                </h3>
-
-                <div class="mb-4">
-                    <h4 class="h6 text-uppercase small fw-bold mb-3" style="color:#22d3ee;">AI & Productivity</h4>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="ds-badge">Claude Code</span>
-                        <span class="ds-badge">GitHub Copilot</span>
-                        <span class="ds-badge">OpenClaw</span>
-                        <span class="ds-badge">LLMs</span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="h6 text-uppercase small fw-bold mb-3" style="color:#475569;">.NET & Microsoft</h4>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="ds-badge">C#</span>
-                        <span class="ds-badge">.NET</span>
-                        <span class="ds-badge">ASP.NET Core</span>
-                        <span class="ds-badge">Azure</span>
-                        <span class="ds-badge">Entity Framework</span>
-                        <span class="ds-badge">SQL Server</span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <h4 class="h6 text-uppercase small fw-bold mb-3" style="color:#475569;">Open Source & Web</h4>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="ds-badge">Python</span>
-                        <span class="ds-badge">Django</span>
-                        <span class="ds-badge">Docker</span>
-                        <span class="ds-badge">PostgreSQL</span>
-                        <span class="ds-badge">HTMX</span>
-                        <span class="ds-badge">Linux</span>
-                    </div>
-                </div>
-
-                <div>
-                    <h4 class="h6 text-uppercase small fw-bold mb-3" style="color:#475569;">Domain</h4>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="ds-badge">Data Analysis</span>
-                        <span class="ds-badge">Physics</span>
-                        <span class="ds-badge">Software Engineering</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    <!-- About Summary -->
+    <div class="mb-4 reveal" style="background:#111827; border:1px solid #1e2d40; border-radius:12px; padding:24px;">
+        <h3 class="text-lg font-bold mb-3" style="color:#f1f5f9;">
+            <i class="bi bi-person-lines-fill me-2" style="color:#22d3ee;"></i>About Me
+        </h3>
+        <p class="text-lg mb-0" style="color:#94a3b8; line-height:1.7;">
+            Developer and physicist who went all-in on AI tooling before it was mainstream.
+            I've spent time across large-scale public sector systems, energy data, and .NET enterprise consulting &mdash;
+            and I've found that the people who move fastest are the ones who treat AI as a genuine part of their craft,
+            not a shortcut.
+        </p>
+    </div>
+
+    <!-- How I Work -->
+    <div class="mb-10 reveal" style="background:#111827; border:1px solid #22d3ee33; border-radius:12px; padding:24px;">
+        <h3 class="text-lg font-bold mb-3" style="color:#f1f5f9;">
+            <i class="bi bi-cpu me-2" style="color:#22d3ee;"></i>AI-First, Not AI-Assisted
+        </h3>
+        <p class="mb-3" style="color:#94a3b8; line-height:1.7;">
+            Most developers use AI as a spell-checker for code. I use it differently &mdash; agentic workflows,
+            persistent background agents, autonomous code review, visual QA, and deployment pipelines
+            orchestrated by AI. The goal is to stay in the hard-thinking layer and let everything else run.
+        </p>
+        <p class="mb-0" style="color:#94a3b8; line-height:1.7;">
+            This site is a live example: it's built, maintained, and iterated on with AI assistance from architecture
+            to deployment. The visitor map, electricity dashboard, and this very page were all built in
+            conversation with an AI agent running on my own server.
+        </p>
+        <div class="flex flex-wrap gap-2 mt-4">
+            <span class="ds-badge"><i class="bi bi-stars me-1"></i>Claude Code</span>
+            <span class="ds-badge">GitHub Copilot</span>
+            <span class="ds-badge">OpenClaw agents</span>
+            <span class="ds-badge">Custom AI workflows</span>
+        </div>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6 reveal">
+        <!-- Experience Section -->
+        <div class="md:col-span-2">
+            <h3 class="text-lg font-bold mb-6" style="color:#f1f5f9;">
+                <i class="bi bi-briefcase-fill me-2" style="color:#22d3ee;"></i>Experience
+            </h3>
+
+            <div class="pl-4 mb-6 relative" style="border-left: 2px solid #22d3ee;">
+                <div class="timeline-dot"></div>
+                <h4 class="text-base font-bold mb-1" style="color:#f1f5f9;">Senior Developer</h4>
+                <p class="text-sm mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/fellowmind" target="_blank" style="color:#22d3ee; text-decoration:none;">Fellowmind</a> &bull; Apr 2023 - Present</p>
+                <p class="text-sm mb-0" style="color:#94a3b8;">
+                    Specializing in .NET and Azure cloud solutions. Architecting and developing scalable
+                    applications, integrating complex data systems, and driving technical excellence in software
+                    delivery.
+                </p>
+            </div>
+
+            <div class="pl-4 mb-6 relative" style="border-left: 2px solid #1e2d40;">
+                <div class="timeline-dot" style="background:#475569;"></div>
+                <h4 class="text-base font-bold mb-1" style="color:#f1f5f9;">Software Engineer</h4>
+                <p class="text-sm mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/entolabs/" target="_blank" style="color:#22d3ee; text-decoration:none;">Ento Labs</a> &bull; Apr 2022 - Mar 2023</p>
+                <p class="text-sm mb-0" style="color:#94a3b8;">
+                    Full stack development focusing on energy data analysis and visualization. Built robust backend
+                    services with Python/Django and responsive frontends.
+                </p>
+            </div>
+
+            <div class="pl-4 mb-6 relative" style="border-left: 2px solid #1e2d40;">
+                <div class="timeline-dot" style="background:#475569;"></div>
+                <h4 class="text-base font-bold mb-1" style="color:#f1f5f9;">Senior IT Consultant</h4>
+                <p class="text-sm mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/netcompany-a-s/" target="_blank" style="color:#22d3ee; text-decoration:none;">Netcompany</a> &bull; May 2019 - Apr 2022</p>
+                <p class="text-sm mb-0" style="color:#94a3b8;">
+                    Worked on large-scale public sector IT projects. Promoted from IT Consultant (May 2019 - Dec
+                    2021) to Senior IT Consultant (Jan 2022 - Apr 2022). Focused on PostgreSQL and critical system
+                    reliability.
+                </p>
+            </div>
+
+            <div class="pl-4 mb-6 relative" style="border-left: 2px solid #1e2d40;">
+                <div class="timeline-dot" style="background:#475569;"></div>
+                <h4 class="text-base font-bold mb-1" style="color:#f1f5f9;">Developer</h4>
+                <p class="text-sm mb-2" style="color:#475569;"><a href="https://www.linkedin.com/company/plecto" target="_blank" style="color:#22d3ee; text-decoration:none;">Plecto</a> &bull; Nov 2017 - May 2019</p>
+                <p class="text-sm mb-0" style="color:#94a3b8;">
+                    Developed real-time dashboard solutions using Redis and PostgreSQL. Focused on performance
+                    optimization and user experience.
+                </p>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div>
+            <h3 class="text-lg font-bold mb-6" style="color:#f1f5f9;">
+                <i class="bi bi-tools me-2" style="color:#22d3ee;"></i>Skills
+            </h3>
+
+            <div class="mb-5">
+                <h4 class="text-xs uppercase tracking-widest font-bold mb-3" style="color:#22d3ee;">AI &amp; Productivity</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="ds-badge">Claude Code</span>
+                    <span class="ds-badge">GitHub Copilot</span>
+                    <span class="ds-badge">OpenClaw</span>
+                    <span class="ds-badge">LLMs</span>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <h4 class="text-xs uppercase tracking-widest font-bold mb-3" style="color:#475569;">.NET &amp; Microsoft</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="ds-badge">C#</span>
+                    <span class="ds-badge">.NET</span>
+                    <span class="ds-badge">ASP.NET Core</span>
+                    <span class="ds-badge">Azure</span>
+                    <span class="ds-badge">Entity Framework</span>
+                    <span class="ds-badge">SQL Server</span>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <h4 class="text-xs uppercase tracking-widest font-bold mb-3" style="color:#475569;">Open Source &amp; Web</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="ds-badge">Python</span>
+                    <span class="ds-badge">Django</span>
+                    <span class="ds-badge">Docker</span>
+                    <span class="ds-badge">PostgreSQL</span>
+                    <span class="ds-badge">HTMX</span>
+                    <span class="ds-badge">Linux</span>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs uppercase tracking-widest font-bold mb-3" style="color:#475569;">Domain</h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="ds-badge">Data Analysis</span>
+                    <span class="ds-badge">Physics</span>
+                    <span class="ds-badge">Software Engineering</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

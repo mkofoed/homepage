@@ -82,33 +82,33 @@
     <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.25rem;">
         <i class="bi bi-globe2"></i> Live Visitor Map
     </div>
-    <h1 class="fw-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">Where Visitors Come From</h1>
+    <h1 class="font-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">Where Visitors Come From</h1>
     <p style="color: #94a3b8; font-size: 1.1rem; max-width: 520px; margin: 0.75rem auto 0;">
         Real visitor data — anonymised, no cookies, no tracking scripts. Just GeoIP on the server.
     </p>
 </div>
 
 <!-- Stats Row -->
-<div class="row g-3 mb-4 reveal-stagger">
-    <div class="col-6 col-md-3">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 reveal-stagger">
+    <div >
         <div class="stat-card">
             <div class="stat-value">{{ total_views }}</div>
             <div class="stat-label">Page Views</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div >
         <div class="stat-card">
             <div class="stat-value">{{ unique_visitors }}</div>
             <div class="stat-label">Unique Visitors</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div >
         <div class="stat-card">
             <div class="stat-value">{{ unique_countries }}</div>
             <div class="stat-label">Countries</div>
         </div>
     </div>
-    <div class="col-6 col-md-3">
+    <div >
         <div class="stat-card" id="stat-desktop">
             <div class="stat-value">—</div>
             <div class="stat-label">Desktop</div>
@@ -126,8 +126,8 @@
 </div>
 
 <!-- Bottom: Top Countries + Device Split -->
-<div class="row g-4 reveal-stagger">
-    <div class="col-md-7">
+<div class="grid md:grid-cols-2 gap-6 reveal-stagger">
+    <div >
         <div style="background: #111827; border: 1px solid rgba(34,211,238,0.12); border-radius: 12px; padding: 1.5rem; height: 100%;">
             <div class="section-title"><i class="bi bi-flag-fill"></i> Top Countries</div>
             {% if top_countries %}
@@ -149,7 +149,7 @@
             {% endif %}
         </div>
     </div>
-    <div class="col-md-5">
+    <div >
         <div style="background: #111827; border: 1px solid rgba(34,211,238,0.12); border-radius: 12px; padding: 1.5rem; height: 100%;">
             <div class="section-title"><i class="bi bi-phone-fill"></i> Device Split</div>
             <canvas id="device-chart" height="200"></canvas>

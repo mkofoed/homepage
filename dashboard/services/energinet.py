@@ -77,13 +77,22 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
 def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str = "DK1") -> int:
     """
     Fetches spot prices from Energi Data Service for a specific date range and saves them.
+    start_date and end_date are Copenhagen local dates (YYYY-MM-DD).
     Returns the number of new records inserted.
     """
+    import zoneinfo
+    from datetime import date as _date, datetime as _dt, time as _time, timezone as _tz
+    CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
+
+    # Convert Copenhagen midnight to UTC so the API returns the full local day
+    start_utc = _dt.combine(_date.fromisoformat(start_date), _time.min, tzinfo=CPH_TZ).astimezone(_tz.utc).strftime("%Y-%m-%dT%H:%M")
+    end_utc = _dt.combine(_date.fromisoformat(end_date), _time.min, tzinfo=CPH_TZ).astimezone(_tz.utc).strftime("%Y-%m-%dT%H:%M")
+
     params = urllib.parse.urlencode(
         {
             "filter": json.dumps({"PriceArea": price_area}),
-            "start": start_date + "T00:00",
-            "end": end_date + "T00:00",
+            "start": start_utc,
+            "end": end_utc,
             "sort": "TimeUTC ASC",
         }
     )

@@ -88,18 +88,28 @@
             '<div class="summary-card__sub">Hele perioden</div>';
     }
 
-    // Find "now" bar
+    // Find "now" bar — only highlight if current time is within the displayed range
     var nowMs = new Date(currentIntervalIso).getTime();
     var nowIndex = -1;
-    var closestDiff = Infinity;
-    data.labels.forEach(function(label, i) {
-        var labelMs = new Date(label).getTime();
-        var diff = nowMs - labelMs;
-        if (diff >= 0 && diff < closestDiff) {
-            closestDiff = diff;
-            nowIndex = i;
+    if (data.labels.length > 0) {
+        var firstMs = new Date(data.labels[0]).getTime();
+        var lastMs = new Date(data.labels[data.labels.length - 1]).getTime();
+        var oneInterval = data.labels.length > 1
+            ? new Date(data.labels[1]).getTime() - firstMs
+            : 3600000; // 1h fallback
+        // Only mark if now falls within [first, last + one interval)
+        if (nowMs >= firstMs && nowMs < lastMs + oneInterval) {
+            var closestDiff = Infinity;
+            data.labels.forEach(function(label, i) {
+                var labelMs = new Date(label).getTime();
+                var diff = nowMs - labelMs;
+                if (diff >= 0 && diff < closestDiff) {
+                    closestDiff = diff;
+                    nowIndex = i;
+                }
+            });
         }
-    });
+    }
 
     // Highlight "now" in elpris dataset
     var elprisBg = data.data_elpris.map(function(v, i) {

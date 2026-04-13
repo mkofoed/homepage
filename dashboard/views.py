@@ -43,19 +43,14 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
     current_interval_cph = current_interval.astimezone(CPH_TZ).strftime("%Y-%m-%dT%H:%M:%S")
 
-    # Compute summary stats from the total data
+    # Compute summary stats
+    # For day view: use chart data directly (already 15min or hourly resolution)
+    # For week/month/year: query actual DB min/max since chart data uses averages
     summary = {}
     if chart_data.data_total:
-        min_val = min(chart_data.data_total)
-        max_val = max(chart_data.data_total)
-        avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
-
-        min_idx = chart_data.data_total.index(min_val)
-        max_idx = chart_data.data_total.index(max_val)
-
         def _time_label(iso_str: str, res: str, rng: str) -> str:
             """Format time label in Copenhagen time, resolution and range aware."""
-            da_days = ['man', 'tir', 'ons', 'tor', 'fre', 'lør', 'søn']
+            da_days = ['man', 'tir', 'ons', 'tor', 'fre', 'l\u00f8r', 's\u00f8n']
             da_months = ['', 'jan', 'feb', 'mar', 'apr', 'maj', 'jun',
                          'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
             try:
@@ -77,13 +72,64 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
             except (ValueError, AttributeError):
                 return ""
 
-        summary = {
-            "min_price": f"{min_val:.2f}",
-            "min_hour": _time_label(chart_data.labels[min_idx], resolution, range_param),
-            "max_price": f"{max_val:.2f}",
-            "max_hour": _time_label(chart_data.labels[max_idx], resolution, range_param),
-            "avg_price": f"{avg_val:.2f}",
-        }
+        if range_param in ('week', 'month', 'year'):
+            from dashboard.models import SpotPrice
+            from django.db.models import Min, Max
+            from dashboard.services.price_chart import _period_bounds, DK_VAT_MULTIPLIER, DK_ELAFGIFT, DK_ELSPAREBIDRAG, DK_ENERGINET_TARIFF, _grid_tariff_ex_vat
+            from decimal import Decimal as _D
+
+            start_time, end_time, _ = _period_bounds(range_param, now, offset)
+            agg = SpotPrice.objects.filter(
+                timestamp__gte=start_time, timestamp__lt=end_time, price_area=price_area
+            ).aggregate(min_dkk=Min('price_dkk'), max_dkk=Max('price_dkk'))
+
+            min_record = SpotPrice.objects.filter(
+                timestamp__gte=start_time, timestamp__lt=end_time,
+                price_area=price_area, price_dkk=agg['min_dkk']
+            ).first()
+            max_record = SpotPrice.objects.filter(
+                timestamp__gte=start_time, timestamp__lt=end_time,
+                price_area=price_area, price_dkk=agg['max_dkk']
+            ).first()
+
+            def _spot_to_total(spot_dkk_mwh, hour, month):
+                spot_kwh = float((_D(str(float(spot_dkk_mwh))) / 1000) * DK_VAT_MULTIPLIER)
+                tax = float((DK_ELAFGIFT + DK_ELSPAREBIDRAG) * DK_VAT_MULTIPLIER)
+                energinet = float(DK_ENERGINET_TARIFF * DK_VAT_MULTIPLIER)
+                grid = float(_grid_tariff_ex_vat(hour, month) * DK_VAT_MULTIPLIER)
+                return spot_kwh + tax + energinet + grid
+
+            min_ts = min_record.timestamp.astimezone(CPH_TZ).isoformat() if min_record else chart_data.labels[0]
+            max_ts = max_record.timestamp.astimezone(CPH_TZ).isoformat() if max_record else chart_data.labels[0]
+            min_h = min_record.timestamp.astimezone(CPH_TZ).hour if min_record else 0
+            max_h = max_record.timestamp.astimezone(CPH_TZ).hour if max_record else 0
+            min_mo = min_record.timestamp.astimezone(CPH_TZ).month if min_record else now.month
+            max_mo = max_record.timestamp.astimezone(CPH_TZ).month if max_record else now.month
+
+            min_val = _spot_to_total(agg['min_dkk'], min_h, min_mo)
+            max_val = _spot_to_total(agg['max_dkk'], max_h, max_mo)
+            avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
+
+            summary = {
+                "min_price": f"{min_val:.2f}",
+                "min_hour": _time_label(min_ts, resolution, range_param),
+                "max_price": f"{max_val:.2f}",
+                "max_hour": _time_label(max_ts, resolution, range_param),
+                "avg_price": f"{avg_val:.2f}",
+            }
+        else:
+            min_val = min(chart_data.data_total)
+            max_val = max(chart_data.data_total)
+            avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
+            min_idx = chart_data.data_total.index(min_val)
+            max_idx = chart_data.data_total.index(max_val)
+            summary = {
+                "min_price": f"{min_val:.2f}",
+                "min_hour": _time_label(chart_data.labels[min_idx], resolution, range_param),
+                "max_price": f"{max_val:.2f}",
+                "max_hour": _time_label(chart_data.labels[max_idx], resolution, range_param),
+                "avg_price": f"{avg_val:.2f}",
+            }
 
     # Serialize chart data but exclude period_label from JSON (passed separately)
     chart_dict = asdict(chart_data)

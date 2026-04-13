@@ -48,8 +48,9 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
     # For week/month/year: query actual DB min/max since chart data uses averages
     summary = {}
     if chart_data.data_total:
-        def _time_label(iso_str: str, res: str, rng: str) -> str:
-            """Format time label in Copenhagen time, resolution and range aware."""
+        def _time_label(iso_str: str, res: str, rng: str, exact: bool = False) -> str:
+            """Format time label in Copenhagen time, resolution and range aware.
+            If exact=True, always include the hour (used for actual min/max records)."""
             da_days = ['man', 'tir', 'ons', 'tor', 'fre', 'l\u00f8r', 's\u00f8n']
             da_months = ['', 'jan', 'feb', 'mar', 'apr', 'maj', 'jun',
                          'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
@@ -58,6 +59,9 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                 t_cph = t.astimezone(CPH_TZ)
                 wd = da_days[t_cph.weekday()]
                 mo = da_months[t_cph.month]
+                if exact:
+                    # Always show full date + hour for actual extreme records
+                    return f"{wd} {t_cph.day}. {mo} kl. {t_cph.hour:02d}-{(t_cph.hour + 1) % 24:02d}"
                 if rng == "year":
                     return mo.capitalize()
                 if rng == "month":
@@ -112,9 +116,9 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
 
             summary = {
                 "min_price": f"{min_val:.2f}",
-                "min_hour": _time_label(min_ts, resolution, range_param),
+                "min_hour": _time_label(min_ts, resolution, range_param, exact=True),
                 "max_price": f"{max_val:.2f}",
-                "max_hour": _time_label(max_ts, resolution, range_param),
+                "max_hour": _time_label(max_ts, resolution, range_param, exact=True),
                 "avg_price": f"{avg_val:.2f}",
             }
         else:

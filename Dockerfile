@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Install system dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev && \
+    apt-get install -y --no-install-recommends gcc libpq-dev python3-dev nodejs npm && \
     rm -rf /var/lib/apt/lists/*
 
 # Install uv for fast dependency management
@@ -25,6 +25,9 @@ RUN uv pip install --system -e .[dev]
 
 # Copy project
 COPY . .
+
+# Build Tailwind CSS
+RUN npm ci --include=dev && npm run build:css
 
 # Change ownership to non-root user
 RUN chown -R app:app /app

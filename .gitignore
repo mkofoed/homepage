@@ -30,3 +30,5 @@ data/
 # Celery
 celerybeat-schedule*
 celerybeat.pid
+node_modules/
+.openclaw/

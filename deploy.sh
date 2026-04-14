@@ -52,6 +52,8 @@ log "🐋 Pulling new image: $IMAGE_TAG"
 docker compose -f docker-compose.prod.yml pull web
 
 log "📂 Running migrations..."
+# Fake migration 0005 if it's in a broken partial state (attempted to alter hypertable)
+docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate dashboard 0005 --fake 2>/dev/null || true
 if ! docker compose -f docker-compose.prod.yml run --rm web python manage.py migrate; then
     log "❌ Migration failed. Aborting deployment to avoid downtime."
     exit 1

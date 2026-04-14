@@ -87,9 +87,11 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
     current_total = _total_price(avg_spot_mwh, timestamp.astimezone(_CPH_TZ).hour, timestamp.month)
     spot_kwh = (avg_spot_mwh / 1000) * DK_VAT_MULTIPLIER
 
-    # Daily aggregates — also use hourly averages for consistency
-    today_start = hour_start.replace(hour=0)
-    tomorrow_start = today_start + timedelta(days=1)
+    # Daily aggregates — day boundary in Copenhagen time, query in UTC
+    cph_timestamp = timestamp.astimezone(_CPH_TZ)
+    today_start_cph = cph_timestamp.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = today_start_cph.astimezone(timestamp.tzinfo)
+    tomorrow_start = (today_start_cph + timedelta(days=1)).astimezone(timestamp.tzinfo)
     day_prices = SpotPrice.objects.filter(
         timestamp__gte=today_start, timestamp__lt=tomorrow_start, price_area=price_area
     )
@@ -106,9 +108,9 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
             day_max=Max("price_dkk"),
             day_avg=Avg("price_dkk"),
         )
-        day_min = _total_price(agg["day_min"], 3, timestamp.month)
-        day_max = _total_price(agg["day_max"], 18, timestamp.month)
-        day_avg = _total_price(Decimal(str(agg["day_avg"])), 12, timestamp.month)
+        day_min = _total_price(agg["day_min"], 3, cph_timestamp.month)   # night tariff (conservative)
+        day_max = _total_price(agg["day_max"], 18, cph_timestamp.month)  # peak tariff (conservative)
+        day_avg = _total_price(Decimal(str(agg["day_avg"])), cph_timestamp.hour, cph_timestamp.month)
     else:
         day_min = day_max = day_avg = current_total
 

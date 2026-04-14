@@ -170,8 +170,9 @@ def get_chart_data(
             spot_dkk_mwh = float(record.price_dkk)
 
         spot_kwh = float((Decimal(str(spot_dkk_mwh)) / 1000) * DK_VAT_MULTIPLIER)
-        month = ts.month
-        hour = ts.hour
+        ts_cph = ts.astimezone(CPH_TZ)
+        month = ts_cph.month
+        hour = ts_cph.hour
 
         elpris = spot_kwh + tax_incl
 

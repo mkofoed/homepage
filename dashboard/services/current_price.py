@@ -17,6 +17,11 @@ from dashboard.services.price_chart import (
 CACHE_TIMEOUT = 60
 
 
+import zoneinfo as _zoneinfo
+
+_CPH_TZ = _zoneinfo.ZoneInfo("Europe/Copenhagen")
+
+
 def _total_price(spot_dkk_mwh: Decimal, hour: int, month: int) -> Decimal:
     """Calculate total consumer price in DKK/kWh incl. VAT from spot price in DKK/MWh."""
     spot_kwh = (spot_dkk_mwh / 1000) * DK_VAT_MULTIPLIER
@@ -79,7 +84,7 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
         hour_start = fallback_hour
         stale = True
 
-    current_total = _total_price(avg_spot_mwh, timestamp.hour, timestamp.month)
+    current_total = _total_price(avg_spot_mwh, timestamp.astimezone(_CPH_TZ).hour, timestamp.month)
     spot_kwh = (avg_spot_mwh / 1000) * DK_VAT_MULTIPLIER
 
     # Daily aggregates — also use hourly averages for consistency
@@ -114,8 +119,8 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
     if yesterday_avg is not None:
         yesterday_total = _total_price(
             yesterday_avg,
-            yesterday_hour_start.hour,
-            yesterday_hour_start.month,
+            yesterday_hour_start.astimezone(_CPH_TZ).hour,
+            yesterday_hour_start.astimezone(_CPH_TZ).month,
         )
         if yesterday_total != 0:
             trend_pct = ((current_total - yesterday_total) / yesterday_total * 100).quantize(Decimal("0.1"))

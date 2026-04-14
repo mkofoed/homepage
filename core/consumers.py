@@ -3,6 +3,7 @@ WebSocket consumers for real-time features.
 
 - PresenceConsumer: "who's watching" counter per page
 - VisitorConsumer: live visitor dots on the map
+- PriceTickerConsumer: live electricity price updates
 """
 
 import json
@@ -11,6 +12,48 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 logger = structlog.get_logger()
 
+
+class PresenceConsumer(AsyncWebsocketConsumer):
+    """
+    Tracks how many people are viewing a given page.
+    URL: ws/presence/<page>/
+    Broadcasts count to everyone in the same page group.
+    """
+
+    async def connect(self):
+        self.page = self.scope["url_route"]["kwargs"]["page"]
+        self.group = f"presence_{self.page}"
+
+        await self.channel_layer.group_add(self.group, self.channel_name)
+        await self.accept()
+
+        await self._broadcast_count(delta=1)
+        logger.debug("presence_connect", page=self.page)
+
+    async def disconnect(self, close_code):
+        await self._broadcast_count(delta=-1)
+        await self.channel_layer.group_discard(self.group, self.channel_name)
+        logger.debug("presence_disconnect", page=self.page)
+
+    async def receive(self, text_data=None, bytes_data=None):
+        pass
+
+    async def presence_update(self, event):
+        await self.send(text_data=json.dumps({"count": event["count"]}))
+
+    async def _broadcast_count(self, delta: int):
+        from channels.layers import get_channel_layer
+        from django.core.cache import cache
+
+        layer = get_channel_layer()
+        key = f"presence_count_{self.page}"
+        count = max(0, cache.get(key, 0) + delta)
+        cache.set(key, count, timeout=3600)
+
+        await layer.group_send(
+            self.group,
+            {"type": "presence.update", "count": count},
+        )
 
 class PriceTickerConsumer(AsyncWebsocketConsumer):
     """

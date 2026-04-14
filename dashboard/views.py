@@ -1,5 +1,5 @@
 import json
-import zoneinfo
+import pendulum
 from dataclasses import asdict
 from datetime import datetime as dt
 
@@ -8,9 +8,7 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from dashboard.services.current_price import get_current_price
-from dashboard.services.price_chart import get_chart_data
-
-CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
+from dashboard.services.price_chart import get_chart_data, CPH_TZ, _to_cph
 
 
 def dashboard_home(request: HttpRequest) -> HttpResponse:
@@ -37,11 +35,9 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         range_param=range_param, now=now, resolution=resolution, offset=offset, price_area=price_area
     )
 
-    import zoneinfo
-    CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
     minute_bucket = (now.minute // 15) * 15
     current_interval = now.replace(minute=minute_bucket, second=0, microsecond=0)
-    current_interval_cph = current_interval.astimezone(CPH_TZ).strftime("%Y-%m-%dT%H:%M:%S")
+    current_interval_cph = _to_cph(current_interval).format("YYYY-MM-DDTHH:mm:ss")
 
     # Compute summary stats
     # For day view: use chart data directly (already 15min or hourly resolution)
@@ -56,7 +52,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                          'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
             try:
                 t = dt.fromisoformat(iso_str)
-                t_cph = t.astimezone(CPH_TZ)
+                t_cph = _to_cph(t)
                 wd = da_days[t_cph.weekday()]
                 mo = da_months[t_cph.month]
                 if exact:
@@ -87,11 +83,10 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
             ).only('timestamp', 'price_dkk'))
 
             def _total(r):
-                t_cph = r.timestamp.astimezone(CPH_TZ)
                 spot_kwh = float((_D(str(float(r.price_dkk))) / 1000) * DK_VAT_MULTIPLIER)
                 tax = float((DK_ELAFGIFT + DK_ELSPAREBIDRAG) * DK_VAT_MULTIPLIER)
                 energinet = float(DK_ENERGINET_TARIFF * DK_VAT_MULTIPLIER)
-                grid = float(_grid_tariff_ex_vat(t_cph.hour, t_cph.month) * DK_VAT_MULTIPLIER)
+                grid = float(_grid_tariff_ex_vat(r.timestamp) * DK_VAT_MULTIPLIER)
                 return spot_kwh + tax + energinet + grid
 
             if rows:
@@ -105,8 +100,8 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
 
             avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
 
-            min_ts = min_record.timestamp.astimezone(CPH_TZ).isoformat() if min_record else chart_data.labels[0]
-            max_ts = max_record.timestamp.astimezone(CPH_TZ).isoformat() if max_record else chart_data.labels[0]
+            min_ts = _to_cph(min_record.timestamp).isoformat() if min_record else chart_data.labels[0]
+            max_ts = _to_cph(max_record.timestamp).isoformat() if max_record else chart_data.labels[0]
 
             summary = {
                 "min_price": f"{min_val:.2f}",

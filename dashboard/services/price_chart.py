@@ -1,6 +1,6 @@
-import zoneinfo
+import pendulum
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
@@ -13,8 +13,8 @@ from dashboard.models import SpotPrice
 # 2026 Danish electricity tariffs (ex VAT)
 # Sources: energinet.dk, eloversigt.dk, skat.dk (L24)
 DK_VAT_MULTIPLIER = Decimal("1.25")
-DK_ELAFGIFT = Decimal("0.008")  # Elafgift 2026-2027: 0.8 øre/kWh (reduced to EU min by L24)
-DK_ELSPAREBIDRAG = Decimal("0.006")  # Elsparebidrag: 0.6 øre/kWh
+DK_ELAFGIFT = Decimal("0.008")        # Elafgift 2026-2027: 0.8 øre/kWh
+DK_ELSPAREBIDRAG = Decimal("0.006")   # Elsparebidrag: 0.6 øre/kWh
 DK_ENERGINET_TARIFF = Decimal("0.092")  # Energinet system+transmission 2026: 9.2 øre/kWh
 
 # N1 grid tariffs 2026 (ex VAT) — covers Aarhus/most of Jylland
@@ -27,15 +27,23 @@ N1_GRID_TARIFFS = {
 DK_ELECTRICITY_TAX_2026 = DK_ELAFGIFT
 DK_ENERGINET_SYSTEM_TARIFF = DK_ENERGINET_TARIFF
 
-CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
+CPH_TZ = pendulum.timezone("Europe/Copenhagen")
 
 
-def _grid_tariff_ex_vat(hour: int, month: int) -> Decimal:
-    """N1 grid tariff based on time-of-use (ex VAT)."""
-    season = "winter" if month in [10, 11, 12, 1, 2, 3] else "summer"
-    if 17 <= hour < 21:
+def _to_cph(ts: datetime) -> pendulum.DateTime:
+    """Convert any aware datetime to a Copenhagen pendulum DateTime."""
+    return pendulum.instance(ts).in_timezone(CPH_TZ)
+
+
+def _grid_tariff_ex_vat(ts: datetime) -> Decimal:
+    """N1 grid tariff based on Copenhagen local time-of-use (ex VAT).
+    Always pass UTC-aware timestamps — timezone conversion is handled internally.
+    """
+    t = _to_cph(ts)
+    season = "winter" if t.month in [10, 11, 12, 1, 2, 3] else "summer"
+    if 17 <= t.hour < 21:
         period = "peak"
-    elif (6 <= hour < 17) or (21 <= hour < 24):
+    elif (6 <= t.hour < 17) or (21 <= t.hour < 24):
         period = "day"
     else:
         period = "night"
@@ -45,64 +53,35 @@ def _grid_tariff_ex_vat(hour: int, month: int) -> Decimal:
 def _period_bounds(range_param: str, now: datetime, offset: int = 0) -> tuple[datetime, datetime, str]:
     """
     Return (start_utc, end_utc, period_label) for the given range and offset.
-    offset=0 is current period, -1 is previous, +1 is next.
-    All boundaries are in Copenhagen time, converted to UTC for querying.
+    Uses pendulum for clean Copenhagen day/week/month/year boundaries.
+    All returned datetimes are UTC-aware pendulum DateTimes.
     """
-    now_cph = now.astimezone(CPH_TZ)
+    now_cph = _to_cph(now)
 
     if range_param in ["day", "default"]:
-        base = now_cph.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=offset)
-        start_cph = base
-        end_cph = base + timedelta(days=1)
-        label = base.strftime("%-d. %b %Y")
+        start = now_cph.start_of("day").add(days=offset)
+        end = start.add(days=1)
+        label = start.format("D. MMM YYYY", locale="da")
 
     elif range_param == "week":
-        # Monday of current week
-        today = now_cph.replace(hour=0, minute=0, second=0, microsecond=0)
-        monday = today - timedelta(days=today.weekday())
-        monday = monday + timedelta(weeks=offset)
-        start_cph = monday
-        end_cph = monday + timedelta(weeks=1)
-        end_of_week = end_cph - timedelta(days=1)
-        label = f"Uge {monday.isocalendar()[1]} ({monday.strftime('%-d/%-m')} – {end_of_week.strftime('%-d/%-m')})"
+        start = now_cph.start_of("week").add(weeks=offset)
+        end = start.add(weeks=1)
+        label = f"Uge {start.week_of_year} ({start.format('D/M')} \u2013 {end.subtract(days=1).format('D/M')})"
 
     elif range_param == "month":
-        # First of current month
-        first = now_cph.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        # Apply offset
-        month = first.month + offset
-        year = first.year
-        while month < 1:
-            month += 12
-            year -= 1
-        while month > 12:
-            month -= 12
-            year += 1
-        start_cph = first.replace(year=year, month=month, day=1)
-        # End = first of next month
-        next_month = month + 1
-        next_year = year
-        if next_month > 12:
-            next_month = 1
-            next_year += 1
-        end_cph = first.replace(year=next_year, month=next_month, day=1)
-        label = start_cph.strftime("%B %Y")
+        start = now_cph.start_of("month").add(months=offset)
+        end = start.add(months=1)
+        label = start.format("MMMM YYYY", locale="da").capitalize()
 
     elif range_param == "year":
-        year = now_cph.year + offset
-        start_cph = now_cph.replace(year=year, month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-        end_cph = start_cph.replace(year=year + 1)
-        label = str(year)
+        start = now_cph.start_of("year").add(years=offset)
+        end = start.add(years=1)
+        label = str(start.year)
 
     else:
-        # Fallback to week
         return _period_bounds("week", now, offset)
 
-    # Convert to UTC
-    start_utc = start_cph.astimezone(now.tzinfo) if now.tzinfo else start_cph
-    end_utc = end_cph.astimezone(now.tzinfo) if now.tzinfo else end_cph
-
-    return start_utc, end_utc, label
+    return start.in_timezone("UTC"), end.in_timezone("UTC"), label
 
 
 @dataclass
@@ -170,26 +149,25 @@ def get_chart_data(
             spot_dkk_mwh = float(record.price_dkk)
 
         spot_kwh = float((Decimal(str(spot_dkk_mwh)) / 1000) * DK_VAT_MULTIPLIER)
-        ts_cph = ts.astimezone(CPH_TZ)
-        month = ts_cph.month
-        hour = ts_cph.hour
-
         elpris = spot_kwh + tax_incl
 
         if range_param == "year":
-            season = "winter" if month in [10, 11, 12, 1, 2, 3] else "summer"
+            # For year view use an average grid tariff (daily resolution, tariff detail not meaningful)
+            t = _to_cph(ts)
+            season = "winter" if t.month in [10, 11, 12, 1, 2, 3] else "summer"
             tariffs = N1_GRID_TARIFFS[season]
             avg_grid = float(
                 (tariffs["night"] * 6 + tariffs["day"] * 14 + tariffs["peak"] * 4) / 24 * DK_VAT_MULTIPLIER
             )
             transport = energinet_incl + avg_grid
         else:
-            grid_incl = float(_grid_tariff_ex_vat(hour, month) * DK_VAT_MULTIPLIER)
+            grid_incl = float(_grid_tariff_ex_vat(ts) * DK_VAT_MULTIPLIER)
             transport = energinet_incl + grid_incl
 
         total = elpris + transport
 
-        labels.append(ts.astimezone(CPH_TZ).strftime("%Y-%m-%dT%H:%M:%S"))
+        # Label is Copenhagen local time — chart.js renders as-is, no TZ conversion needed
+        labels.append(_to_cph(ts).format("YYYY-MM-DDTHH:mm:ss"))
         data_elpris.append(round(elpris, 4))
         data_transport.append(round(transport, 4))
         data_total.append(round(total, 4))

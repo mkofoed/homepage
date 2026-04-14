@@ -26,6 +26,9 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
         range_param = "day"
     if resolution not in ("quarter", "hour"):
         resolution = "hour"
+    # Force daily resolution for longer ranges — hourly detail not useful
+    if range_param in ("month", "year"):
+        resolution = "day"
 
     now = timezone.now()
     price_area = request.GET.get("area", "DK1")

@@ -122,9 +122,10 @@ def get_chart_data(
             .order_by("period")
         )
         aggregate_field = "avg_price_dkk"
-    elif range_param == "month" or resolution == "hour":
+    elif range_param == "month" or resolution in ("hour", "day"):
+        trunc = TruncDay("timestamp") if resolution == "day" else TruncHour("timestamp")
         qs = (
-            base_qs.annotate(period=TruncHour("timestamp"))
+            base_qs.annotate(period=trunc)
             .values("period")
             .annotate(avg_price_dkk=Avg("price_dkk"))
             .order_by("period")
@@ -184,5 +185,6 @@ def get_chart_data(
         period_label=period_label,
     )
 
-    cache.set(cache_key, chart_data, timeout=300)
+    cache_ttl = 60 if range_param == "day" else 600  # longer ranges change slowly
+    cache.set(cache_key, chart_data, timeout=cache_ttl)
     return chart_data

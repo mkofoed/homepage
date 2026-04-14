@@ -283,6 +283,6 @@ CELERY_BEAT_SCHEDULE = {
     "poll_energinet_prices_hourly": {
         "task": "dashboard.tasks.poll_energinet_prices_task",
         "schedule": crontab(minute=10),
-        "kwargs": {"limit": 48},
+        "kwargs": {"limit": 192},  # 48h × 4 per hour = full 2-day window
     },
 }

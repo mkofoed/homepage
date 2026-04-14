@@ -177,6 +177,17 @@ def get_chart_data(
         data_transport.append(round(transport, 4))
         data_total.append(round(total, 4))
 
+    # For day view: pad to full 24-hour skeleton so x-axis is always 00-23
+    # Missing hours show as null (Chart.js skips them visually)
+    if range_param in ("day", "default"):
+        day_start = _to_cph(start_time)
+        full_labels = [day_start.add(hours=h).format("YYYY-MM-DDTHH:mm:ss") for h in range(24)]
+        existing = {l: (e, tr, tot) for l, e, tr, tot in zip(labels, data_elpris, data_transport, data_total)}
+        labels = full_labels
+        data_elpris = [existing.get(l, (None,))[0] for l in full_labels]  # type: ignore
+        data_transport = [existing.get(l, (None, None))[1] for l in full_labels]  # type: ignore
+        data_total = [existing.get(l, (None, None, None))[2] for l in full_labels]  # type: ignore
+
     chart_data = ChartData(
         labels=labels,
         data_elpris=data_elpris,

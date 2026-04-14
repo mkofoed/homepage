@@ -46,7 +46,7 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
     # For day view: use chart data directly (already 15min or hourly resolution)
     # For week/month/year: query actual DB min/max since chart data uses averages
     summary = {}
-    if chart_data.data_total:
+    if any(v is not None for v in chart_data.data_total):
         def _time_label(iso_str: str, res: str, rng: str, exact: bool = False) -> str:
             """Format time label in Copenhagen time, resolution and range aware.
             If exact=True, always include the hour (used for actual min/max records)."""
@@ -114,18 +114,18 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                 "avg_price": f"{avg_val:.2f}",
             }
         else:
-            min_val = min(chart_data.data_total)
-            max_val = max(chart_data.data_total)
-            avg_val = sum(chart_data.data_total) / len(chart_data.data_total)
-            min_idx = chart_data.data_total.index(min_val)
-            max_idx = chart_data.data_total.index(max_val)
-            summary = {
-                "min_price": f"{min_val:.2f}",
-                "min_hour": _time_label(chart_data.labels[min_idx], resolution, range_param),
-                "max_price": f"{max_val:.2f}",
-                "max_hour": _time_label(chart_data.labels[max_idx], resolution, range_param),
-                "avg_price": f"{avg_val:.2f}",
-            }
+            real_totals = [(v, i) for i, v in enumerate(chart_data.data_total) if v is not None]
+            if real_totals:
+                min_val, min_idx = min(real_totals, key=lambda x: x[0])
+                max_val, max_idx = max(real_totals, key=lambda x: x[0])
+                avg_val = sum(v for v, _ in real_totals) / len(real_totals)
+                summary = {
+                    "min_price": f"{min_val:.2f}",
+                    "min_hour": _time_label(chart_data.labels[min_idx], resolution, range_param),
+                    "max_price": f"{max_val:.2f}",
+                    "max_hour": _time_label(chart_data.labels[max_idx], resolution, range_param),
+                    "avg_price": f"{avg_val:.2f}",
+                }
 
     # Serialize chart data but exclude period_label from JSON (passed separately)
     chart_dict = asdict(chart_data)

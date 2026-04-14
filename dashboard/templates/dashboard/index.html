@@ -165,7 +165,13 @@
 <div class="py-4">
     <div class="text-center mb-3">
         <h1 class="font-bold mb-1" style="font-size: 2rem;">Elpris Dashboard</h1>
-        <p id="area-subtitle" class="ds-text-secondary mb-0" style="font-size: 0.95rem;">DK Vest &middot; Opdateres hvert minut</p>
+        <p id="area-subtitle" class="ds-text-secondary mb-0" style="font-size: 0.95rem;">
+            DK Vest &middot; Opdateres hvert minut
+            <span id="live-indicator" style="display:inline-flex; align-items:center; gap:4px; margin-left:8px; font-size:0.75rem; color:var(--ds-accent); opacity:0.4; transition:opacity 300ms;">
+                <span style="width:6px;height:6px;background:var(--ds-accent);border-radius:50%;box-shadow:0 0 4px var(--ds-accent);"></span>
+                LIVE
+            </span>
+        </p>
         <p id="watching-count" class="ds-text-muted mt-1" style="font-size: 0.8rem; display: none;">
             <span id="watching-dot" style="display: inline-block; width: 7px; height: 7px; background: var(--ds-accent); border-radius: 50%; box-shadow: 0 0 6px var(--ds-accent); margin-right: 5px;"></span>
             <span id="watching-num">1</span> ser dette nu
@@ -231,20 +237,65 @@
 <script>
 (function() {
     const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const ws = new WebSocket(`${proto}://${window.location.host}/ws/presence/dashboard/`);
+
+    // ── Presence: who's watching ───────────────────────────
+    const presenceWs = new WebSocket(`${proto}://${window.location.host}/ws/presence/dashboard/`);
     const countEl = document.getElementById('watching-count');
     const numEl = document.getElementById('watching-num');
-
-    ws.onmessage = function(e) {
+    presenceWs.onmessage = function(e) {
         const data = JSON.parse(e.data);
         if (data.count !== undefined) {
             numEl.textContent = data.count;
-            // Only show if more than 1 person watching
             countEl.style.display = data.count > 1 ? '' : 'none';
         }
     };
+    presenceWs.onerror = function() { countEl.style.display = 'none'; };
 
-    ws.onerror = function() { countEl.style.display = 'none'; };
+    // ── Price ticker: live price updates ──────────────────
+    let priceWs = null;
+    let liveArea = window.priceArea || 'DK1';
+
+    function connectPriceTicker(area) {
+        if (priceWs) priceWs.close();
+        priceWs = new WebSocket(`${proto}://${window.location.host}/ws/prices/?area=${area}`);
+        priceWs.onmessage = function(e) {
+            const d = JSON.parse(e.data);
+            if (d.type !== 'price_update') return;
+            // Update hero card price elements directly (faster than full HTMX reload)
+            const priceEl = document.querySelector('.hero-card__price');
+            const spotEl = document.querySelector('.hero-card .ds-text-muted');
+            if (priceEl) priceEl.textContent = d.price;
+            if (spotEl) {
+                const parts = spotEl.textContent.split('·');
+                if (parts.length >= 2) {
+                    spotEl.textContent = parts[0].trim() + ' · spot ' + d.spot;
+                }
+            }
+            // Update card color
+            const card = document.querySelector('.hero-card');
+            if (card) {
+                card.className = card.className.replace(/hero-card--(cheap|expensive|neutral)/g, '');
+                card.classList.add('hero-card--' + d.color);
+            }
+            // Show live indicator
+            const liveEl = document.getElementById('live-indicator');
+            if (liveEl) {
+                liveEl.style.opacity = '1';
+                setTimeout(() => { liveEl.style.opacity = '0.4'; }, 1000);
+            }
+        };
+        priceWs.onerror = function() { console.log('Price WS unavailable, HTMX polling active'); };
+    }
+
+    connectPriceTicker(liveArea);
+
+    // Reconnect when area switches
+    const origSetArea = window.setArea;
+    window.setArea = function(area) {
+        liveArea = area;
+        origSetArea(area);
+        connectPriceTicker(area);
+    };
 })();
 </script>
 {% endblock %}

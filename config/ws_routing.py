@@ -7,4 +7,5 @@ from core import consumers
 websocket_urlpatterns = [
     re_path(r"^ws/presence/(?P<page>[^/]+)/$", consumers.PresenceConsumer.as_asgi()),
     re_path(r"^ws/visitors/$", consumers.VisitorConsumer.as_asgi()),
+    re_path(r"^ws/prices/$", consumers.PriceTickerConsumer.as_asgi()),
 ]

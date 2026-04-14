@@ -12,7 +12,75 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 logger = structlog.get_logger()
 
 
-class PresenceConsumer(AsyncWebsocketConsumer):
+class PriceTickerConsumer(AsyncWebsocketConsumer):
+    """
+    Streams live electricity price updates to connected dashboard clients.
+    URL: ws/prices/?area=DK1
+    Clients receive current price on connect, then on every 15-min interval broadcast.
+    """
+
+    GROUP = "price_ticker"
+
+    async def connect(self):
+        self.area = self.scope["query_string"].decode()
+        self.area = self.area.split("area=")[-1].split("&")[0] if "area=" in self.area else "DK1"
+        if self.area not in ("DK1", "DK2"):
+            self.area = "DK1"
+
+        await self.channel_layer.group_add(self.GROUP, self.channel_name)
+        await self.accept()
+
+        # Send current price immediately on connect
+        await self._send_current_price()
+        logger.debug("price_ticker_connect", area=self.area)
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.GROUP, self.channel_name)
+
+    async def receive(self, text_data=None, bytes_data=None):
+        # Client can send {"area": "DK2"} to switch area
+        if text_data:
+            try:
+                data = json.loads(text_data)
+                if data.get("area") in ("DK1", "DK2"):
+                    self.area = data["area"]
+                    await self._send_current_price()
+            except json.JSONDecodeError:
+                pass
+
+    async def price_update(self, event):
+        """Receive broadcast from Celery task and forward to client."""
+        # Only forward if area matches what this client is watching
+        if event.get("area") == self.area:
+            await self.send(text_data=json.dumps({
+                "type": "price_update",
+                "price": event["price"],
+                "spot": event["spot"],
+                "trend_direction": event["trend_direction"],
+                "trend_pct": event["trend_pct"],
+                "color": event["color"],
+                "area": event["area"],
+            }))
+
+    async def _send_current_price(self):
+        """Fetch current price and send to this client."""
+        from asgiref.sync import sync_to_async
+        from django.utils import timezone
+        from dashboard.services.current_price import get_current_price
+
+        ctx = await sync_to_async(get_current_price)(timezone.now(), self.area)
+        if ctx:
+            await self.send(text_data=json.dumps({
+                "type": "price_update",
+                "price": str(ctx.current_price),
+                "spot": str(ctx.spot_price),
+                "trend_direction": ctx.trend_direction,
+                "trend_pct": str(ctx.trend_pct) if ctx.trend_pct is not None else None,
+                "color": ctx.color,
+                "area": self.area,
+            }))
+
+
     """
     Tracks how many people are viewing a given page.
     URL: ws/presence/<page>/

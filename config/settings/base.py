@@ -297,4 +297,8 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=10),
         "kwargs": {"limit": 192},  # 48h × 4 per hour = full 2-day window
     },
+    "broadcast_current_price_quarterly": {
+        "task": "dashboard.tasks.broadcast_current_price",
+        "schedule": crontab(minute="0,15,30,45"),
+    },
 }

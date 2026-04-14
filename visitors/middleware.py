@@ -1,10 +1,10 @@
-import logging
+import structlog
 import re
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 EXCLUDE_PATHS = re.compile(
-    r"^/(static|media|admin|health|api/health|favicon\\.ico|robots\\.txt|sitemap\\.xml|api/visitors)"
+    r"^/(static|media|admin|health|api/health|favicon\.ico|robots\.txt|sitemap\.xml|api/visitors)"
 )
 
 BOT_PATTERN = re.compile(
@@ -42,6 +42,7 @@ class VisitorTrackingMiddleware:
         if not ip:
             return response
 
+        from visitors.services.geoip import hash_ip
         from visitors.tasks import log_page_view
 
         device_type = "desktop"
@@ -51,9 +52,14 @@ class VisitorTrackingMiddleware:
         elif "tablet" in ua_lower or "ipad" in ua_lower:
             device_type = "tablet"
 
+        # Store ip_hash in session so WebSocket consumers can look up cached location
+        ip_hash = hash_ip(ip)
+        if hasattr(request, "session"):
+            request.session["visitor_ip_hash"] = ip_hash
+
         try:
             log_page_view.delay(ip=ip, path=path, device_type=device_type)
         except Exception:
-            logger.warning("Failed to queue page view tracking task", exc_info=True)
+            logger.warning("visitor_tracking_queue_failed")
 
         return response

@@ -5,6 +5,9 @@ from django.utils import timezone
 
 logger = structlog.get_logger()
 
+# How long to cache visitor location (24h — rotates with daily IP hash)
+LOCATION_CACHE_TTL = 86400
+
 
 @shared_task(
     bind=True,
@@ -17,10 +20,23 @@ logger = structlog.get_logger()
 def log_page_view(self, *, ip: str, path: str, device_type: str = "desktop") -> None:
     from visitors.models import PageView
     from visitors.services.geoip import lookup_ip
+    from django.core.cache import cache
 
     location = lookup_ip(ip)
     if location is None:
         return
+
+    # Cache location by ip_hash so WebSocket consumers can read it quickly
+    cache.set(
+        f"visitor_location_{location.ip_hash}",
+        {
+            "lat": location.latitude,
+            "lon": location.longitude,
+            "city": location.city,
+            "country": location.country_name,
+        },
+        timeout=LOCATION_CACHE_TTL,
+    )
 
     try:
         PageView.objects.create(

@@ -258,6 +258,52 @@
             cutout: '65%',
         },
     });
+
+    // --- Live visitor WebSocket ---
+    const liveMarkers = {};  // channel_name -> L.marker
+
+    const liveDotIcon = L.divIcon({
+        className: '',
+        html: '<div style="width:14px;height:14px;background:#f59e0b;border-radius:50%;box-shadow:0 0 0 0 rgba(245,158,11,0.6);animation:livePulse 1.5s infinite;"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+    });
+
+    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const visitorWs = new WebSocket(`${proto}://${window.location.host}/ws/visitors/`);
+
+    visitorWs.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        if (data.type === 'arrive' && data.lat && data.lon) {
+            const marker = L.marker([data.lat, data.lon], { icon: liveDotIcon });
+            marker.bindPopup(`
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
+                    <div style="color:#f59e0b;font-weight:700;">Aktiv nu</div>
+                    <div style="color:#94a3b8;">${data.city || data.country}</div>
+                </div>
+            `);
+            marker.addTo(map);
+            liveMarkers[data.channel] = marker;
+        } else if (data.type === 'depart') {
+            const marker = liveMarkers[data.channel];
+            if (marker) {
+                map.removeLayer(marker);
+                delete liveMarkers[data.channel];
+            }
+        }
+    };
+
+    visitorWs.onerror = function() {
+        console.log('Visitor WS unavailable');
+    };
 })();
+
+<style>
+@keyframes livePulse {
+    0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
+    70%  { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
+    100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+</style>
 </script>
 {% endblock %}

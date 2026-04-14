@@ -1,9 +1,9 @@
-import logging
+import structlog
 
 from celery import shared_task
 from django.utils import timezone
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @shared_task(

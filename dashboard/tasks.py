@@ -1,10 +1,10 @@
-import logging
+import structlog
 
 from celery import shared_task
 
 from dashboard.services.energinet import fetch_latest_spot_prices
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=300, soft_time_limit=120, time_limit=180)

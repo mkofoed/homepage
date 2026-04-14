@@ -32,14 +32,13 @@ STORAGES = {
     },
 }
 
-# Production logging - Sentry captures logs via enable_logs=True in sentry_sdk.init()
-# Console also shows INFO+ for Docker logs visibility
+# Production logging — JSON output for structured log aggregation (Docker, Seq, etc.)
 LOGGING = cast(dict[str, Any], _LOGGING)
 LOGGING["handlers"] = {
     "console": {
         "class": "logging.StreamHandler",
-        "formatter": "simple",
-        "level": "INFO",  # Show INFO and above in console
+        "formatter": "json",  # structured JSON in prod
+        "level": "INFO",
     },
 }
 LOGGING["root"]["level"] = "INFO"  # type: ignore[index]

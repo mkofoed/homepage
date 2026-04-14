@@ -1,11 +1,11 @@
-import logging
+import structlog
 import time
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 def home(request: HttpRequest) -> HttpResponse:

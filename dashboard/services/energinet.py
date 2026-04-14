@@ -1,6 +1,6 @@
 import datetime
 import json
-import logging
+import structlog
 import urllib.parse
 
 import httpx
@@ -8,7 +8,7 @@ from django.utils.dateparse import parse_datetime
 
 from dashboard.models import SpotPrice
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 ENERGINET_API_URL = "https://api.energidataservice.dk/dataset/DayAheadPrices"
 
@@ -28,12 +28,12 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
             response.raise_for_status()
             data = response.json()
     except httpx.RequestError as e:
-        logger.error(f"Error fetching data from Energi Data Service: {e}")
+        logger.error("energinet_fetch_failed", error=str(e))
         return 0
 
     records = data.get("records", [])
     if not records:
-        logger.warning(f"No records found for {price_area} in Energi Data Service response.")
+        logger.warning("energinet_no_records", price_area=price_area)
         return 0
 
     # Parse and bulk-upsert records
@@ -70,7 +70,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
         spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
     )
 
-    logger.info(f"Upserted {len(spot_prices)} spot prices. Potentially updated existing entries.")
+    logger.info("spot_prices_upserted", count=len(spot_prices))
     return len(spot_prices)
 
 
@@ -104,12 +104,12 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
             response.raise_for_status()
             data = response.json()
     except httpx.RequestError as e:
-        logger.error(f"Error fetching data from Energi Data Service: {e}")
+        logger.error("energinet_fetch_failed", error=str(e))
         return 0
 
     records = data.get("records", [])
     if not records:
-        logger.warning(f"No records found for {price_area} in Energi Data Service response.")
+        logger.warning("energinet_no_records", price_area=price_area)
         return 0
 
     # Parse and bulk-insert records
@@ -145,5 +145,5 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
     )
 
-    logger.info(f"Upserted {len(spot_prices)} spot prices for range {start_date} -> {end_date}.")
+    logger.info("spot_prices_upserted", count=len(spot_prices), start=start_date, end=end_date)
     return len(spot_prices)

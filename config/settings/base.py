@@ -152,23 +152,52 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 # Logging
 # =============================================================================
 
+# =============================================================================
+# Structlog — structured logging
+# =============================================================================
+import structlog
+
+shared_processors: list = [
+    structlog.contextvars.merge_contextvars,
+    structlog.stdlib.add_logger_name,
+    structlog.stdlib.add_log_level,
+    structlog.stdlib.PositionalArgumentsFormatter(),
+    structlog.processors.TimeStamper(fmt="iso"),
+    structlog.processors.StackInfoRenderer(),
+]
+
+structlog.configure(
+    processors=shared_processors + [
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
-            "style": "{",
+        "json": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processors": shared_processors + [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.processors.JSONRenderer(),
+            ],
         },
-        "simple": {
-            "format": "{levelname} {asctime} {module} {message}",
-            "style": "{",
+        "console": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processors": shared_processors + [
+                structlog.stdlib.ProcessorFormatter.remove_processors_meta,
+                structlog.dev.ConsoleRenderer(colors=True),
+            ],
         },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "simple",
+            "formatter": "console",
         },
     },
     "root": {
@@ -181,11 +210,15 @@ LOGGING = {
             "level": config("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
-        "core": {
+        "django.db.backends": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "WARNING",  # suppress SQL query noise
             "propagate": False,
         },
+        "core": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "dashboard": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "visitors": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "blog": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
 

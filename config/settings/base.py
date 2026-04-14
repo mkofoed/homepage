@@ -19,6 +19,16 @@ CACHES = {
     }
 }
 
+# Django Channels — use Redis as channel layer (db 3, separate from cache/celery)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/3"],
+        },
+    },
+}
+
 
 # =============================================================================
 # Core Django Settings
@@ -31,6 +41,7 @@ ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOSTS", default="127.0.0.1,localhost", ca
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Authentication
@@ -61,6 +72,7 @@ INSTALLED_APPS = [
     "showcase",
     "dashboard",
     "visitors",
+    "channels",
     # Enhancements
     "django_htmx",
 ]

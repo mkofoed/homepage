@@ -84,5 +84,5 @@ RUN chown -R app:app $APP_HOME
 # change to the app user
 USER app
 
-# run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]
+# run uvicorn (ASGI — required for Django Channels WebSockets)
+CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

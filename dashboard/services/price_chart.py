@@ -53,7 +53,8 @@ def _grid_tariff_ex_vat(ts: datetime) -> Decimal:
 def _period_bounds(range_param: str, now: datetime, offset: int = 0) -> tuple[datetime, datetime, str]:
     """
     Return (start_utc, end_utc, period_label) for the given range and offset.
-    Uses pendulum for clean Copenhagen day/week/month/year boundaries.
+    Day: calendar day in Copenhagen time.
+    Week/month/year: rolling windows (last 7/30/365 days) with offset support.
     All returned datetimes are UTC-aware pendulum DateTimes.
     """
     now_cph = _to_cph(now)
@@ -64,19 +65,22 @@ def _period_bounds(range_param: str, now: datetime, offset: int = 0) -> tuple[da
         label = start.format("D. MMM YYYY", locale="da")
 
     elif range_param == "week":
-        start = now_cph.start_of("week").add(weeks=offset)
-        end = start.add(weeks=1)
-        label = f"Uge {start.week_of_year} ({start.format('D/M')} \u2013 {end.subtract(days=1).format('D/M')})"
+        # Rolling 7-day window
+        end = now_cph.start_of("day").add(days=1 + offset * 7)  # end of target window
+        start = end.subtract(days=7)
+        label = f"{start.format('D. MMM', locale='da')} \u2013 {end.subtract(days=1).format('D. MMM', locale='da')}"
 
     elif range_param == "month":
-        start = now_cph.start_of("month").add(months=offset)
-        end = start.add(months=1)
-        label = start.format("MMMM YYYY", locale="da").capitalize()
+        # Rolling 30-day window
+        end = now_cph.start_of("day").add(days=1 + offset * 30)
+        start = end.subtract(days=30)
+        label = f"{start.format('D. MMM', locale='da')} \u2013 {end.subtract(days=1).format('D. MMM', locale='da')}"
 
     elif range_param == "year":
-        start = now_cph.start_of("year").add(years=offset)
-        end = start.add(years=1)
-        label = str(start.year)
+        # Rolling 365-day window
+        end = now_cph.start_of("day").add(days=1 + offset * 365)
+        start = end.subtract(days=365)
+        label = f"{start.format('D. MMM YYYY', locale='da')} \u2013 {end.subtract(days=1).format('D. MMM YYYY', locale='da')}"
 
     else:
         return _period_bounds("week", now, offset)

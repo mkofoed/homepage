@@ -4,8 +4,8 @@
   "description": "mkofoed.dev homepage",
   "main": "index.js",
   "scripts": {
-    "build:css": "tailwindcss -i ./static/css/tailwind.src.css -o ./static/css/tailwind.css --minify",
-    "watch:css": "tailwindcss -i ./static/css/tailwind.src.css -o ./static/css/tailwind.css --watch",
+    "build:css": "tailwindcss -i ./tailwind/tailwind.src.css -o ./static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./tailwind/tailwind.src.css -o ./static/css/tailwind.css --watch",
     "build": "npm run build:css"
   },
   "repository": {

@@ -186,8 +186,17 @@
                             var d = new Date(items[0].parsed.x);
                             if (isNaN(d.getTime())) return '';
                             var h = d.getHours();
-                            return d.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' }) +
-                                ' kl. ' + String(h).padStart(2,'0') + '-' + String((h+1)%24).padStart(2,'0');
+                            var m = d.getMinutes();
+                            var date = d.toLocaleDateString('da-DK', { weekday: 'short', day: 'numeric', month: 'short' });
+                            if (m === 0 && activeRange !== 'day') {
+                                // Hourly bar
+                                return date + ' kl. ' + String(h).padStart(2,'0') + '-' + String((h+1)%24).padStart(2,'0');
+                            } else {
+                                // 15-min bar: show exact interval
+                                var end = new Date(d.getTime() + 15*60*1000);
+                                return date + ' kl. ' + String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') +
+                                    '-' + String(end.getHours()).padStart(2,'0') + ':' + String(end.getMinutes()).padStart(2,'0');
+                            }
                         },
                         label: function(item) {
                             return '  ' + item.dataset.label + ': ' + item.parsed.y.toFixed(2).replace('.', ',') + ' kr';

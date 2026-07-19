@@ -1,5 +1,4 @@
 import json
-import pendulum
 from dataclasses import asdict
 from datetime import datetime as dt
 
@@ -8,7 +7,7 @@ from django.shortcuts import render
 from django.utils import timezone
 
 from dashboard.services.current_price import get_current_price
-from dashboard.services.price_chart import get_chart_data, CPH_TZ, _to_cph
+from dashboard.services.price_chart import _to_cph, get_chart_data
 
 
 def dashboard_home(request: HttpRequest) -> HttpResponse:
@@ -47,12 +46,12 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
     # For week/month/year: query actual DB min/max since chart data uses averages
     summary = {}
     if any(v is not None for v in chart_data.data_total):
+
         def _time_label(iso_str: str, res: str, rng: str, exact: bool = False) -> str:
             """Format time label in Copenhagen time, resolution and range aware.
             If exact=True, always include the hour (used for actual min/max records)."""
-            da_days = ['man', 'tir', 'ons', 'tor', 'fre', 'l\u00f8r', 's\u00f8n']
-            da_months = ['', 'jan', 'feb', 'mar', 'apr', 'maj', 'jun',
-                         'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
+            da_days = ["man", "tir", "ons", "tor", "fre", "l\u00f8r", "s\u00f8n"]
+            da_months = ["", "jan", "feb", "mar", "apr", "maj", "jun", "jul", "aug", "sep", "okt", "nov", "dec"]
             try:
                 t = dt.fromisoformat(iso_str)
                 t_cph = _to_cph(t)
@@ -69,21 +68,32 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                     return f"{wd} {t_cph.day}/{t_cph.month} kl. {t_cph.hour:02d}"
                 if res == "quarter":
                     from datetime import timedelta as _td
+
                     end = t_cph + _td(minutes=15)
                     return f"Kl. {t_cph.hour:02d}:{t_cph.minute:02d}-{end.hour:02d}:{end.minute:02d}"
                 return f"Kl. {t_cph.hour:02d}-{(t_cph.hour + 1) % 24:02d}"
-            except (ValueError, AttributeError):
+            except ValueError, AttributeError:
                 return ""
 
-        if range_param in ('week', 'month', 'year'):
-            from dashboard.models import SpotPrice
-            from dashboard.services.price_chart import _period_bounds, DK_VAT_MULTIPLIER, DK_ELAFGIFT, DK_ELSPAREBIDRAG, DK_ENERGINET_TARIFF, _grid_tariff_ex_vat
+        if range_param in ("week", "month", "year"):
             from decimal import Decimal as _D
 
+            from dashboard.models import SpotPrice
+            from dashboard.services.price_chart import (
+                DK_ELAFGIFT,
+                DK_ELSPAREBIDRAG,
+                DK_ENERGINET_TARIFF,
+                DK_VAT_MULTIPLIER,
+                _grid_tariff_ex_vat,
+                _period_bounds,
+            )
+
             start_time, end_time, _ = _period_bounds(range_param, now, offset)
-            rows = list(SpotPrice.objects.filter(
-                timestamp__gte=start_time, timestamp__lt=end_time, price_area=price_area
-            ).only('timestamp', 'price_dkk'))
+            rows = list(
+                SpotPrice.objects.filter(timestamp__gte=start_time, timestamp__lt=end_time, price_area=price_area).only(
+                    "timestamp", "price_dkk"
+                )
+            )
 
             def _total(r):
                 spot_kwh = float((_D(str(float(r.price_dkk))) / 1000) * DK_VAT_MULTIPLIER)
@@ -93,8 +103,8 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
                 return spot_kwh + tax + energinet + grid
 
             if rows:
-                min_record = min(rows, key=_total)
-                max_record = max(rows, key=_total)
+                min_record: SpotPrice | None = min(rows, key=_total)
+                max_record: SpotPrice | None = max(rows, key=_total)
                 min_val = _total(min_record)
                 max_val = _total(max_record)
             else:

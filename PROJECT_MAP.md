@@ -1,6 +1,6 @@
 # PROJECT MAP — Homepage Repo
 
-Root: `C:\Users\Mikke\Code\homepage`
+Root: repository root
 
 ## Apps
 
@@ -76,8 +76,7 @@ Root: `C:\Users\Mikke\Code\homepage`
 - `nginx/rate-limit.conf` — Nginx rate limiting
 - `deploy.sh` — Deployment script
 - `setup_hetzner.sh` — Server setup script
-- `.github/workflows/deploy.yml` — CI/CD deploy workflow
-- `.github/workflows/lint.yml` — CI lint workflow
+- `.github/workflows/deploy.yml` — quality checks, image build, and deployment workflow
 
 ## Static
 - `static/css/variables.css` — CSS variables/tokens

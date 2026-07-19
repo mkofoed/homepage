@@ -11,7 +11,7 @@ A personal homepage and web application built with Django.
 - **Task Queue**: Celery + Redis
 - **Frontend**: Django templates + HTMX
 - **API**: Django REST Framework
-- **Web Server**: Gunicorn + Nginx (jonasal/nginx-certbot)
+- **Web Server**: Uvicorn (ASGI) + Nginx (jonasal/nginx-certbot)
 - **Containerization**: Docker & Docker Compose
 - **CI/CD**: GitHub Actions → GHCR → Hetzner VPS
 - **Dependencies**: uv
@@ -33,9 +33,10 @@ docker compose up
 
 Push to `main` triggers automatic deployment via GitHub Actions:
 
-1. Build Docker image → push to GHCR (tagged by commit SHA)
-2. SCP deployment files to server (no git on server)
-3. Run `deploy.sh`: safe migrations → deploy → health check → auto-rollback on failure
+1. Run Ruff, Mypy, Django deployment checks, and the automated test suite
+2. Build Docker image → push to GHCR (tagged by commit SHA)
+3. SCP deployment files to server (no git on server)
+4. Run `deploy.sh`: safe migrations → deploy → health check → auto-rollback on failure
 
 ### Manual Rollback
 
@@ -49,7 +50,7 @@ cd ~/homepage
 
 | Service | Image | Purpose |
 |---------|-------|---------|
-| web | ghcr.io/mkofoed/homepage-web | Django + Gunicorn |
+| web | ghcr.io/mkofoed/homepage-web | Django ASGI application + Uvicorn |
 | db | timescale/timescaledb:latest-pg18 | PostgreSQL + TimescaleDB |
 | redis | redis:7-alpine | Cache + Celery broker |
 | celery_worker | homepage-web | Background task worker |

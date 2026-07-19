@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 ###########
 # BUILDER #
 ###########
@@ -11,6 +13,7 @@ WORKDIR /usr/src/app
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
 # install system dependencies for building
 RUN apt-get update && \
@@ -20,9 +23,9 @@ RUN apt-get update && \
 # install uv for fast dependency management
 RUN pip install --no-cache-dir uv
 
-# copy pyproject.toml and install dependencies (builds native extensions here)
-COPY pyproject.toml .
-RUN uv pip install --system .
+# Install the exact locked runtime dependency set before copying application code.
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev --no-install-project
 
 # copy project
 COPY . .
@@ -36,12 +39,16 @@ RUN npm ci --include=dev && npm run build:css
 ################
 FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650 AS geoip
 
-ARG MAXMIND_LICENSE_KEY
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /geoip && \
-    curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" \
-    | tar -xz --strip-components=1 -C /geoip --wildcards '*.mmdb' && \
-    ls /geoip/
+RUN --mount=type=secret,id=maxmind_license_key,required=false \
+    mkdir -p /geoip && \
+    key="$(cat /run/secrets/maxmind_license_key 2>/dev/null || true)" && \
+    if [ -n "$key" ]; then \
+        curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${key}&suffix=tar.gz" \
+        | tar -xz --strip-components=1 -C /geoip --wildcards '*.mmdb'; \
+    else \
+        echo "No MaxMind license key supplied; GeoIP lookups will be disabled."; \
+    fi
 
 
 #########
@@ -68,15 +75,16 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends libpq5 && \
     rm -rf /var/lib/apt/lists/*
 
-# copy pre-installed Python packages from builder
-COPY --from=builder /usr/local/lib/python3.14/site-packages/ /usr/local/lib/python3.14/site-packages/
-COPY --from=builder /usr/local/bin/ /usr/local/bin/
+# Copy the locked runtime environment and the optional local GeoLite2 database.
+COPY --from=builder /opt/venv /opt/venv
+COPY --from=geoip /geoip /geoip
 
 # copy project
 COPY --from=builder /usr/src/app $APP_HOME
 
 # Set Django settings module for production
 ENV DJANGO_SETTINGS_MODULE=config.settings.production
+ENV PATH="/opt/venv/bin:$PATH"
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME

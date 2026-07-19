@@ -12,6 +12,9 @@ DEBUG = False
 # Security settings
 CSRF_TRUSTED_ORIGINS = ["https://mkofoed.dev", "https://www.mkofoed.dev"]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = True
+# Deployment health probes run directly inside the web container over HTTP.
+SECURE_REDIRECT_EXEMPT = [r"^health/$"]
 
 # HSTS settings
 SECURE_HSTS_SECONDS = 31536000  # 1 year

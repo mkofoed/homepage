@@ -6,6 +6,7 @@ Shared settings used by both development and production.
 from pathlib import Path
 from urllib.parse import quote
 
+import structlog
 from celery.schedules import crontab
 from decouple import Csv, config
 
@@ -24,7 +25,9 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/3"],
+            "hosts": [
+                f"redis://:{quote(config('REDIS_PASSWORD', default=''), safe='')}@{config('REDIS_HOST', default='redis')}:{config('REDIS_PORT', default='6379')}/3"
+            ],
         },
     },
 }
@@ -167,7 +170,6 @@ MEDIA_ROOT = BASE_DIR / "mediafiles"
 # =============================================================================
 # Structlog — structured logging
 # =============================================================================
-import structlog
 
 shared_processors: list = [
     structlog.contextvars.merge_contextvars,
@@ -179,7 +181,8 @@ shared_processors: list = [
 ]
 
 structlog.configure(
-    processors=shared_processors + [
+    processors=shared_processors
+    + [
         structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
     ],
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -193,14 +196,16 @@ LOGGING = {
     "formatters": {
         "json": {
             "()": structlog.stdlib.ProcessorFormatter,
-            "processors": shared_processors + [
+            "processors": shared_processors
+            + [
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 structlog.processors.JSONRenderer(),
             ],
         },
         "console": {
             "()": structlog.stdlib.ProcessorFormatter,
-            "processors": shared_processors + [
+            "processors": shared_processors
+            + [
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 structlog.dev.ConsoleRenderer(colors=True),
             ],
@@ -289,7 +294,7 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE
 
-GEOIP_PATH = "/geoip/"
+GEOIP_PATH = config("GEOIP_PATH", default="/geoip")
 
 CELERY_BEAT_SCHEDULE = {
     "poll_energinet_prices_hourly": {

@@ -13,6 +13,7 @@ data/
 
 # Environments
 .env
+*.egg-info/
 .venv
 env/
 venv/

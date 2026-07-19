@@ -1,9 +1,9 @@
 import datetime
 import json
-import structlog
 import urllib.parse
 
 import httpx
+import structlog
 from django.utils.dateparse import parse_datetime
 
 from dashboard.models import SpotPrice
@@ -11,6 +11,16 @@ from dashboard.models import SpotPrice
 logger = structlog.get_logger()
 
 ENERGINET_API_URL = "https://api.energidataservice.dk/dataset/DayAheadPrices"
+
+
+def _parse_utc_timestamp(value: str) -> datetime.datetime | None:
+    """Parse an Energinet timestamp into an aware UTC datetime."""
+    timestamp = parse_datetime(value)
+    if timestamp is None:
+        return None
+    if timestamp.tzinfo is None:
+        return timestamp.replace(tzinfo=datetime.UTC)
+    return timestamp.astimezone(datetime.UTC)
 
 
 def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
@@ -43,7 +53,7 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.UTC)
+        timestamp = _parse_utc_timestamp(timestamp_str)
         if timestamp is None:
             continue
 
@@ -67,7 +77,10 @@ def fetch_latest_spot_prices(limit: int = 24, price_area: str = "DK1") -> int:
 
     # Bulk upsert to handle both new records and updates for existing timestamps
     SpotPrice.objects.bulk_create(
-        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
+        spot_prices,
+        update_conflicts=True,
+        update_fields=["price_dkk", "price_eur"],
+        unique_fields=["timestamp", "price_area"],
     )
 
     logger.info("spot_prices_upserted", count=len(spot_prices))
@@ -81,12 +94,23 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
     Returns the number of new records inserted.
     """
     import zoneinfo
-    from datetime import date as _date, datetime as _dt, time as _time, timezone as _tz
+    from datetime import date as _date
+    from datetime import datetime as _dt
+    from datetime import time as _time
+
     CPH_TZ = zoneinfo.ZoneInfo("Europe/Copenhagen")
 
     # Convert Copenhagen midnight to UTC so the API returns the full local day
-    start_utc = _dt.combine(_date.fromisoformat(start_date), _time.min, tzinfo=CPH_TZ).astimezone(_tz.utc).strftime("%Y-%m-%dT%H:%M")
-    end_utc = _dt.combine(_date.fromisoformat(end_date), _time.min, tzinfo=CPH_TZ).astimezone(_tz.utc).strftime("%Y-%m-%dT%H:%M")
+    start_utc = (
+        _dt.combine(_date.fromisoformat(start_date), _time.min, tzinfo=CPH_TZ)
+        .astimezone(datetime.UTC)
+        .strftime("%Y-%m-%dT%H:%M")
+    )
+    end_utc = (
+        _dt.combine(_date.fromisoformat(end_date), _time.min, tzinfo=CPH_TZ)
+        .astimezone(datetime.UTC)
+        .strftime("%Y-%m-%dT%H:%M")
+    )
 
     params = urllib.parse.urlencode(
         {
@@ -119,7 +143,7 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         if not timestamp_str:
             continue
 
-        timestamp = parse_datetime(timestamp_str).replace(tzinfo=datetime.UTC)
+        timestamp = _parse_utc_timestamp(timestamp_str)
         if timestamp is None:
             continue
 
@@ -142,7 +166,10 @@ def fetch_spot_prices_for_range(start_date: str, end_date: str, price_area: str 
         return 0
 
     SpotPrice.objects.bulk_create(
-        spot_prices, update_conflicts=True, update_fields=["price_dkk", "price_eur"], unique_fields=["timestamp", "price_area"]
+        spot_prices,
+        update_conflicts=True,
+        update_fields=["price_dkk", "price_eur"],
+        unique_fields=["timestamp", "price_area"],
     )
 
     logger.info("spot_prices_upserted", count=len(spot_prices), start=start_date, end=end_date)

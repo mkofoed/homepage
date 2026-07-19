@@ -1,9 +1,9 @@
-import pendulum
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
+import pendulum
 from django.core.cache import cache
 from django.db.models import Avg, QuerySet
 from django.db.models.functions import TruncDay, TruncHour
@@ -13,8 +13,8 @@ from dashboard.models import SpotPrice
 # 2026 Danish electricity tariffs (ex VAT)
 # Sources: energinet.dk, eloversigt.dk, skat.dk (L24)
 DK_VAT_MULTIPLIER = Decimal("1.25")
-DK_ELAFGIFT = Decimal("0.008")        # Elafgift 2026-2027: 0.8 øre/kWh
-DK_ELSPAREBIDRAG = Decimal("0.006")   # Elsparebidrag: 0.6 øre/kWh
+DK_ELAFGIFT = Decimal("0.008")  # Elafgift 2026-2027: 0.8 øre/kWh
+DK_ELSPAREBIDRAG = Decimal("0.006")  # Elsparebidrag: 0.6 øre/kWh
 DK_ENERGINET_TARIFF = Decimal("0.092")  # Energinet system+transmission 2026: 9.2 øre/kWh
 
 # N1 grid tariffs 2026 (ex VAT) — covers Aarhus/most of Jylland
@@ -124,12 +124,7 @@ def get_chart_data(
         aggregate_field = "avg_price_dkk"
     elif range_param == "month" or resolution in ("hour", "day"):
         trunc = TruncDay("timestamp") if resolution == "day" else TruncHour("timestamp")
-        qs = (
-            base_qs.annotate(period=trunc)
-            .values("period")
-            .annotate(avg_price_dkk=Avg("price_dkk"))
-            .order_by("period")
-        )
+        qs = base_qs.annotate(period=trunc).values("period").annotate(avg_price_dkk=Avg("price_dkk")).order_by("period")
         aggregate_field = "avg_price_dkk"
     else:
         qs = base_qs.order_by("timestamp")
@@ -183,15 +178,20 @@ def get_chart_data(
         day_start = _to_cph(start_time)
         if resolution == "quarter":
             # 96 slots at 15-min intervals
-            full_labels = [day_start.add(minutes=m*15).format("YYYY-MM-DDTHH:mm:ss") for m in range(96)]
+            full_labels = [day_start.add(minutes=m * 15).format("YYYY-MM-DDTHH:mm:ss") for m in range(96)]
         else:
             # 24 hourly slots
             full_labels = [day_start.add(hours=h).format("YYYY-MM-DDTHH:mm:ss") for h in range(24)]
-        existing = {l: (e, tr, tot) for l, e, tr, tot in zip(labels, data_elpris, data_transport, data_total)}
+        existing = {
+            label: (electricity_price, transport_price, total_price)
+            for label, electricity_price, transport_price, total_price in zip(
+                labels, data_elpris, data_transport, data_total, strict=True
+            )
+        }
         labels = full_labels
-        data_elpris = [existing.get(l, (None,))[0] for l in full_labels]  # type: ignore
-        data_transport = [existing.get(l, (None, None))[1] for l in full_labels]  # type: ignore
-        data_total = [existing.get(l, (None, None, None))[2] for l in full_labels]  # type: ignore
+        data_elpris = [existing.get(label, (None,))[0] for label in full_labels]  # type: ignore
+        data_transport = [existing.get(label, (None, None))[1] for label in full_labels]  # type: ignore
+        data_total = [existing.get(label, (None, None, None))[2] for label in full_labels]  # type: ignore
 
     chart_data = ChartData(
         labels=labels,

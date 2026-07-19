@@ -1,5 +1,6 @@
-import structlog
 import re
+
+import structlog
 
 logger = structlog.get_logger()
 
@@ -35,14 +36,13 @@ class VisitorTrackingMiddleware:
         if getattr(request, "htmx", False):
             return response
 
-        ip = request.META.get("HTTP_X_FORWARDED_FOR", "").split(",")[0].strip()
-        if not ip:
-            ip = request.META.get("REMOTE_ADDR", "")
+        # Nginx sets this from its direct peer address. Do not trust a client-supplied
+        # X-Forwarded-For header, which would make visitor analytics spoofable.
+        ip = request.META.get("HTTP_X_REAL_IP", "") or request.META.get("REMOTE_ADDR", "")
 
         if not ip:
             return response
 
-        from visitors.services.geoip import hash_ip
         from visitors.tasks import log_page_view
 
         device_type = "desktop"
@@ -51,11 +51,6 @@ class VisitorTrackingMiddleware:
             device_type = "mobile"
         elif "tablet" in ua_lower or "ipad" in ua_lower:
             device_type = "tablet"
-
-        # Store ip_hash in session so WebSocket consumers can look up cached location
-        ip_hash = hash_ip(ip)
-        if hasattr(request, "session"):
-            request.session["visitor_ip_hash"] = ip_hash
 
         try:
             log_page_view.delay(ip=ip, path=path, device_type=device_type)

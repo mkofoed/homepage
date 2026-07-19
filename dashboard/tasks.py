@@ -1,5 +1,4 @@
 import structlog
-
 from celery import shared_task
 
 from dashboard.services.energinet import fetch_latest_spot_prices
@@ -31,8 +30,10 @@ def broadcast_current_price() -> None:
     Called by Celery beat every 15 minutes at :00, :15, :30, :45.
     """
     import asyncio
+
     from channels.layers import get_channel_layer
     from django.utils import timezone
+
     from dashboard.services.current_price import get_current_price
 
     channel_layer = get_channel_layer()

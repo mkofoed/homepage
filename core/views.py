@@ -1,6 +1,6 @@
-import structlog
 import time
 
+import structlog
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -11,15 +11,20 @@ logger = structlog.get_logger()
 def home(request: HttpRequest) -> HttpResponse:
     """Home page view with featured cards."""
     from blog.models import Post
+
     from .services.github_service import get_github_stats
 
     latest_posts = Post.objects.filter(status=Post.Status.PUBLISHED).order_by("-created_at")[:3]
     github = get_github_stats()
 
-    return render(request, "core/home.html", {
-        "latest_posts": latest_posts,
-        "github": github,
-    })
+    return render(
+        request,
+        "core/home.html",
+        {
+            "latest_posts": latest_posts,
+            "github": github,
+        },
+    )
 
 
 def about(request: HttpRequest) -> HttpResponse:
@@ -34,24 +39,21 @@ def architecture(request: HttpRequest) -> HttpResponse:
 
 def visitor_map(request: HttpRequest) -> HttpResponse:
     """Visitor map showcase page."""
-    from visitors.models import PageView
-    from django.db.models import Count
     from django.db import ProgrammingError
+    from django.db.models import Count
+
+    from visitors.models import PageView
 
     try:
         total_views = PageView.objects.count()
         unique_visitors = PageView.objects.values("ip_hash").distinct().count()
         top_countries = list(
-            PageView.objects
-            .values("country_name", "country_code")
+            PageView.objects.values("country_name", "country_code")
             .annotate(count=Count("ip_hash", distinct=True))
             .order_by("-count")[:10]
         )
         device_counts = list(
-            PageView.objects
-            .values("device_type")
-            .annotate(count=Count("ip_hash", distinct=True))
-            .order_by("-count")
+            PageView.objects.values("device_type").annotate(count=Count("ip_hash", distinct=True)).order_by("-count")
         )
         unique_countries = PageView.objects.values("country_code").distinct().count()
     except ProgrammingError:
@@ -61,50 +63,61 @@ def visitor_map(request: HttpRequest) -> HttpResponse:
         device_counts = []
         unique_countries = 0
 
-    return render(request, "core/visitor_map.html", {
-        "total_views": total_views,
-        "unique_visitors": unique_visitors,
-        "top_countries": top_countries,
-        "device_counts": device_counts,
-        "unique_countries": unique_countries,
-    })
+    return render(
+        request,
+        "core/visitor_map.html",
+        {
+            "total_views": total_views,
+            "unique_visitors": unique_visitors,
+            "top_countries": top_countries,
+            "device_counts": device_counts,
+            "unique_countries": unique_countries,
+        },
+    )
 
 
 def visitor_map_data(request: HttpRequest) -> JsonResponse:
-    """API endpoint returning visitor geo data for the map."""
-    from visitors.models import PageView
-    from django.db.models import Count
+    """API endpoint returning k-anonymous, approximate visitor geo data for the map."""
     from django.db import ProgrammingError
+    from django.db.models import Count
+    from django.db.models.functions import Round
+
+    from visitors.models import PageView
 
     try:
-        # Deduplicate by ip_hash first, then aggregate locations
-        # This gives unique visitors per location, not raw page views
+        # Group visitors into approximately 11 km cells and suppress cells with fewer
+        # than three visitors so the public map cannot identify an individual.
         points = (
-            PageView.objects
-            .values("latitude", "longitude", "country_name", "country_code", "city")
+            PageView.objects.annotate(
+                latitude_cell=Round("latitude", precision=1), longitude_cell=Round("longitude", precision=1)
+            )
+            .values("latitude_cell", "longitude_cell", "country_name", "country_code")
             .annotate(visitors=Count("ip_hash", distinct=True))
+            .filter(visitors__gte=3)
             .order_by("-visitors")
         )
         features = []
         for p in points:
-            if p["latitude"] and p["longitude"]:
-                features.append({
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Point",
-                        "coordinates": [p["longitude"], p["latitude"]],
-                    },
-                    "properties": {
-                        "country": p["country_name"],
-                        "country_code": p["country_code"],
-                        "city": p["city"] or p["country_name"],
-                        "count": p["visitors"],
-                    },
-                })
+            if p["latitude_cell"] is not None and p["longitude_cell"] is not None:
+                features.append(
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Point",
+                            "coordinates": [p["longitude_cell"], p["latitude_cell"]],
+                        },
+                        "properties": {
+                            "country": p["country_name"],
+                            "country_code": p["country_code"],
+                            "count": p["visitors"],
+                        },
+                    }
+                )
     except ProgrammingError:
         features = []
 
     return JsonResponse({"type": "FeatureCollection", "features": features})
+
 
 def health_check(request: HttpRequest) -> JsonResponse:
     """API endpoint returning system health metrics."""
@@ -125,7 +138,8 @@ def health_check(request: HttpRequest) -> JsonResponse:
                 "response_ms": db_response_ms,
             },
             "response_time_ms": round((time.time() - start_time) * 1000, 2),
-        }
+        },
+        status=200 if db_healthy else 503,
     )
 
 
@@ -144,10 +158,12 @@ def github_stats(request: HttpRequest) -> HttpResponse:
 
 def public_metrics(request: HttpRequest) -> JsonResponse:
     """Public API endpoint returning lightweight server stats for the architecture page."""
-    from .services.system_metrics import check_database_health, get_system_metrics
-    from django.db import connection
-    import django
     import sys
+
+    import django
+    from django.db import connection
+
+    from .services.system_metrics import check_database_health, get_system_metrics
 
     metrics_data = get_system_metrics()
     _, db_response_ms = check_database_health()
@@ -155,6 +171,7 @@ def public_metrics(request: HttpRequest) -> JsonResponse:
     # Hypertable row counts via TimescaleDB approximate count (fast)
     # Cached in Redis for 60s — numbers change slowly (hourly ingest)
     from django.core.cache import cache
+
     hypertable_stats = cache.get("hypertable_stats")
     if hypertable_stats is None:
         try:
@@ -166,22 +183,21 @@ def public_metrics(request: HttpRequest) -> JsonResponse:
                     FROM timescaledb_information.hypertables
                     ORDER BY hypertable_name;
                 """)
-                hypertable_stats = [
-                    {"table": row[0], "rows": row[1]}
-                    for row in cursor.fetchall()
-                ]
+                hypertable_stats = [{"table": row[0], "rows": row[1]} for row in cursor.fetchall()]
                 cache.set("hypertable_stats", hypertable_stats, timeout=60)
         except Exception:
             hypertable_stats = []
 
-    return JsonResponse({
-        "cpu_percent": metrics_data["cpu_percent"],
-        "memory_percent": metrics_data["memory_percent"],
-        "db_response_ms": db_response_ms,
-        "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
-        "django_version": django.__version__,
-        "hypertables": hypertable_stats,
-    })
+    return JsonResponse(
+        {
+            "cpu_percent": metrics_data["cpu_percent"],
+            "memory_percent": metrics_data["memory_percent"],
+            "db_response_ms": db_response_ms,
+            "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+            "django_version": django.__version__,
+            "hypertables": hypertable_stats,
+        }
+    )
 
 
 def api_playground(request: HttpRequest) -> HttpResponse:
@@ -191,15 +207,6 @@ def api_playground(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def metrics(request: HttpRequest) -> JsonResponse:
-    """API endpoint returning server metrics."""
-    from .services.system_metrics import check_database_health, get_system_metrics
-
-    metrics_data = get_system_metrics()
-    _, db_response_ms = check_database_health()
-    metrics_data["db_response_ms"] = db_response_ms
-
-    return JsonResponse(metrics_data)
-
     """API endpoint returning server metrics."""
     from .services.system_metrics import check_database_health, get_system_metrics
 

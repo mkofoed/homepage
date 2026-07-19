@@ -108,15 +108,10 @@
             User["👤 User\nBrowser"]
             end
 
-            subgraph Cloud["☁️ Cloudflare"]
-            CDN["🛡️ CDN\nDDoS Protection"]
-            SSL["🔒 SSL\nTermination"]
-            end
-
             subgraph VM["🖥️ Hetzner VM"]
             subgraph Docker["🐳 Docker Compose"]
             Nginx["⚡ Nginx\nReverse Proxy"]
-            Gunicorn["🦄 Gunicorn\nWSGI Server"]
+            Uvicorn["🦄 Uvicorn\nASGI Server"]
             Django["🐍 Django\nApp"]
             Postgres[("🗄️ PostgreSQL\nTimescaleDB")]
             Redis[("⚡ Redis\nCache")]
@@ -124,16 +119,14 @@
             end
             end
 
-            User --> CDN --> SSL --> Nginx --> Gunicorn --> Django
+            User --> Nginx --> Uvicorn --> Django
             Django --> Postgres
             Django --> Redis
             Django --> Celery
 
             style User fill:#1e2d40,stroke:#334155,color:#94a3b8
-            style CDN fill:#92400e,stroke:#b45309,color:#fde68a
-            style SSL fill:#92400e,stroke:#b45309,color:#fde68a
             style Nginx fill:#14532d,stroke:#166534,color:#86efac
-            style Gunicorn fill:#1e3a5f,stroke:#1d4ed8,color:#93c5fd
+            style Uvicorn fill:#1e3a5f,stroke:#1d4ed8,color:#93c5fd
             style Django fill:#14532d,stroke:#166534,color:#86efac
             style Postgres fill:#312e81,stroke:#4338ca,color:#c7d2fe
             style Redis fill:#7f1d1d,stroke:#b91c1c,color:#fca5a5
@@ -187,7 +180,7 @@
                 <div class="flex flex-wrap gap-2">
                     <span class="stack-badge"><i class="bi bi-filetype-py"></i> Python {{ PYTHON_VERSION }}</span>
                     <span class="stack-badge"><i class="bi bi-code-square"></i> Django {{ DJANGO_VERSION }}</span>
-                    <span class="stack-badge">Gunicorn</span>
+                    <span class="stack-badge">Uvicorn (ASGI)</span>
                     <span class="stack-badge">Celery</span>
                     <span class="stack-badge">DRF</span>
                 </div>
@@ -205,7 +198,6 @@
                 <div class="flex flex-wrap gap-2">
                     <span class="stack-badge"><i class="bi bi-boxes"></i> Docker Compose</span>
                     <span class="stack-badge">Nginx</span>
-                    <span class="stack-badge">Cloudflare</span>
                     <span class="stack-badge">Hetzner</span>
                     <span class="stack-badge">GitHub Actions</span>
                 </div>
@@ -237,7 +229,7 @@
             <div class="col-auto px-2 pipeline-arrow">→</div>
             <div class="col"><div class="pipeline-step"><i class="bi bi-hammer"></i> Build Docker image</div></div>
             <div class="col-auto px-2 pipeline-arrow">→</div>
-            <div class="col"><div class="pipeline-step"><i class="bi bi-cloud-upload"></i> Push to Docker Hub</div></div>
+            <div class="col"><div class="pipeline-step"><i class="bi bi-cloud-upload"></i> Push to GHCR</div></div>
         </div>
         <div class="row g-0 align-items-center mt-2" style="max-width: 600px;">
             <div class="col"><div class="pipeline-step"><i class="bi bi-terminal"></i> SSH to server</div></div>
@@ -271,8 +263,8 @@
                 <div class="feature-row">
                     <i class="bi bi-check-circle-fill"></i>
                     <div>
-                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Zero-downtime deploys</div>
-                        <div class="small" style="color:#94a3b8;">GitHub Actions builds the image, SSHes into Hetzner, pulls and restarts containers</div>
+                        <div class="fw-bold" style="color:#f1f5f9; font-size:0.9rem;">Automated deploys with rollback</div>
+                        <div class="small" style="color:#94a3b8;">GitHub Actions builds the image, then deploys it with migrations and health-check rollback</div>
                     </div>
                 </div>
                 <div class="feature-row">

@@ -1,13 +1,15 @@
 import datetime
 import hashlib
-import structlog
-
-import httpx
 from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, cast
+
+import structlog
+from django.conf import settings
+from maxminddb import Reader, open_database
 
 logger = structlog.get_logger()
-
-IP_API_URL = "http://ip-api.com/json/{ip}?fields=status,country,countryCode,city,lat,lon"
 
 
 @dataclass(frozen=True)
@@ -21,28 +23,44 @@ class GeoLocation:
 
 
 def hash_ip(ip: str) -> str:
-    daily_salt = f"mkofoed-{datetime.date.today().isoformat()}"
+    daily_salt = f"{settings.SECRET_KEY}:{datetime.date.today().isoformat()}"
     return hashlib.sha256(f"{daily_salt}:{ip}".encode()).hexdigest()
 
 
-def lookup_ip(ip: str) -> GeoLocation | None:
-    try:
-        response = httpx.get(IP_API_URL.format(ip=ip), timeout=5.0)
-        response.raise_for_status()
-        data = response.json()
+@lru_cache
+def _get_reader() -> Reader | None:
+    database_path = Path(settings.GEOIP_PATH) / "GeoLite2-City.mmdb"
+    if not database_path.is_file():
+        logger.warning("geoip_database_unavailable", path=str(database_path))
+        return None
 
-        if data.get("status") != "success":
-            logger.warning("ip-api.com lookup failed for IP: %s", data.get("message", "unknown"))
+    return open_database(database_path)
+
+
+def lookup_ip(ip: str) -> GeoLocation | None:
+    """Look up an IP address using the local GeoLite2 database."""
+    reader = _get_reader()
+    if reader is None:
+        return None
+
+    try:
+        data = reader.get(ip)
+        if not isinstance(data, dict):
             return None
+
+        record = cast(dict[str, Any], data)
+        country = record.get("country", {})
+        city = record.get("city", {})
+        location = record.get("location", {})
 
         return GeoLocation(
             ip_hash=hash_ip(ip),
-            country_code=data.get("countryCode", "") or "",
-            country_name=data.get("country", "") or "",
-            city=data.get("city", "") or "",
-            latitude=data.get("lat", 0.0) or 0.0,
-            longitude=data.get("lon", 0.0) or 0.0,
+            country_code=country.get("iso_code", "") or "",
+            country_name=country.get("names", {}).get("en", "") or "",
+            city=city.get("names", {}).get("en", "") or "",
+            latitude=location.get("latitude", 0.0) or 0.0,
+            longitude=location.get("longitude", 0.0) or 0.0,
         )
-    except Exception:
-        logger.warning("ip-api.com lookup failed", exc_info=True)
+    except TypeError, ValueError:
+        logger.warning("geoip_lookup_failed", exc_info=True)
         return None

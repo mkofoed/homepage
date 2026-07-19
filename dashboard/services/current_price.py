@@ -1,10 +1,10 @@
-import pendulum
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
+from typing import cast
 
 from django.core.cache import cache
-from django.db.models import Avg, Max, Min
+from django.db.models import Avg
 
 from dashboard.models import SpotPrice
 from dashboard.services.price_chart import (
@@ -12,7 +12,6 @@ from dashboard.services.price_chart import (
     DK_ELSPAREBIDRAG,
     DK_ENERGINET_TARIFF,
     DK_VAT_MULTIPLIER,
-    CPH_TZ,
     _grid_tariff_ex_vat,
     _to_cph,
 )
@@ -36,21 +35,21 @@ class PriceContext:
     """Everything the hero card template needs. All prices in DKK/kWh incl. VAT."""
 
     current_price: Decimal  # Total price (spot + all tariffs)
-    spot_price: Decimal     # Spot-only component (hourly avg)
+    spot_price: Decimal  # Spot-only component (hourly avg)
     hour_start: datetime
-    day_avg: Decimal        # Used for cheap/expensive/neutral colour
+    day_avg: Decimal  # Used for cheap/expensive/neutral colour
     trend_pct: Decimal | None
-    trend_direction: str    # "up" | "down" | "flat" | "unavailable"
-    color: str              # "cheap" | "expensive" | "neutral"
+    trend_direction: str  # "up" | "down" | "flat" | "unavailable"
+    color: str  # "cheap" | "expensive" | "neutral"
     stale: bool
 
 
 def _hourly_avg_spot(hour_start: datetime, price_area: str) -> Decimal | None:
     """Average spot price for all quarters in an hour. Returns DKK/MWh or None."""
     hour_end = hour_start + timedelta(hours=1)
-    agg = SpotPrice.objects.filter(
-        timestamp__gte=hour_start, timestamp__lt=hour_end, price_area=price_area
-    ).aggregate(avg=Avg("price_dkk"))
+    agg = SpotPrice.objects.filter(timestamp__gte=hour_start, timestamp__lt=hour_end, price_area=price_area).aggregate(
+        avg=Avg("price_dkk")
+    )
     if agg["avg"] is not None:
         return Decimal(str(agg["avg"]))
     return None
@@ -62,7 +61,7 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
     cache_key = f"hero:current_price:{price_area}"
     cached_value = cache.get(cache_key)
     if cached_value is not None:
-        return cached_value
+        return cast(PriceContext, cached_value)
 
     hour_start = timestamp.replace(minute=0, second=0, microsecond=0)
     stale = False
@@ -117,9 +116,7 @@ def get_current_price(timestamp: datetime, price_area: str = "DK1") -> PriceCont
         else:
             trend_pct = Decimal("0")
         trend_direction = (
-            "up" if current_total > yesterday_total
-            else "down" if current_total < yesterday_total
-            else "flat"
+            "up" if current_total > yesterday_total else "down" if current_total < yesterday_total else "flat"
         )
     else:
         trend_pct = None

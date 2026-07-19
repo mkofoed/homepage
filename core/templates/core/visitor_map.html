@@ -84,7 +84,8 @@
     </div>
     <h1 class="font-bold" style="color: #f1f5f9; font-size: clamp(28px, 4vw, 52px);">Where Visitors Come From</h1>
     <p style="color: #94a3b8; font-size: 1.1rem; max-width: 520px; margin: 0.75rem auto 0;">
-        Real visitor data — anonymised, no cookies, no tracking scripts. Just GeoIP on the server.
+        Privacy-preserving visitor trends — no cookies or third-party tracking. Locations are locally derived, rounded,
+        and only shown for groups of at least three visitors.
     </p>
 </div>
 
@@ -121,7 +122,7 @@
     <div class="section-title"><i class="bi bi-map-fill"></i> Visitor Locations</div>
     <div id="visitor-map"></div>
     <p style="color: #475569; font-size: 0.75rem; margin-top: 0.75rem; margin-bottom: 0;">
-        <i class="bi bi-shield-check me-1"></i>IPs are hashed daily — no individual is tracked across sessions.
+        <i class="bi bi-shield-check me-1"></i>IPs are hashed daily. Public points are rounded and require at least three visitors.
     </p>
 </div>
 
@@ -211,11 +212,11 @@
         .then(geojson => {
             geojson.features.forEach(f => {
                 const [lng, lat] = f.geometry.coordinates;
-                const { city, country, count } = f.properties;
+                const { country, count } = f.properties;
                 const marker = L.marker([lat, lng], { icon: dotIcon });
                 marker.bindPopup(`
                     <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
-                        <div style="color:#22d3ee;font-weight:700;">${city}</div>
+                        <div style="color:#22d3ee;font-weight:700;">Approximate area</div>
                         <div style="color:#94a3b8;">${country}</div>
                         <div style="color:#64748b;margin-top:4px;">${count} view${count !== 1 ? 's' : ''}</div>
                     </div>
@@ -259,51 +260,6 @@
         },
     });
 
-    // --- Live visitor WebSocket ---
-    const liveMarkers = {};  // channel_name -> L.marker
-
-    const liveDotIcon = L.divIcon({
-        className: '',
-        html: '<div style="width:14px;height:14px;background:#f59e0b;border-radius:50%;box-shadow:0 0 0 0 rgba(245,158,11,0.6);animation:livePulse 1.5s infinite;"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-    });
-
-    const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const visitorWs = new WebSocket(`${proto}://${window.location.host}/ws/visitors/`);
-
-    visitorWs.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        if (data.type === 'arrive' && data.lat && data.lon) {
-            const marker = L.marker([data.lat, data.lon], { icon: liveDotIcon });
-            marker.bindPopup(`
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;">
-                    <div style="color:#f59e0b;font-weight:700;">Aktiv nu</div>
-                    <div style="color:#94a3b8;">${data.city || data.country}</div>
-                </div>
-            `);
-            marker.addTo(map);
-            liveMarkers[data.channel] = marker;
-        } else if (data.type === 'depart') {
-            const marker = liveMarkers[data.channel];
-            if (marker) {
-                map.removeLayer(marker);
-                delete liveMarkers[data.channel];
-            }
-        }
-    };
-
-    visitorWs.onerror = function() {
-        console.log('Visitor WS unavailable');
-    };
 })();
 </script>
-
-<style>
-@keyframes livePulse {
-    0%   { box-shadow: 0 0 0 0 rgba(245,158,11,0.6); }
-    70%  { box-shadow: 0 0 0 10px rgba(245,158,11,0); }
-    100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
-}
-</style>
 {% endblock %}

@@ -15,6 +15,7 @@ from channels.auth import AuthMiddlewareStack  # noqa: E402
 from channels.routing import ProtocolTypeRouter, URLRouter  # noqa: E402
 from channels.security.websocket import AllowedHostsOriginValidator  # noqa: E402
 from django.conf import settings  # noqa: E402
+
 import config.ws_routing as ws_routing  # noqa: E402
 
 ws_stack = AuthMiddlewareStack(URLRouter(ws_routing.websocket_urlpatterns))

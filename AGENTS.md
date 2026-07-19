@@ -1,70 +1,96 @@
-# AI Agent Documentation
+# AGENTS.md
 
-This document provides a comprehensive overview of the `homepage` project to help AI assistants and agents quickly understand the architecture, tech stack, and coding conventions used in this codebase.
+## Project
 
-## Project Overview
-This project is a personal homepage and web application. It serves as both a public-facing website and an active demonstration of modern backend development practices using Django.
+Personal developer showcase built with Django 6, Python 3.14, PostgreSQL 18 with
+TimescaleDB, Redis, Celery, HTMX, and Tailwind CSS v4. Production runs Uvicorn
+behind Nginx; images are published to GHCR and deployed to a Hetzner VM.
 
-## Tech Stack
-- **Framework**: Django 6.0
-- **Language**: Python 3.14
-- **Package Management**: `uv` (Configurations in `pyproject.toml`)
-- **Database**: PostgreSQL 18 (using TimescaleDB docker image locally)
-- **Frontend Integration**: HTMX (managed via `django-htmx`)
-- **API Framework**: Django REST Framework (DRF)
-- **API Documentation**: `drf-spectacular` (Swagger UI available at `/api/docs/`)
-- **Containerization**: Docker & Docker Compose
-- **Linting & Formatting**: Ruff
-- **Type Checking**: Mypy (`django-stubs`, `djangorestframework-stubs`)
+## Local development
 
-## Deployment Details
-### Deployment Workflow
-- Images are hosted on GitHub Container Registry (GHCR) at `ghcr.io/mkofoed/homepage-web`.
-- CI/CD with GitHub Actions handles automated builds and deployment.
-- Key steps include:
-  - Docker images are built and pushed to GHCR.
-  - Server setup transfers files like `docker-compose.prod.yml`, `deploy.sh`, `rollback.sh`, and `nginx/` via SCP.
-  - The server does not use `git` for deployment files.
+```bash
+cp .env.example .env
+docker compose up --build
+```
 
-### Service Setup
-- **Nginx**: Included in the Docker Compose stack using the image `jonasal/nginx-certbot:5-alpine`.
-- **Networks**: 
-  - `frontend` (nginx + web)
-  - `backend` (web + db + redis + celery).
-- **Environment**: Relies on `.env` for secrets like `REDIS_PASSWORD`, `POSTGRES_USER`, etc.
+The Django application is available at `http://localhost:8000`. The project
+directory is mounted into the `web` container. Do not expose new ports unless
+the feature requires it.
 
-### Database and Redis
-- PostgreSQL 18 is used with the `homepage_app` user.
-- Redis requires authentication and uses a read-only file system for security.
+## Commands
 
-### Deployment Scripts
-- `deploy.sh` ensures safe migrations, health checks, and rollback support.
-- Health checks use `docker exec` to run lightweight service checks inside containers.
+Run Python commands in the `web` container. `UV_CACHE_DIR` is required there
+because the container user has no writable home directory.
 
----
+```bash
+# Lint, format check, type check, and Django checks
+docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run ruff check .
+docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run ruff format --check .
+docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run mypy .
+docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run python manage.py check --settings=config.settings.test
 
-## Agent Guidelines & Conventions
-When modifying or extending this codebase, adhere to the following rules:
+# Tests
+docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run python manage.py test --settings=config.settings.test
 
-### 1. Strictly use the Service Layer Pattern
-- **Views (`views.py`)**: Must only handle HTTP request parsing, basic validation, delegation to a service function, and returning the proper HTTP Response/Template.
-- **Services (`services/*.py`)**: Must contain all business logic, complex database queries, external API calls, and algorithmic computations. Services should be independent of Django's `Request` object whenever possible.
+# Rebuild generated Tailwind output after changing templates, Tailwind source, or design-system classes
+npm run build:css
 
-### 2. Frontend / HTMX
-- We rely on `django-htmx` middleware.
-- When writing views that respond to HTMX triggers, use `if getattr(request, "htmx", False):` to determine if you should return a partial HTML snippet or a fully extended base template.
+# Validate deployment Compose syntax without real secrets
+REDIS_PASSWORD=validation-only POSTGRES_PASSWORD=validation-only docker compose -f docker-compose.prod.yml config --quiet
+```
 
-### 3. Dependency Management (`uv`)
-- Dependencies are managed exclusively via `uv` in the `pyproject.toml` file.
-- Do not generate `requirements.txt` or `Pipfile`.
-- When updating dependencies in the Docker container, utilize `uv pip install --system -e .` or `uv sync`.
+Use the smallest command that covers the change. Run the applicable validation
+before finishing and always run `git diff --check` after edits.
 
-### 4. Code Quality & Typing
-- **Type Hints**: All new functions, variables, and class methods must have explicit Python 3.14 type hints.
-- **Ruff**: Ensure your code conforms to the Ruff formatting rules defined in `pyproject.toml`. Run `uv run ruff check --fix .` and `uv run ruff format .` on modifications.
-- **Mypy**: Ensure strict type compliance by running `uv run mypy .`.
+## Architecture and code
 
-### 5. Dockerized Environment
-- The project is designed to be run via `docker-compose up`.
-- The `web` service mounts the root directory directly into `/app`.
-- PostgreSQL database volumes are persistent (`postgres_data`). Local database configurations are mocked via the `.env` file (copied from `.env.example`).
+- Keep views thin: parse HTTP input, perform basic validation, call a service,
+  and return a response. Put business logic, non-trivial queries, algorithms,
+  and external calls in `services/` without depending on `HttpRequest`.
+- Keep models, migrations, serializers, tasks, and templates in their
+  respective Django app. Create and apply migrations for schema changes; never
+  hand-edit generated migration files after they are shared.
+- Use explicit type hints for new public functions, methods, and non-obvious
+  variables. Follow Ruff and existing naming patterns.
+- Use `getattr(request, "htmx", False)` when a view must select a partial for
+  an HTMX request versus a full page response.
+- Preserve the design system and Tailwind utilities. Avoid Bootstrap classes:
+  Bootstrap CSS is not shipped. Rebuild `static/css/tailwind.css` rather than
+  editing the generated file by hand.
+- Treat all server- or user-supplied data as untrusted. Prefer Django escaping,
+  `json_script`, and DOM APIs over `|safe`, string-built JavaScript, or
+  `innerHTML`.
+
+## Dependencies and generated files
+
+- Manage Python dependencies only through `pyproject.toml` and `uv.lock`.
+  Use `uv add`/`uv remove` and commit the lockfile update. Do not add
+  `requirements.txt`, `Pipfile`, or manually edit `uv.lock`.
+- Manage frontend dependencies with `package.json` and the committed npm lock
+  file. Do not add a bundler or frontend framework without an explicit need.
+- Never commit `.env`, credentials, certificates, database dumps, generated
+  `*.egg-info`, or runtime-collected staticfiles/media output.
+
+## Security and deployment
+
+- Never log, print, commit, or copy secrets. Use `.env.example` for documented
+  placeholders only.
+- Keep GitHub Actions actions pinned to immutable commit SHAs. Preserve
+  least-privilege job permissions, locked dependency installation, SBOM, and
+  provenance in `.github/workflows/deploy.yml`.
+- Production deploys immutable commit-SHA image tags. Changes to
+  `docker-compose.prod.yml`, `deploy.sh`, `rollback.sh`, or `nginx/` must
+  retain health checks and rollback behavior and should be validated with the
+  production Compose command above.
+- The public visitor map must remain privacy-preserving: no exact locations or
+  live per-visitor data; only rounded groups meeting the minimum anonymity
+  threshold may be exposed.
+
+## Change discipline
+
+- Read nearby code and tests before modifying behavior. Keep changes focused;
+  do not revert unrelated working-tree changes.
+- Update documentation when commands, architecture, environment variables, or
+  user-visible behavior change.
+- Do not commit, push, rewrite history, or run destructive Git commands unless
+  explicitly requested.

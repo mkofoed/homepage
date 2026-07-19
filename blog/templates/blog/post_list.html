@@ -2,12 +2,13 @@
 {% load markdown_extras %}
 
 {% block title %}All Posts - {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}Browse technical notes and project write-ups from Mikkel Kofoed.{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">All Blog Posts</h1>
-<div class="grid md:grid-cols-2 gap-4">
-    <div class="col-md-8" id="post-list">
+<section class="max-w-3xl">
+    <h1 class="mb-4 text-3xl font-bold">All posts</h1>
+    <div id="post-list">
         {% include 'blog/partials/post_list_items.html' %}
     </div>
-</div>
+</section>
 {% endblock %}

@@ -1,41 +1,41 @@
 {% if stats %}
-<div class="ds-card h-100">
-    <div style="padding: var(--ds-space-4)">
-        <div class="d-flex align-items-center mb-3">
-            <img src="{{ stats.avatar_url }}" alt="{{ stats.name }}" class="rounded-circle me-3" width="48" height="48">
+<div class="ds-card h-full">
+    <div>
+        <div class="mb-3 flex items-center gap-3">
+            <img src="{{ stats.avatar_url }}" alt="{{ stats.name }}" class="rounded-full" width="48" height="48" loading="lazy" decoding="async">
             <div>
-                <h5 class="mb-0 fw-bold">{{ stats.name }}</h5>
-                <a href="{{ stats.profile_url }}" target="_blank" class="text-muted small text-decoration-none">
-                    <i class="bi bi-github me-1"></i>@{{ stats.username }}
+                <h2 class="mb-0 text-lg font-bold">{{ stats.name }}</h2>
+                <a href="{{ stats.profile_url }}" target="_blank" rel="noopener noreferrer" class="ds-text-muted text-sm">
+                    <i class="bi bi-github me-1" aria-hidden="true"></i>@{{ stats.username }}<span class="sr-only"> (opens in new tab)</span>
                 </a>
             </div>
         </div>
 
         {% if stats.bio %}
-        <p class="text-muted small mb-3">{{ stats.bio }}</p>
+        <p class="ds-text-secondary text-sm mb-3">{{ stats.bio }}</p>
         {% endif %}
 
-        <div class="row g-2 mb-3">
-            <div class="col-4 text-center">
-                <div class="font-bold">{{ stats.public_repos }}</div>
-                <div class="text-muted small">Repos</div>
+        <dl class="mb-3 grid grid-cols-3 gap-2 text-center">
+            <div>
+                <dd class="m-0 font-bold">{{ stats.public_repos }}</dd>
+                <dt class="ds-text-muted text-xs">Repos</dt>
             </div>
-            <div class="col-4 text-center">
-                <div class="font-bold">{{ stats.total_stars }}</div>
-                <div class="text-muted small">Stars</div>
+            <div>
+                <dd class="m-0 font-bold">{{ stats.total_stars }}</dd>
+                <dt class="ds-text-muted text-xs">Stars</dt>
             </div>
-            <div class="col-4 text-center">
-                <div class="font-bold">{{ stats.followers }}</div>
-                <div class="text-muted small">Followers</div>
+            <div>
+                <dd class="m-0 font-bold">{{ stats.followers }}</dd>
+                <dt class="ds-text-muted text-xs">Followers</dt>
             </div>
-        </div>
+        </dl>
 
         {% if stats.top_languages %}
         <div>
-            <div class="text-muted small mb-2">Top Languages</div>
+            <div class="ds-text-muted text-sm mb-2">Top languages</div>
             <div class="flex flex-wrap gap-1">
                 {% for lang, count in stats.top_languages %}
-                <span class="badge bg-secondary">{{ lang }}</span>
+                <span class="ds-badge">{{ lang }}</span>
                 {% endfor %}
             </div>
         </div>
@@ -43,10 +43,10 @@
     </div>
 </div>
 {% else %}
-<div class="card h-100 border-0 shadow-sm">
-    <div class="card-body p-4 text-center text-muted">
-        <i class="bi bi-github display-6 mb-2"></i>
-        <p class="mb-0 small">GitHub stats unavailable</p>
+<div class="ds-card h-full text-center">
+    <div>
+        <i class="bi bi-github text-3xl ds-text-muted" aria-hidden="true"></i>
+        <p class="mb-0 mt-2 ds-text-secondary text-sm">GitHub stats unavailable</p>
     </div>
 </div>
 {% endif %}

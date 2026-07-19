@@ -1,6 +1,7 @@
 {% extends 'core/base.html' %}
 
 {% block title %}Home - {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}Senior software developer and physicist building resilient systems with Django, .NET, cloud platforms, and AI-enabled engineering workflows.{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -8,7 +9,7 @@
     <div class="text-center">
         <div class="hero-item" style="--hero-delay:0ms; display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 999px; padding: 0.35rem 1rem; font-size: 0.8rem; color: #22d3ee; margin-bottom: 1.5rem;">
             <span style="width: 7px; height: 7px; background: #22d3ee; border-radius: 50%; display: inline-block; box-shadow: 0 0 6px #22d3ee;"></span>
-            AI-augmented developer
+            Senior software developer
         </div>
         <div class="hero-item flex justify-center" style="--hero-delay:60ms; margin-bottom: 1.5rem;">
             <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed"
@@ -21,10 +22,10 @@
             </span>
         </h1>
         <p class="hero-item" style="--hero-delay:220ms; color: #94a3b8; font-size: 1.25rem; max-width: 620px; margin: 1.25rem auto 0.75rem;">
-            Senior developer &amp; physicist &mdash; I go all-in on AI tooling.
-            <span style="color: #e2e8f0;">Not as a trend. As a genuine competitive advantage.</span>
+            Senior developer &amp; physicist building resilient software systems.
+            <span style="color: #e2e8f0;">AI-enabled workflows, applied with engineering judgment.</span>
         </p>
-        <!-- AI Tool Badges -->
+        <!-- Engineering practice badges -->
         <div class="hero-item flex flex-wrap gap-2 justify-center" style="--hero-delay:320ms; margin: 1.25rem auto;">
             <span class="ai-badge"><i class="bi bi-cpu me-1"></i>Claude Code</span>
             <span class="ai-badge"><i class="bi bi-robot me-1"></i>GitHub Copilot</span>
@@ -40,12 +41,11 @@
 <!-- AI Stack Banner -->
 <div class="reveal" style="border-top: 1px solid rgba(34,211,238,0.1); border-bottom: 1px solid rgba(34,211,238,0.1); background: rgba(34,211,238,0.03); padding: 1.25rem 0; overflow: hidden;">
     <div class="flex flex-wrap items-center justify-center gap-8 px-4">
-        <span style="color: #475569; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">AI Stack</span>
-        <div class="ai-stack-item"><i class="bi bi-braces"></i> Claude Sonnet 4.6</div>
-        <div class="ai-stack-item"><i class="bi bi-github"></i> GitHub Copilot</div>
-        <div class="ai-stack-item"><i class="bi bi-terminal-fill"></i> Claude Code</div>
-        <div class="ai-stack-item"><i class="bi bi-cpu-fill"></i> OpenClaw Agent</div>
-        <div class="ai-stack-item"><i class="bi bi-search"></i> Cursor / Windsurf</div>
+        <span style="color: var(--ds-text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">Engineering practice</span>
+        <div class="ai-stack-item"><i class="bi bi-braces"></i> System design</div>
+        <div class="ai-stack-item"><i class="bi bi-git"></i> Code review</div>
+        <div class="ai-stack-item"><i class="bi bi-terminal-fill"></i> Delivery automation</div>
+        <div class="ai-stack-item"><i class="bi bi-cpu-fill"></i> AI-enabled workflows</div>
     </div>
 </div>
 
@@ -111,7 +111,7 @@
             </div>
             <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Tech Stack</h3>
             <p class="text-sm text-center mb-4" style="color: #94a3b8;">
-                Django 6, PostgreSQL 18, Redis, Celery, HTMX, Tailwind CSS, Docker Compose &mdash; deployed on Hetzner with Nginx and GitHub Actions for zero-downtime updates.
+                Django 6, PostgreSQL 18, Redis, Celery, HTMX, Tailwind CSS, and Docker Compose &mdash; deployed on Hetzner with Nginx, health checks, and GitHub Actions.
             </p>
             <div class="text-center mt-auto">
                 <a href="{% url 'architecture' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
@@ -127,7 +127,7 @@
             </div>
             <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">Visitor Map</h3>
             <p class="text-sm text-center mb-4" style="color: #94a3b8;">
-                Live map of where visitors come from — anonymised GeoIP, no cookies. Country breakdown and device split.
+                Privacy-preserving visitor trends from local GeoIP data. No cookies, no third-party tracking, and no precise locations.
             </p>
             <div class="text-center mt-auto">
                 <a href="{% url 'visitor_map' %}" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
@@ -143,7 +143,7 @@
             </div>
             <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">AI Tooling</h3>
             <p class="text-sm text-center mb-3" style="color: #94a3b8;">
-                Daily-driving Claude Code, GitHub Copilot, and OpenClaw for agentic workflows — from code review to autonomous background tasks.
+                AI-assisted workflows for design, code review, testing, and delivery &mdash; with clear ownership and verification.
             </p>
             <div class="flex flex-wrap gap-1 justify-center mt-2">
                 <span style="background: rgba(34,211,238,0.1); color: var(--ds-accent); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">Claude Code</span>
@@ -209,7 +209,7 @@
             {% if github %}
             <div class="flex items-center justify-center mb-3 gap-2">
                 <img src="{{ github.avatar_url }}" alt="{{ github.name }}" style="width:32px;height:32px;border-radius:50%;">
-                <a href="{{ github.profile_url }}" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
+                <a href="{{ github.profile_url }}" target="_blank" rel="noopener noreferrer" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
                     @{{ github.username }}
                 </a>
             </div>
@@ -238,7 +238,7 @@
             <p class="text-sm text-center" style="color: #64748b;">GitHub stats loading...</p>
             {% endif %}
             <div class="text-center mt-3">
-                <a href="https://github.com/mkofoed" target="_blank" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                <a href="https://github.com/mkofoed" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
                     View GitHub &rarr;
                 </a>
             </div>
@@ -252,15 +252,15 @@
             <h3 class="text-lg font-bold text-center mb-2" style="color: #f1f5f9;">LinkedIn</h3>
             <div class="flex items-center justify-center mb-3 gap-2">
                 <img src="https://avatars.githubusercontent.com/u/6918014?v=4" alt="Mikkel Kofoed" style="width:32px;height:32px;border-radius:50%;">
-                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
+                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" rel="noopener noreferrer" style="color: var(--ds-accent); text-decoration: none; font-size: 0.9rem;">
                     Mikkel Kofoed
                 </a>
             </div>
             <p class="text-sm text-center mb-4" style="color: #94a3b8;">
-                Senior software developer &mdash; Python, .NET, and AI-augmented workflows.
+                Senior software developer focused on Python, .NET, cloud platforms, and reliable delivery.
             </p>
             <div class="text-center mt-auto">
-                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
+                <a href="https://www.linkedin.com/in/mbkofoed/" target="_blank" rel="noopener noreferrer" style="display:inline-block; padding:6px 20px; background:transparent; color: var(--ds-accent); font-weight: 600; border: 1px solid var(--ds-accent); border-radius: 6px; text-decoration:none; font-size:0.875rem;">
                     View Profile &rarr;
                 </a>
             </div>
@@ -270,28 +270,32 @@
 
 <style>
 /* Hero entrance animations */
-.hero-item {
-    opacity: 0;
-    transform: translateY(20px);
-    filter: blur(4px);
-    animation: heroFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: var(--hero-delay, 0ms);
-}
-@keyframes heroFadeUp {
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-/* Name underline expand */
 .name-underline {
     position: absolute;
     bottom: -4px;
     left: 0;
     height: 2px;
-    width: 0;
-    background: #22d3ee;
-    animation: underlineGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    animation-delay: 600ms;
+    width: 100%;
+    background: var(--ds-accent);
 }
-@keyframes underlineGrow { to { width: 100%; } }
+@media (prefers-reduced-motion: no-preference) {
+    .hero-item {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(4px);
+        animation: heroFadeUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: var(--hero-delay, 0ms);
+    }
+    @keyframes heroFadeUp {
+        to { opacity: 1; transform: translateY(0); filter: blur(0); }
+    }
+    .name-underline {
+        width: 0;
+        animation: underlineGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        animation-delay: 600ms;
+    }
+    @keyframes underlineGrow { to { width: 100%; } }
+}
 .ai-badge {
     background: rgba(34,211,238,0.08);
     border: 1px solid rgba(34,211,238,0.25);

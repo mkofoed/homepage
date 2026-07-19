@@ -3,52 +3,49 @@
 {% block title %}Login - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center mt-5">
-    <div class="col-md-5 col-lg-4">
-        <div class="card bg-dark border-secondary shadow">
-            <div class="card-header bg-secondary bg-opacity-25 border-secondary text-center py-4">
-                <h3 class="mb-0 text-light"><i class="bi bi-person-circle me-2"></i>Login</h3>
-            </div>
-            <div class="card-body p-4">
+<section class="mx-auto mt-12 max-w-md">
+    <div class="ds-card">
+        <header class="mb-6 text-center">
+            <i class="bi bi-person-circle text-4xl" style="color: var(--ds-accent);" aria-hidden="true"></i>
+            <h1 class="mt-3 text-2xl font-bold">Sign in</h1>
+            <p class="mt-1 text-sm ds-text-secondary">Use your administrator account to access private metrics.</p>
+        </header>
                 {% if form.errors %}
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div role="alert" class="mb-4 rounded-lg border p-3 text-sm" style="border-color: var(--ds-danger); color: var(--ds-danger);">
+                    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                     Invalid username or password. Please try again.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 {% endif %}
 
                 <form method="post" action="{% url 'login' %}">
                     {% csrf_token %}
 
-                    <div class="mb-3">
-                        <label for="id_username" class="form-label">
+                    <div class="mb-4">
+                        <label for="id_username" class="mb-2 block text-sm font-medium ds-text-secondary">
                             <i class="bi bi-person me-1"></i>Username
                         </label>
                         <input type="text" name="username" id="id_username"
-                            class="form-control bg-dark text-light border-secondary{% if form.errors %} is-invalid{% endif %}"
-                            placeholder="Enter your username" autofocus required>
+                            class="ds-input"
+                            placeholder="Enter your username" autocomplete="username" autofocus required>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="id_password" class="form-label">
+                    <div class="mb-6">
+                        <label for="id_password" class="mb-2 block text-sm font-medium ds-text-secondary">
                             <i class="bi bi-lock me-1"></i>Password
                         </label>
                         <input type="password" name="password" id="id_password"
-                            class="form-control bg-dark text-light border-secondary{% if form.errors %} is-invalid{% endif %}"
-                            placeholder="Enter your password" required>
+                            class="ds-input"
+                            placeholder="Enter your password" autocomplete="current-password" required>
                     </div>
 
                     <input type="hidden" name="next" value="{{ next }}">
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary btn-lg">
+                    <div>
+                        <button type="submit" class="ds-btn-primary w-full">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Log In
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
     </div>
-</div>
+</section>
 {% endblock %}

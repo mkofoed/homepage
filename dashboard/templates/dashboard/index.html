@@ -1,6 +1,7 @@
 {% extends "core/base.html" %}
 
 {% block title %}Elpris Dashboard - MKofoed.dev{% endblock %}
+{% block meta_description %}Explore Danish electricity prices in DK1 and DK2, including spot prices, tariffs, and historical trends.{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -73,7 +74,17 @@
         align-items: center;
         cursor: pointer;
     }
-    .area-switch__input { display: none; }
+    .area-switch__input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
     .area-switch__button {
         display: inline-block;
         padding: 0.35rem 1rem;
@@ -91,6 +102,10 @@
         color: #0a0e17;
         border-color: var(--ds-accent, #22d3ee);
         box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+    }
+    .area-switch__input:focus-visible + .area-switch__button {
+        outline: 2px solid var(--ds-accent, #22d3ee);
+        outline-offset: 2px;
     }
     /* Chart controls */
     .chart-controls {
@@ -162,7 +177,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="py-4">
+<div class="py-4" lang="da">
     <div class="text-center mb-3">
         <h1 class="font-bold mb-1" style="font-size: 2rem;">Elpris Dashboard</h1>
         <p id="area-subtitle" class="ds-text-secondary mb-0" style="font-size: 0.95rem;">
@@ -179,18 +194,19 @@
     </div>
 
     <!-- Area Switcher -->
-    <div class="area-switch mb-4">
+    <fieldset class="area-switch mb-4">
+        <legend class="sr-only">Vælg prisområde</legend>
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK1" {% if active_area == "DK1" %}checked{% endif %}
-                   onchange="setArea('DK1')">
+                   data-area="DK1">
             <span class="area-switch__button">DK1 (Vest)</span>
         </label>
         <label class="area-switch__label">
             <input type="radio" name="area" class="area-switch__input area-radio" value="DK2" {% if active_area == "DK2" %}checked{% endif %}
-                   onchange="setArea('DK2')">
+                   data-area="DK2">
             <span class="area-switch__button">DK2 (&Oslash;st)</span>
         </label>
-    </div>
+    </fieldset>
 
     <!-- Current Price Hero Card -->
     <div id="hero-card-container"
@@ -206,19 +222,19 @@
     <!-- Time Controls -->
     <div class="chart-controls mb-3">
         <div class="chart-controls__ranges">
-            <button class="zoom-btn active" onclick="setRange('day', this)">Dag</button>
-            <button class="zoom-btn" onclick="setRange('week', this)">7D</button>
-            <button class="zoom-btn" onclick="setRange('month', this)">30D</button>
-            <button class="zoom-btn" onclick="setRange('year', this)">1År</button>
+            <button type="button" class="zoom-btn active" data-range="day">Dag</button>
+            <button type="button" class="zoom-btn" data-range="week">7D</button>
+            <button type="button" class="zoom-btn" data-range="month">30D</button>
+            <button type="button" class="zoom-btn" data-range="year">1 år</button>
         </div>
         <div id="res-toggle" class="chart-controls__resolution">
-            <button class="res-btn active" onclick="setResolution('hour', this)">1t</button>
-            <button class="res-btn" onclick="setResolution('quarter', this)">15m</button>
+            <button type="button" class="res-btn active" data-resolution="hour">1 t</button>
+            <button type="button" class="res-btn" data-resolution="quarter">15 m</button>
         </div>
         <div class="chart-controls__nav">
-            <button class="nav-btn" onclick="navigate(-1)" title="Forrige">&larr;</button>
-            <span id="period-label" class="ds-text-secondary" onclick="jumpToNow()" title="Gå til i dag" style="font-size: 0.85rem; min-width: 120px; text-align: center; cursor: pointer; transition: color 150ms;" onmouseover="this.style.color='var(--ds-accent)'" onmouseout="this.style.color=''">I dag</span>
-            <button class="nav-btn" onclick="navigate(1)" title="N&aelig;ste">&rarr;</button>
+            <button type="button" class="nav-btn" data-direction="-1" aria-label="Forrige periode">&larr;</button>
+            <button id="period-label" type="button" class="period-label ds-text-secondary" title="Gå til i dag">I dag</button>
+            <button type="button" class="nav-btn" data-direction="1" aria-label="Næste periode">&rarr;</button>
         </div>
     </div>
 
@@ -297,6 +313,28 @@
         origSetArea(area);
         connectPriceTicker(area);
     };
+
+    document.querySelectorAll('.area-radio').forEach(function (input) {
+        input.addEventListener('change', function () {
+            setArea(input.dataset.area);
+        });
+    });
+    document.querySelectorAll('.zoom-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            setRange(button.dataset.range, button);
+        });
+    });
+    document.querySelectorAll('.res-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            setResolution(button.dataset.resolution, button);
+        });
+    });
+    document.querySelectorAll('.nav-btn').forEach(function (button) {
+        button.addEventListener('click', function () {
+            navigate(Number(button.dataset.direction));
+        });
+    });
+    document.getElementById('period-label').addEventListener('click', jumpToNow);
 })();
 </script>
 {% endblock %}

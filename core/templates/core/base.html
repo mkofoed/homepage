@@ -4,8 +4,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}🚀 {{ SITE_NAME }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}Mikkel Kofoed is a senior software developer and physicist building resilient, AI-enabled software systems.{% endblock %}">
+    <meta name="theme-color" content="#0a0e17">
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
     {% load static %}
+    <script>
+        (function () {
+            let savedTheme = null;
+            try {
+                savedTheme = localStorage.getItem('theme');
+            } catch (_) {
+                // Private browsing or locked-down storage: use system theme.
+            }
+            const theme = savedTheme || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="{% static 'css/design-system.css' %}" rel="stylesheet">
     <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -18,12 +34,13 @@
 </head>
 
 <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="htmx-indicator"
         style="position: fixed; top: 0; left: 0; width: 100%; height: 3px; background-color: var(--ds-accent); z-index: 9999; display: none;">
     </div>
 
     <!-- ── Navigation ─────────────────────────────────────────── -->
-    <nav id="main-nav" style="background: var(--ds-surface); border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px); position: relative; z-index: 50;">
+    <nav id="main-nav" aria-label="Primary navigation" style="background: var(--ds-surface); border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px); position: relative; z-index: 50;">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex items-center justify-between h-14">
 
@@ -37,15 +54,15 @@
 
                     <!-- Showcase dropdown -->
                     <div class="relative" id="showcase-dropdown">
-                        <button onclick="toggleDropdown('showcase-menu')" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;">
+                        <button id="showcase-menu-button" type="button" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;" aria-expanded="false" aria-controls="showcase-menu">
                             Showcase <i class="bi bi-chevron-down" style="font-size:0.65rem; margin-left:2px;"></i>
                         </button>
-                        <div id="showcase-menu" class="dropdown-panel hidden">
+                        <div id="showcase-menu" class="dropdown-panel hidden" role="menu" aria-labelledby="showcase-menu-button">
                             <a href="{% url 'architecture' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-diagram-3 me-2"></i>Architecture</a>
                             <a href="{% url 'dashboard:home' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
                             <a href="{% url 'visitor_map' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-globe2 me-2"></i>Visitor Map</a>
                             <a href="{% url 'api_playground' %}" class="dropdown-panel-item" hx-boost="false"><i class="bi bi-play-circle me-2"></i>API Playground</a>
-                            <a href="{% url 'swagger-ui' %}" class="dropdown-panel-item" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem;"></i></a>
+                            <a href="{% url 'swagger-ui' %}" class="dropdown-panel-item" target="_blank" rel="noopener noreferrer"><i class="bi bi-code-slash me-2"></i>API Docs <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem;" aria-hidden="true"></i><span class="sr-only"> (opens in new tab)</span></a>
                         </div>
                     </div>
 
@@ -53,11 +70,11 @@
 
                     {% if user.is_authenticated %}
                     <div class="relative">
-                        <button onclick="toggleDropdown('user-menu')" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;">
+                        <button id="user-menu-button" type="button" class="nav-link flex items-center gap-1" style="background:none; border:none; cursor:pointer;" aria-expanded="false" aria-controls="user-menu">
                             <i class="bi bi-person-circle" style="margin-right:4px;"></i>{{ user.username }}
                             <i class="bi bi-chevron-down" style="font-size:0.65rem; margin-left:2px;"></i>
                         </button>
-                        <div id="user-menu" class="dropdown-panel hidden" style="right:0; left:auto;">
+                        <div id="user-menu" class="dropdown-panel hidden" role="menu" aria-labelledby="user-menu-button" style="right:0; left:auto;">
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
                                 <button type="submit" class="dropdown-panel-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer;">
@@ -70,20 +87,20 @@
                     <a href="{% url 'login' %}" class="nav-link"><i class="bi bi-box-arrow-in-right" style="margin-right:4px;"></i>Login</a>
                     {% endif %}
 
-                    <button id="theme-toggle" class="ml-2 px-3 py-1 rounded-md text-sm font-medium"
+                    <button id="theme-toggle" type="button" class="ml-2 px-3 py-1 rounded-md text-sm font-medium"
                         style="background: transparent; border: 1.5px solid var(--ds-accent); color: var(--ds-accent); cursor: pointer; transition: background 150ms;"
-                        aria-label="Toggle theme">🌙</button>
+                        aria-label="Use light theme" title="Use light theme">🌙</button>
                 </div>
 
                 <!-- Mobile: theme + hamburger -->
                 <div class="flex md:hidden items-center gap-2">
-                    <button id="theme-toggle-mobile" class="px-2 py-1 rounded text-sm"
+                    <button id="theme-toggle-mobile" type="button" class="px-2 py-1 rounded text-sm"
                         style="background: transparent; border: 1px solid var(--ds-accent); color: var(--ds-accent); cursor: pointer;"
-                        aria-label="Toggle theme">🌙</button>
-                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2 rounded"
+                        aria-label="Use light theme" title="Use light theme">🌙</button>
+                    <button id="mobile-menu-btn" type="button" class="p-2 rounded"
                         style="color: var(--ds-text-secondary); background: transparent; border: none; cursor: pointer;"
-                        aria-label="Menu">
-                        <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+                        aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+                        <i class="bi bi-list" style="font-size: 1.5rem;" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
@@ -99,7 +116,7 @@
                 <a href="{% url 'dashboard:home' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
                 <a href="{% url 'visitor_map' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-globe2 me-2"></i>Visitor Map</a>
                 <a href="{% url 'api_playground' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" hx-boost="false"><i class="bi bi-play-circle me-2"></i>API Playground</a>
-                <a href="{% url 'swagger-ui' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" target="_blank"><i class="bi bi-code-slash me-2"></i>API Docs</a>
+                <a href="{% url 'swagger-ui' %}" class="mobile-nav-link" style="padding-left: 1.5rem;" target="_blank" rel="noopener noreferrer"><i class="bi bi-code-slash me-2" aria-hidden="true"></i>API Docs <span class="sr-only">(opens in new tab)</span></a>
                 <a href="{% url 'blog_index' %}" class="mobile-nav-link">Blog</a>
                 {% if user.is_authenticated %}
                 <form method="post" action="{% url 'logout' %}">
@@ -116,7 +133,7 @@
     </nav>
 
     <!-- ── Main content ───────────────────────────────────────── -->
-    <main id="main-content" class="max-w-6xl px-4 mt-6" style="background: transparent; width: 100%; margin: 1.5rem auto 0;">
+    <main id="main-content" class="max-w-6xl px-4 mt-6" style="background: transparent; width: 100%; margin: 1.5rem auto 0;" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
 
@@ -139,8 +156,8 @@
                 <div class="md:text-right">
                     <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">Connect</h5>
                     <ul class="space-y-2" style="list-style: none; padding: 0; margin: 0;">
-                        <li><a href="https://github.com/mkofoed" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank">GitHub <i class="bi bi-github"></i></a></li>
-                        <li><a href="https://www.linkedin.com/in/mbkofoed/" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank">LinkedIn <i class="bi bi-linkedin"></i></a></li>
+                        <li><a href="https://github.com/mkofoed" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank" rel="noopener noreferrer">GitHub <i class="bi bi-github" aria-hidden="true"></i><span class="sr-only"> (opens in new tab)</span></a></li>
+                        <li><a href="https://www.linkedin.com/in/mbkofoed/" class="ds-text-muted footer-link text-sm" style="text-decoration: none;" target="_blank" rel="noopener noreferrer">LinkedIn <i class="bi bi-linkedin" aria-hidden="true"></i><span class="sr-only"> (opens in new tab)</span></a></li>
                     </ul>
                 </div>
             </div>
@@ -158,28 +175,64 @@
 
     <!-- ── Scripts ────────────────────────────────────────────── -->
     <script>
-        // Nav: dropdown toggles
-        function toggleDropdown(id) {
+        function toggleDropdown(id, button) {
             const menu = document.getElementById(id);
             const isHidden = menu.classList.contains('hidden');
-            document.querySelectorAll('.dropdown-panel').forEach(m => m.classList.add('hidden'));
-            if (isHidden) menu.classList.remove('hidden');
+            document.querySelectorAll('.dropdown-panel').forEach(menuItem => {
+                menuItem.classList.add('hidden');
+                const trigger = document.getElementById(`${menuItem.id}-button`);
+                if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            });
+            if (isHidden) {
+                menu.classList.remove('hidden');
+                button.setAttribute('aria-expanded', 'true');
+            }
         }
 
-        // Nav: mobile hamburger
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            const icon = document.querySelector('#mobile-menu-btn i');
+            const button = document.getElementById('mobile-menu-btn');
+            const icon = button.querySelector('i');
             menu.classList.toggle('hidden');
             icon.className = menu.classList.contains('hidden') ? 'bi bi-list' : 'bi bi-x';
             icon.style.fontSize = '1.5rem';
+            const isOpen = !menu.classList.contains('hidden');
+            button.setAttribute('aria-expanded', String(isOpen));
+            button.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
         }
 
-        // Close dropdowns on outside click
+        document.getElementById('showcase-menu-button').addEventListener('click', function () {
+            toggleDropdown('showcase-menu', this);
+        });
+        const userMenuButton = document.getElementById('user-menu-button');
+        if (userMenuButton) {
+            userMenuButton.addEventListener('click', function () {
+                toggleDropdown('user-menu', this);
+            });
+        }
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
         document.addEventListener('click', function(e) {
-            if (!e.target.closest('[id$="-dropdown"]') && !e.target.closest('[onclick*="toggleDropdown"]')) {
-                document.querySelectorAll('.dropdown-panel').forEach(m => m.classList.add('hidden'));
+            if (!e.target.closest('.dropdown-panel') && !e.target.closest('[aria-controls$="-menu"]')) {
+                document.querySelectorAll('.dropdown-panel').forEach(menu => {
+                    menu.classList.add('hidden');
+                    const trigger = document.getElementById(`${menu.id}-button`);
+                    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+                });
             }
+        });
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== 'Escape') return;
+            document.querySelectorAll('.dropdown-panel:not(.hidden)').forEach(menu => {
+                menu.classList.add('hidden');
+                const trigger = document.getElementById(`${menu.id}-button`);
+                if (trigger) {
+                    trigger.setAttribute('aria-expanded', 'false');
+                    trigger.focus();
+                }
+            });
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!mobileMenu.classList.contains('hidden')) toggleMobileMenu();
         });
 
         // Theme toggle (desktop + mobile)
@@ -189,16 +242,38 @@
                 document.getElementById('theme-toggle-mobile')
             ];
             const html = document.documentElement;
-            const saved = localStorage.getItem('theme') || 'dark';
+            let saved = null;
+            try {
+                saved = localStorage.getItem('theme');
+            } catch (_) {
+                // Storage can be unavailable in private browsing.
+            }
+            saved = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
             html.setAttribute('data-theme', saved);
-            toggles.forEach(t => { if (t) t.textContent = saved === 'dark' ? '🌙' : '☀️'; });
+            toggles.forEach(t => {
+                if (!t) return;
+                const useLightTheme = saved === 'dark';
+                t.textContent = useLightTheme ? '🌙' : '☀️';
+                t.setAttribute('aria-label', useLightTheme ? 'Use light theme' : 'Use dark theme');
+                t.setAttribute('title', useLightTheme ? 'Use light theme' : 'Use dark theme');
+            });
             toggles.forEach(t => {
                 if (!t) return;
                 t.onclick = () => {
                     const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
                     html.setAttribute('data-theme', next);
-                    localStorage.setItem('theme', next);
-                    toggles.forEach(b => { if (b) b.textContent = next === 'dark' ? '🌙' : '☀️'; });
+                    try {
+                        localStorage.setItem('theme', next);
+                    } catch (_) {
+                        // Theme still applies for current page when storage is unavailable.
+                    }
+                    toggles.forEach(b => {
+                        if (!b) return;
+                        const useLightTheme = next === 'dark';
+                        b.textContent = useLightTheme ? '🌙' : '☀️';
+                        b.setAttribute('aria-label', useLightTheme ? 'Use light theme' : 'Use dark theme');
+                        b.setAttribute('title', useLightTheme ? 'Use light theme' : 'Use dark theme');
+                    });
                 };
             });
         }
@@ -207,6 +282,31 @@
     </script>
 
     <style>
+        .skip-link {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 200;
+            padding: 0.75rem 1rem;
+            background: var(--ds-accent);
+            color: #0a0e17;
+            border-radius: var(--ds-radius-md);
+            font-weight: 700;
+            transform: translateY(-200%);
+            transition: transform var(--ds-transition-fast);
+        }
+        .skip-link:focus { transform: translateY(0); color: #0a0e17; }
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
         /* Nav link styles */
         .nav-link {
             color: var(--ds-text-secondary);
@@ -301,6 +401,20 @@
         .reveal-stagger.visible > *:nth-child(6) { transition-delay: 400ms; }
         .reveal-stagger.visible > *:nth-child(7) { transition-delay: 480ms; }
         .reveal-stagger.visible > *:nth-child(8) { transition-delay: 560ms; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .reveal, .reveal-stagger > * {
+                opacity: 1;
+                transform: none;
+                filter: none;
+            }
+        }
     </style>
 
     <script>

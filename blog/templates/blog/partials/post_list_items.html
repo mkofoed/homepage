@@ -1,11 +1,11 @@
 {% for post in page_obj %}
 <div class="ds-card mb-3">
-    <div class="ds-card-body">
-        <h3>
+    <div>
+        <h2 class="text-xl font-bold">
             <a href="{% url 'blog_detail' post.pk %}" style="color: var(--ds-text-primary); transition: color var(--ds-transition-fast);">
                 {{ post.title }}
             </a>
-        </h3>
+        </h2>
         <p class="ds-text-muted small">Posted on {{ post.created_at|date:"F d, Y" }}</p>
         <p class="ds-text-secondary">{{ post.content|truncatewords:30 }}</p>
     </div>
@@ -14,8 +14,8 @@
 
 {% if page_obj.has_next %}
 <div id="load-more" class="text-center mt-4">
-    <button class="ds-btn-primary" hx-get="{% url 'blog_list' %}?page={{ page_obj.next_page_number }}" hx-target="#load-more" hx-swap="outerHTML">
-        Load More
+    <button type="button" class="ds-btn-primary" hx-get="{% url 'blog_list' %}?page={{ page_obj.next_page_number }}" hx-target="#load-more" hx-swap="outerHTML">
+        Load more posts
     </button>
 </div>
 {% endif %}

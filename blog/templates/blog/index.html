@@ -2,11 +2,12 @@
 {% load markdown_extras %}
 
 {% block title %}Blog - {{ SITE_NAME }}{% endblock %}
+{% block meta_description %}Technical notes and project write-ups from Mikkel Kofoed on software engineering, systems, and AI-enabled development.{% endblock %}
 
 {% block content %}
-<div class="grid md:grid-cols-2 gap-4">
-    <div class="col-md-8">
-        <h1 class="mb-4">Latest Post</h1>
+<div class="grid gap-8 lg:grid-cols-3">
+    <section class="lg:col-span-2">
+        <h1 class="mb-4 text-3xl font-bold">Latest post</h1>
         {% if latest_post %}
         <div class="ds-card ds-glow-sm reveal">
             <div class="ds-card-body">
@@ -19,19 +20,19 @@
                     Posted on {{ latest_post.created_at }} by {{ latest_post.author }}
                 </p>
                 <div class="card-text">{{ latest_post.content|markdown }}</div>
-            </div>
+            </section>
         </div>
         {% else %}
         <p>No posts yet.</p>
         {% endif %}
     </div>
-    <div >
-        <h3 class="mb-3">Recent Posts</h3>
-        <div class="list-group mb-3 reveal">
+    <aside>
+        <h2 class="mb-3 text-xl font-bold">Recent posts</h2>
+        <div class="space-y-3 mb-4 reveal">
             {% for post in recent_posts %}
-            <a href="{% url 'blog_detail' post.pk %}" class="ds-card">
+            <a href="{% url 'blog_detail' post.pk %}" class="ds-card block">
                 <div>
-                    <h5 class="mb-1" style="color: var(--ds-text-primary);">{{ post.title }}</h5>
+                    <h3 class="mb-1 text-base font-semibold" style="color: var(--ds-text-primary);">{{ post.title }}</h3>
                     <small class="ds-text-muted">{{ post.created_at|date:"M d, Y" }}</small>
                 </div>
             </a>
@@ -40,6 +41,6 @@
             {% endfor %}
         </div>
         <a href="{% url 'blog_list' %}" class="ds-btn-outline">View All Posts</a>
-    </div>
+    </aside>
 </div>
 {% endblock %}

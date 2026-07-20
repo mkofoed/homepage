@@ -1,13 +1,19 @@
+import json
 import time
+from uuid import UUID
 
 import structlog
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 
 logger = structlog.get_logger()
 
 
+@ensure_csrf_cookie
 def home(request: HttpRequest) -> HttpResponse:
     """Home page view with featured cards."""
     from blog.models import Post
@@ -154,6 +160,76 @@ def github_stats(request: HttpRequest) -> HttpResponse:
         logger.warning("GitHub stats returned None")
 
     return render(request, "core/partials/github_stats.html", {"stats": stats})
+
+
+@require_POST
+def request_lifecycle(request: HttpRequest) -> JsonResponse:
+    """Start a bounded, UUID-scoped request lifecycle demonstration."""
+    from .services.request_lifecycle import get_rate_limit_key, probe_cache, publish_progress
+    from .tasks import complete_request_lifecycle
+
+    try:
+        payload = json.loads(request.body)
+        correlation_id = str(UUID(payload["correlation_id"]))
+    except json.JSONDecodeError, KeyError, TypeError, ValueError:
+        return JsonResponse({"error": "A valid correlation_id UUID is required."}, status=400)
+
+    forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR", "")
+    client_address = forwarded_for.rsplit(",", maxsplit=1)[-1].strip() or request.META.get("REMOTE_ADDR", "")
+    if not cache.add(get_rate_limit_key(client_address), True, timeout=20):
+        return JsonResponse({"error": "Please wait a few seconds before running another trace."}, status=429)
+
+    cache_probe = probe_cache()
+    cache_detail = (
+        f"{'Cache hit' if cache_probe.hit else 'Cache miss'} in {cache_probe.duration_ms:.2f} ms; "
+        "the probe contains no visitor data."
+    )
+    publish_progress(
+        correlation_id,
+        stage="nginx",
+        status="complete",
+        detail=(
+            "Nginx reverse proxy forwarded the request."
+            if forwarded_for
+            else "Local development request connected directly."
+        ),
+    )
+    publish_progress(
+        correlation_id,
+        stage="django",
+        status="complete",
+        detail="Django validated the supplied correlation ID.",
+    )
+    publish_progress(correlation_id, stage="redis", status="complete", detail=cache_detail)
+    publish_progress(
+        correlation_id,
+        stage="celery",
+        status="queued",
+        detail="Dispatching an isolated task to a Celery worker.",
+    )
+
+    try:
+        task = complete_request_lifecycle.delay(correlation_id)
+    except Exception:
+        logger.exception("request_lifecycle_task_dispatch_failed", correlation_id=correlation_id)
+        publish_progress(
+            correlation_id,
+            stage="celery",
+            status="error",
+            detail="The task queue is temporarily unavailable.",
+        )
+        return JsonResponse({"error": "The task queue is temporarily unavailable."}, status=503)
+
+    logger.info("request_lifecycle_started", correlation_id=correlation_id, cache_hit=cache_probe.hit)
+
+    return JsonResponse(
+        {
+            "correlation_id": correlation_id,
+            "cache": {"hit": cache_probe.hit, "duration_ms": cache_probe.duration_ms},
+            "task_id": task.id,
+        },
+        status=202,
+    )
 
 
 def public_metrics(request: HttpRequest) -> JsonResponse:

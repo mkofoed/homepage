@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% load static %}
 
 {% block title %}Home - {{ SITE_NAME }}{% endblock %}
 {% block meta_description %}Senior software developer and physicist building resilient systems with Django, .NET, cloud platforms, and AI-enabled engineering workflows.{% endblock %}
@@ -48,6 +49,51 @@
         <div class="ai-stack-item"><i class="bi bi-cpu-fill"></i> AI-enabled workflows</div>
     </div>
 </div>
+
+<!-- Request Lifecycle Demo -->
+<section class="request-lifecycle reveal" aria-labelledby="request-lifecycle-heading" data-request-lifecycle-url="{% url 'request_lifecycle' %}">
+    <div class="request-lifecycle__intro">
+        <span class="ds-badge"><i class="bi bi-activity" aria-hidden="true"></i> Live stack trace</span>
+        <h2 id="request-lifecycle-heading">Follow one request through the stack</h2>
+        <p>Run an isolated, rate-limited demo task. It validates in Django, probes Redis without visitor data, queues Celery work, and streams progress over WebSocket.</p>
+    </div>
+    <div class="request-lifecycle__body">
+        <ol class="request-lifecycle__stages" aria-label="Request lifecycle stages">
+            <li data-lifecycle-stage="nginx">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                <span>Nginx proxy</span>
+                <small>Waiting</small>
+            </li>
+            <li data-lifecycle-stage="django">
+                <i class="bi bi-braces" aria-hidden="true"></i>
+                <span>Django API</span>
+                <small>Waiting</small>
+            </li>
+            <li data-lifecycle-stage="redis">
+                <i class="bi bi-database" aria-hidden="true"></i>
+                <span>Redis cache</span>
+                <small>Waiting</small>
+            </li>
+            <li data-lifecycle-stage="celery">
+                <i class="bi bi-gear-wide-connected" aria-hidden="true"></i>
+                <span>Celery worker</span>
+                <small>Waiting</small>
+            </li>
+            <li data-lifecycle-stage="websocket">
+                <i class="bi bi-broadcast" aria-hidden="true"></i>
+                <span>WebSocket</span>
+                <small>Waiting</small>
+            </li>
+        </ol>
+        <div class="request-lifecycle__panel">
+            <button id="request-lifecycle-button" class="ds-btn-primary" type="button">
+                <i class="bi bi-play-fill" aria-hidden="true"></i> Run live trace
+            </button>
+            <output id="request-lifecycle-status" class="request-lifecycle__status" aria-live="polite">Ready to create an isolated trace.</output>
+            <code id="request-lifecycle-correlation" class="request-lifecycle__correlation" hidden></code>
+        </div>
+    </div>
+</section>
 
 <!-- Projects & Tools Section -->
 <div class="py-12" id="projects">
@@ -319,4 +365,5 @@
 }
 .ai-stack-item:hover { color: #94a3b8; }
 </style>
+<script src="{% static 'js/request-lifecycle.js' %}" defer></script>
 {% endblock %}

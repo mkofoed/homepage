@@ -122,3 +122,30 @@ class PriceTickerConsumer(AsyncWebsocketConsumer):
                     }
                 )
             )
+
+
+class RequestLifecycleConsumer(AsyncWebsocketConsumer):
+    """Streams progress for one UUID-scoped request lifecycle demonstration."""
+
+    async def connect(self):
+        self.correlation_id = self.scope["url_route"]["kwargs"]["correlation_id"]
+
+        from .services.request_lifecycle import get_lifecycle_group
+
+        self.group = get_lifecycle_group(self.correlation_id)
+        await self.channel_layer.group_add(self.group, self.channel_name)
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(self.group, self.channel_name)
+
+    async def lifecycle_progress(self, event):
+        await self.send(
+            text_data=json.dumps(
+                {
+                    "stage": event["stage"],
+                    "status": event["status"],
+                    "detail": event["detail"],
+                }
+            )
+        )

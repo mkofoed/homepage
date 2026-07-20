@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -59,3 +60,53 @@ class VisitorMapDataTests(TestCase):
         feature = response.json()["features"][0]
         self.assertEqual(feature["geometry"]["coordinates"], [12.6, 55.7])
         self.assertNotIn("city", feature["properties"])
+
+
+class RequestLifecycleTests(TestCase):
+    def setUp(self) -> None:
+        cache.clear()
+
+    @patch("core.tasks.complete_request_lifecycle.delay")
+    def test_request_lifecycle_dispatches_a_task_for_a_valid_correlation_id(self, mock_delay) -> None:
+        mock_delay.return_value.id = "12345678-1234-1234-1234-123456789012"
+
+        response = self.client.post(
+            reverse("request_lifecycle"),
+            data='{"correlation_id": "12345678-1234-1234-1234-123456789012"}',
+            content_type="application/json",
+            HTTP_X_FORWARDED_FOR="203.0.113.10",
+        )
+
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json()["correlation_id"], "12345678-1234-1234-1234-123456789012")
+        mock_delay.assert_called_once_with("12345678-1234-1234-1234-123456789012")
+
+    def test_request_lifecycle_rejects_an_invalid_correlation_id(self) -> None:
+        response = self.client.post(
+            reverse("request_lifecycle"),
+            data='{"correlation_id": "not-a-uuid"}',
+            content_type="application/json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+
+    @patch("core.tasks.complete_request_lifecycle.delay")
+    def test_request_lifecycle_throttles_repeated_requests_from_the_same_client(self, mock_delay) -> None:
+        mock_delay.return_value.id = "12345678-1234-1234-1234-123456789012"
+        payload = '{"correlation_id": "12345678-1234-1234-1234-123456789012"}'
+
+        first_response = self.client.post(
+            reverse("request_lifecycle"),
+            data=payload,
+            content_type="application/json",
+            HTTP_X_FORWARDED_FOR="203.0.113.10",
+        )
+        second_response = self.client.post(
+            reverse("request_lifecycle"),
+            data=payload,
+            content_type="application/json",
+            HTTP_X_FORWARDED_FOR="203.0.113.10",
+        )
+
+        self.assertEqual(first_response.status_code, 202)
+        self.assertEqual(second_response.status_code, 429)

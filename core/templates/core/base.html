@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{% block meta_description %}Mikkel Kofoed is a senior software developer and physicist building resilient, AI-enabled software systems.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Mikkel Kofoed is an AI-assisted software developer and physicist applying modern AI practices across the development lifecycle.{% endblock %}">
     <meta name="theme-color" content="#0a0e17">
     <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
     {% load static %}
@@ -40,7 +40,7 @@
     </div>
 
     <!-- ── Navigation ─────────────────────────────────────────── -->
-    <nav id="main-nav" aria-label="Primary navigation" style="background: var(--ds-surface); border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px); position: relative; z-index: 50;">
+    <nav id="main-nav" class="site-nav" aria-label="Primary navigation" style="background: var(--ds-surface); border-bottom: 1px solid var(--ds-border); backdrop-filter: blur(8px); position: relative; z-index: 50;">
         <div class="max-w-6xl mx-auto px-4">
             <div class="flex items-center justify-between h-14">
 
@@ -133,17 +133,17 @@
     </nav>
 
     <!-- ── Main content ───────────────────────────────────────── -->
-    <main id="main-content" class="max-w-6xl px-4 mt-6" style="background: transparent; width: 100%; margin: 1.5rem auto 0;" tabindex="-1">
+    <main id="main-content" class="site-main max-w-6xl px-4 mt-6" style="background: transparent; width: 100%; margin: 1.5rem auto 0;" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
 
     <!-- ── Footer ─────────────────────────────────────────────── -->
-    <footer class="ds-surface mt-16 py-12" style="border-top: 1px solid var(--ds-border);">
+    <footer class="site-footer ds-surface mt-16 py-12" style="border-top: 1px solid var(--ds-border);">
         <div class="max-w-6xl mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
                     <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">{{ SITE_NAME }}</h5>
-                    <p class="ds-text-muted text-sm">Django developer &amp; physicist, building AI-first in Aarhus.</p>
+                    <p class="ds-text-muted text-sm">AI-assisted software development across discovery, delivery, and continuous improvement.</p>
                 </div>
                 <div>
                     <h5 class="text-xs uppercase tracking-widest font-bold mb-3" style="color: var(--ds-text-primary);">Quick Links</h5>

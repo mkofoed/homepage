@@ -1,4 +1,15 @@
-@import "tailwindcss";
+/* source(none) disables Tailwind v4's default whole-repo content scan, which
+   otherwise treats any word in any tracked file -- Python docstrings, Markdown
+   prose, YAML -- that happens to match a utility name (e.g. "fixed", "inline")
+   as a real class to generate. Explicit @source below scopes it to the actual
+   template/JS sources, so the committed CSS only depends on what templates
+   really use. */
+@import "tailwindcss" source(none);
+
+@source "../core/templates";
+@source "../blog/templates";
+@source "../dashboard/templates";
+@source "../static/js";
 
 /* ============================================================
    DESIGN TOKENS — mapped from ds-* system to Tailwind v4

@@ -4,7 +4,15 @@
 
 Personal developer showcase built with Django 6, PostgreSQL 18 with
 TimescaleDB, Redis, Celery, Channels, HTMX, and Tailwind CSS v4. Containers and
-CI run Python 3.14; `pyproject.toml` defines the supported Python range.
+CI run Python 3.14, and `pyproject.toml` pins `requires-python = ">=3.14"`.
+
+That floor is load-bearing, not aspirational: `core/views.py`,
+`dashboard/views.py`, and `visitors/services/geoip.py` use PEP 758 syntax
+(unparenthesised multiple exception types, `except ValueError, AttributeError:`),
+which is a `SyntaxError` on 3.13 and earlier. Ruff formats to that style because
+`target-version = "py314"`. Do not "fix" those clauses by adding parentheses —
+`ruff format --check` will fail. If you need to run anything on an older
+interpreter, it will not import; use the container.
 Production runs Uvicorn behind Nginx, publishes images to GHCR, and deploys to a
 Hetzner VM.
 
@@ -24,6 +32,39 @@ The application is available at `http://localhost:8000`. The repository is
 mounted at `/app` in the Python containers. Do not expose additional host ports
 unless the feature requires them. Rebuild the relevant images after changing
 Python or system dependencies.
+
+## Before you commit — run the same gate as CI
+
+`main` deploys to production on every push. `ci.yml` runs the gate on pull
+requests, so work on a branch and let it go green before merging; running it
+locally first is faster than a round trip.
+
+```bash
+alias dcw='docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run'
+
+dcw ruff check .
+dcw ruff format --check .
+dcw djlint core/templates blog/templates dashboard/templates --lint
+dcw mypy .
+dcw python manage.py check --settings=config.settings.test
+dcw python manage.py check --deploy --settings=config.settings.production
+dcw python manage.py test --settings=config.settings.test
+
+npm run build:css && git diff --stat -- static/css/tailwind.css   # must be empty
+```
+
+All of these must be clean. A targeted test label is fine for fast feedback
+during development, but it is not sufficient before merge.
+
+Hooks that catch most of it at commit time:
+
+```bash
+uv sync --locked --extra dev && uv run pre-commit install
+```
+
+djLint is newly introduced and its ignore list in `pyproject.toml` has not yet
+been tuned against these templates. It is `continue-on-error` in `ci.yml` for
+that reason; once `--lint` is clean locally, remove that flag and let it block.
 
 ## Commands
 
@@ -164,6 +205,11 @@ have explicit timeouts and testable failure behavior; mock them in unit tests.
 
 - Keep GitHub Actions pinned to immutable commit SHAs. Preserve least-privilege
   permissions, locked installs, build cache, SBOM, and provenance generation.
+  Dependabot (`.github/dependabot.yml`) is what moves those SHA pins forward;
+  review its pull requests rather than unpinning.
+- Two workflows: `ci.yml` is the pull-request gate, `deploy.yml` is the
+  push-to-`main` gate plus build and deploy. When a check is added to one, add
+  it to the other, or a pull request will pass on checks that main then fails.
 - Production uses immutable commit-SHA image tags. Changes to
   `Dockerfile.prod`, `docker-compose.prod.yml`, `.github/workflows/deploy.yml`,
   `deploy.sh`, `rollback.sh`, `setup_hetzner.sh`, or `nginx/` must preserve
@@ -172,6 +218,11 @@ have explicit timeouts and testable failure behavior; mock them in unit tests.
 - Read nearby code and tests before modifying behavior. Add regression tests
   for behavior changes, keep edits focused, and do not revert unrelated
   working-tree changes.
+- Tests live in each app's `tests.py`. `dashboard/tests.py` pins the N1
+  time-of-use bands, the DST offset used to pick them, and the idempotence of
+  Energinet ingestion; `showcase/tests.py` pins the public API contract and the
+  anonymous throttle. Those are the invariants most likely to break silently, so
+  extend them rather than working around them.
 - Update documentation when commands, architecture, environment variables, or
   user-visible behavior change.
 - Do not commit, push, rewrite history, or run destructive Git commands unless

@@ -4,7 +4,7 @@ Django production settings.
 
 from typing import Any, cast
 
-from .base import *  # noqa: F401, F403
+from .base import *  # noqa: F403
 from .base import LOGGING as _LOGGING
 
 DEBUG = False

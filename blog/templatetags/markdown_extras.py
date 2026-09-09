@@ -48,4 +48,6 @@ def markdown_filter(value: str) -> SafeString:
         extensions=["markdown.extensions.fenced_code", "markdown.extensions.tables"],
     )
     clean_html = nh3.clean(html, tags=ALLOWED_TAGS, attributes=ALLOWED_ATTRIBUTES)
-    return mark_safe(clean_html)
+    # nh3.clean above is the sanitizer; mark_safe is only ever applied to its output.
+    # Never move this call above the clean() step or apply it to raw user input.
+    return mark_safe(clean_html)  # noqa: S308

@@ -117,12 +117,11 @@ jobs:
 
     - name: Create placeholder env file
       # Each service declares `env_file: .env`, which docker compose requires
-      # to exist even for `config` validation. Real values are never present
-      # here -- production's .env is written on the server at deploy time.
-      run: touch .env
+      # to exist even for `config` validation. .env.example's placeholder
+      # values are never real secrets -- production's .env is written on the
+      # server at deploy time -- but using it (rather than an empty file)
+      # means this check actually validates against the documented contract.
+      run: cp .env.example .env
 
     - name: Validate docker-compose.prod.yml
-      env:
-        REDIS_PASSWORD: validation-only
-        POSTGRES_PASSWORD: validation-only
       run: docker compose -f docker-compose.prod.yml config --quiet

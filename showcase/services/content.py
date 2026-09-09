@@ -22,4 +22,4 @@ PROGRAMMING_QUOTES: list[dict[str, str]] = [
 
 def get_random_quote() -> dict[str, str]:
     """Return a random inspirational programming quote."""
-    return random.choice(PROGRAMMING_QUOTES)
+    return random.choice(PROGRAMMING_QUOTES)  # noqa: S311 -- display only, not security-bearing

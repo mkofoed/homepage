@@ -69,7 +69,6 @@ select = [
 ignore = [
     "E501",    # line too long (handled by formatter)
     "RUF012",  # mutable class attrs need ClassVar: noisy on Django Meta/model classes
-    "S101",    # assert: the Django test suite is built on assert* methods and plain asserts
     "RUF001",  # ambiguous unicode: Danish copy and typographic dashes are intentional
     "RUF002",
     "RUF003",
@@ -83,10 +82,9 @@ ignore = [
 "manage.py" = ["E402"]
 # Management commands and seeders write to stdout by design.
 "*/management/commands/*.py" = ["T20"]
-# Quotes and demo data use random for display, not for anything security-bearing.
-"showcase/services/content.py" = ["S311"]
-# Tests bind objects to names for readability and exercise hardcoded fixtures.
-"*/tests.py" = ["S105", "S106", "S311"]
+# Tests bind objects to names for readability, use assert* freely, and exercise
+# hardcoded fixtures.
+"*/tests.py" = ["S101", "S105", "S106", "S311"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["core", "blog", "showcase", "config", "dashboard", "visitors"]

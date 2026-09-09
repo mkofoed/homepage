@@ -10,8 +10,12 @@ __pycache__/
 # Local databases and data
 db.sqlite3
 data/
-media/
+mediafiles/
 staticfiles/
+
+# Celery
+celerybeat-schedule*
+celerybeat.pid
 
 # VCS, CI, and editor metadata
 .git/

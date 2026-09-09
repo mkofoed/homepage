@@ -115,6 +115,12 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
+    - name: Create placeholder env file
+      # Each service declares `env_file: .env`, which docker compose requires
+      # to exist even for `config` validation. Real values are never present
+      # here -- production's .env is written on the server at deploy time.
+      run: touch .env
+
     - name: Validate docker-compose.prod.yml
       env:
         REDIS_PASSWORD: validation-only

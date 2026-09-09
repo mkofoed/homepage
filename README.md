@@ -47,7 +47,7 @@ not parse on 3.13 or earlier.
 | Workflow | Trigger | What it does |
 |----------|---------|--------------|
 | `ci.yml` | pull request to `main` | Ruff, djLint, Mypy, Django checks, tests with coverage, stale-Tailwind check, production Compose validation |
-| `deploy.yml` | push to `main` | The same quality gate, then build → push to GHCR → deploy |
+| `deploy.yml` | push to `main` | Ruff, Mypy, Django checks, tests with coverage, stale-Tailwind check (no djLint or Compose validation -- see AGENTS.md), then build → push to GHCR → deploy |
 
 `main` deploys on push, so open a pull request and let `ci.yml` go green first.
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the equivalent commands to run

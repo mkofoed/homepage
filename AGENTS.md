@@ -48,9 +48,11 @@ dcw djlint core/templates blog/templates dashboard/templates --lint
 dcw mypy .
 dcw python manage.py check --settings=config.settings.test
 dcw python manage.py check --deploy --settings=config.settings.production
-dcw python manage.py test --settings=config.settings.test
+dcw coverage run manage.py test --settings=config.settings.test && dcw coverage report
 
 npm run build:css && git diff --stat -- static/css/tailwind.css   # must be empty
+
+docker compose -f docker-compose.prod.yml config --quiet   # uses your local .env; only ci.yml runs this, not deploy.yml
 ```
 
 All of these must be clean. A targeted test label is fine for fast feedback
@@ -92,11 +94,10 @@ docker compose exec -T -e UV_CACHE_DIR=/tmp/uv-cache web uv run python manage.py
 # Generated Tailwind output
 npm run build:css
 
-# Production Compose validation in PowerShell
-$env:REDIS_PASSWORD="validation-only"; $env:POSTGRES_PASSWORD="validation-only"; docker compose -f docker-compose.prod.yml config --quiet
-
-# Production Compose validation in POSIX shells
-REDIS_PASSWORD=validation-only POSTGRES_PASSWORD=validation-only docker compose -f docker-compose.prod.yml config --quiet
+# Production Compose validation -- requires an existing .env (see "Local
+# development" above); each service's env_file directive needs the file to
+# exist even just for `config`, though its actual values are never read here.
+docker compose -f docker-compose.prod.yml config --quiet
 ```
 
 Use `npm ci` on a fresh checkout or after frontend dependency changes. Use the
@@ -210,6 +211,11 @@ have explicit timeouts and testable failure behavior; mock them in unit tests.
 - Two workflows: `ci.yml` is the pull-request gate, `deploy.yml` is the
   push-to-`main` gate plus build and deploy. When a check is added to one, add
   it to the other, or a pull request will pass on checks that main then fails.
+  Two exceptions are intentional, not drift: djLint is PR-only (its ignore
+  list isn't tuned yet, so it must not be able to block a deploy on a
+  cosmetic template nit -- see the "Before you commit" note above), and the
+  production Compose validation is PR-only (a fast structural check that adds
+  nothing once `build`/`deploy` are about to use that same file for real).
 - Production uses immutable commit-SHA image tags. Changes to
   `Dockerfile.prod`, `docker-compose.prod.yml`, `.github/workflows/deploy.yml`,
   `deploy.sh`, `rollback.sh`, `setup_hetzner.sh`, or `nginx/` must preserve

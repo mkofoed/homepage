@@ -41,4 +41,4 @@ repos:
     rev: v0.10.0.1
     hooks:
       - id: shellcheck
-        files: ^(deploy|rollback|setup_hetzner)\.sh$
+        files: ^((deploy|rollback|setup_hetzner)\.sh|scripts/.*\.sh)$

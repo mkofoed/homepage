@@ -45,9 +45,11 @@ dcw djlint core/templates blog/templates dashboard/templates --lint
 dcw mypy .
 dcw python manage.py check --settings=config.settings.test
 dcw python manage.py check --deploy --settings=config.settings.production
-dcw python manage.py test --settings=config.settings.test
+dcw coverage run manage.py test --settings=config.settings.test && dcw coverage report
 
 npm run build:css && git diff --stat -- static/css/tailwind.css   # must be empty
+
+docker compose -f docker-compose.prod.yml config --quiet   # uses your local .env
 ```
 
 All of these must be clean. During development the narrowest test label is
@@ -109,4 +111,6 @@ rule**, branch name pattern `main`, then tick *Require a pull request before
 merging* (0 approvals) and *Require status checks to pass before merging* →
 *Require branches to be up to date*, and add the three checks. They only
 appear in that search once they have run at least once, so open a throwaway
-pull request first if the list is empty.
+pull request first if the list is empty. The script's API call is a full
+replace, not a merge, so anything you add here that isn't also in the script
+will be silently discarded the next time the script runs.

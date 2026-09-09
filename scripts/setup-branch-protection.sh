@@ -5,8 +5,13 @@
 #     ./scripts/setup-branch-protection.sh
 #
 # Requires the GitHub CLI authenticated as a repo admin (`gh auth login`).
-# Safe to re-run: the API call replaces the rule rather than appending to it,
-# so this is the single source of truth for what main requires.
+# Safe to re-run with respect to ITSELF: re-running just reapplies the same
+# rule. But the underlying API call is a full replace, not a merge -- if
+# anyone has since added protection settings by hand in the GitHub UI that
+# aren't listed below (required linear history, signed commits, push
+# restrictions, etc.), re-running this script silently discards them. This
+# file is meant to be the single source of truth for what main requires;
+# if you add a protection setting via the UI, add it here too.
 #
 # Note: on a private repository, branch protection needs a paid GitHub plan.
 # Public repositories have it on the free plan.

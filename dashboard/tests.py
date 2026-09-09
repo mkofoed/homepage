@@ -4,8 +4,12 @@ The value in this app is the tariff arithmetic, and its edge cases are all
 calendar edge cases: N1 charges different rates by season and time of day, and
 Denmark observes DST, so a UTC timestamp and its Copenhagen local hour drift
 apart for half the year. AGENTS.md requires DST-sensitive behavior to be
-covered whenever the energy calculations change, so the boundaries are pinned
-here rather than left implicit.
+covered whenever the energy calculations change; this file pins the
+winter/summer season and day/night/peak hour boundaries that the tariff
+lookup depends on. It does NOT yet exercise the DST changeover days
+themselves (2026-03-29, 2026-10-25) -- see the tracked follow-up on
+get_chart_data's fixed 96-slot day skeleton, which is suspected to mishandle
+23- and 25-hour local days.
 
 `SpotPrice` is a TimescaleDB hypertable in production; under the test settings
 it is an ordinary SQLite table, which is enough to exercise the query and
@@ -120,8 +124,17 @@ class TotalPriceTests(SimpleTestCase):
 
     def test_a_negative_spot_price_can_still_yield_a_positive_total(self) -> None:
         """Negative day-ahead prices are real; tariffs are charged regardless."""
-        total = _total_price(Decimal("-50"), datetime(2026, 1, 15, 2, 0, tzinfo=UTC))
+        timestamp = datetime(2026, 1, 15, 2, 0, tzinfo=UTC)
+        total = _total_price(Decimal("-50"), timestamp)
 
+        expected = (
+            Decimal("-50") / 1000
+            + DK_ELAFGIFT
+            + DK_ELSPAREBIDRAG
+            + DK_ENERGINET_TARIFF
+            + N1_GRID_TARIFFS["winter"]["night"]
+        ) * DK_VAT_MULTIPLIER
+        self.assertEqual(total, expected)
         self.assertGreater(total, 0)
 
 
@@ -205,8 +218,11 @@ class CurrentPriceTests(TestCase):
         self._create_hour(hour, "400", PriceArea.DK1)
         self._create_hour(hour, "800", PriceArea.DK2)
 
+        # No cache.clear() between calls: the cache key includes price_area, so
+        # if that were ever dropped, DK2's request would wrongly hit DK1's
+        # cached entry instead of querying fresh -- exactly what this test
+        # exists to catch.
         dk1 = get_current_price(hour, price_area=PriceArea.DK1)
-        cache.clear()
         dk2 = get_current_price(hour, price_area=PriceArea.DK2)
 
         assert dk1 is not None and dk2 is not None
@@ -279,6 +295,16 @@ class ChartDataTests(TestCase):
 
         chart = get_chart_data("day", datetime(2026, 1, 15, 12, 0, tzinfo=UTC))
 
+        # Independently derived from the public tariff constants (not from
+        # chart.data_elpris/data_transport themselves) so a bug in the VAT or
+        # tariff arithmetic can't cancel out and still pass.
+        expected_elpris = float((Decimal("500") / 1000) * DK_VAT_MULTIPLIER) + float(
+            (DK_ELAFGIFT + DK_ELSPAREBIDRAG) * DK_VAT_MULTIPLIER
+        )
+        expected_transport = float(DK_ENERGINET_TARIFF * DK_VAT_MULTIPLIER) + float(
+            N1_GRID_TARIFFS["winter"]["night"] * DK_VAT_MULTIPLIER
+        )
+        self.assertAlmostEqual(chart.data_total[0], round(expected_elpris + expected_transport, 4), places=3)
         self.assertAlmostEqual(
             chart.data_total[0],
             chart.data_elpris[0] + chart.data_transport[0],

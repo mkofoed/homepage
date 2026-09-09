@@ -1,6 +1,6 @@
 """Settings for the isolated automated test suite."""
 
-from .base import *  # noqa: F401, F403
+from .base import *  # noqa: F403
 from .base import MIDDLEWARE as BASE_MIDDLEWARE
 
 DATABASES = {

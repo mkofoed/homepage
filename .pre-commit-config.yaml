@@ -1,0 +1,44 @@
+# Local mirror of the CI quality gate. Install once with:
+#   uv run pre-commit install
+#
+# These hooks run against the checkout on the host, so they use the pinned
+# `ruff` and `djlint` mirrors rather than the versions inside the web
+# container. Keep the `rev` values aligned with the bounds in pyproject.toml.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.4
+    hooks:
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/djlint/djLint
+    rev: v1.36.4
+    hooks:
+      - id: djlint-django
+        files: ^(core|blog|dashboard|showcase)/templates/.*\.html$
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-json
+      - id: end-of-file-fixer
+        exclude: ^(static/css/tailwind\.css|uv\.lock|package-lock\.json)$
+      - id: trailing-whitespace
+        exclude: ^(static/css/tailwind\.css|uv\.lock|package-lock\.json)$
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-executables-have-shebangs
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: [--maxkb=1024]
+
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.10.0.1
+    hooks:
+      - id: shellcheck
+        files: ^(deploy|rollback|setup_hetzner)\.sh$

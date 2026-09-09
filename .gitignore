@@ -2,18 +2,18 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
 
 # Django
 *.log
 local_settings.py
 db.sqlite3
-media
-staticfiles
+mediafiles/
+staticfiles/
 data/
 
 # Environments
 .env
-*.egg-info/
 .venv
 env/
 venv/
@@ -21,15 +21,27 @@ ENV/
 env.bak/
 venv.bak/
 
+# Secrets and keys
+*.pem
+id_ed25519
+id_ed25519.pub
+
 # IDEs
 .vscode/
 .idea/
-id_ed25519
-id_ed25519.pub
-data/
+.openclaw/
 
 # Celery
 celerybeat-schedule*
 celerybeat.pid
+
+# Node
 node_modules/
-.openclaw/
+
+# Tooling caches and coverage output
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/

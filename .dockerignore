@@ -1,16 +1,51 @@
+# Virtualenvs and Python build artefacts
 .venv
-*.egg-info//
 venv/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
 env/
-db.sqlite3
-.git/
-.env
+*.egg-info/
+__pycache__/
+*.py[cod]
+.Python
 
-# Celery
-celerybeat-schedule*
-celerybeat.pid
+# Local databases and data
+db.sqlite3
+data/
+media/
+staticfiles/
+
+# VCS, CI, and editor metadata
+.git/
+.gitignore
+.gitattributes
+.github/
+.editorconfig
+.pre-commit-config.yaml
+.vscode/
+.idea/
+
+# Secrets — the image must never bake these in
+.env
+*.pem
+id_ed25519
+id_ed25519.pub
+
+# Node: dependencies are installed inside the build, output CSS is copied in
+node_modules/
+
+# Tooling caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Deployment scripts run on the server, not in the image
+deploy.sh
+rollback.sh
+setup_hetzner.sh
+docker-compose*.yml
+nginx/
+
+# Documentation
+*.md
+LICENSE

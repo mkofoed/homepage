@@ -2,7 +2,7 @@
 name = "homepage"
 version = "1.0.0"
 description = "Personal homepage built with Django"
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "django>=6.0.2",
     "uvicorn[standard]>=0.34.0",
@@ -35,7 +35,9 @@ dev = [
     "djangorestframework-stubs >= 3.16.8",
     "pre-commit >= 4.5.1",
     "types-markdown >= 3.10.2.20260211",
-    "django-debug-toolbar >= 6.2.0"
+    "django-debug-toolbar >= 6.2.0",
+    "djlint >= 1.36.4",
+    "coverage >= 7.6.0",
 ]
 
 [tool.setuptools]
@@ -44,6 +46,7 @@ packages = []
 [tool.ruff]
 line-length = 120
 target-version = "py314"
+extend-exclude = ["*/migrations", "staticfiles", "node_modules", "static/css"]
 
 [tool.ruff.lint]
 select = [
@@ -55,13 +58,41 @@ select = [
     "C4",     # flake8-comprehensions
     "UP",     # pyupgrade
     "DJ",     # flake8-django
+    "PIE",    # misc lints
+    "RUF",    # ruff-specific
+    "SIM",    # flake8-simplify
+    "T20",    # flake8-print: no stray print() in application code
+    "LOG",    # flake8-logging
+    "TID",    # flake8-tidy-imports
+    "S",      # flake8-bandit: security lints
 ]
 ignore = [
-    "E501",   # line too long (handled by formatter)
+    "E501",    # line too long (handled by formatter)
+    "RUF012",  # mutable class attrs need ClassVar: noisy on Django Meta/model classes
+    "S101",    # assert: the Django test suite is built on assert* methods and plain asserts
+    "RUF001",  # ambiguous unicode: Danish copy and typographic dashes are intentional
+    "RUF002",
+    "RUF003",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Settings modules read env and configure logging before importing app code. The
+# star-import from base is already annotated with an inline noqa in each module.
+"config/settings/*.py" = ["E402"]
+# manage.py configures Django before touching app code.
+"manage.py" = ["E402"]
+# Management commands and seeders write to stdout by design.
+"*/management/commands/*.py" = ["T20"]
+# Quotes and demo data use random for display, not for anything security-bearing.
+"showcase/services/content.py" = ["S311"]
+# Tests bind objects to names for readability and exercise hardcoded fixtures.
+"*/tests.py" = ["S105", "S106", "S311"]
+
 [tool.ruff.lint.isort]
-known-first-party = ["core", "blog", "showcase", "config"]
+known-first-party = ["core", "blog", "showcase", "config", "dashboard", "visitors"]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "parents"
 
 [tool.mypy]
 python_version = "3.14"
@@ -75,3 +106,37 @@ exclude = ["migrations", "venv", ".venv"]
 [tool.django-stubs]
 django_settings_module = "config.settings.development"
 
+[tool.djlint]
+profile = "django"
+extension = "html"
+indent = 4
+exclude = "node_modules,staticfiles,static"
+# Structural correctness only; the design system deliberately owns presentation.
+#   H006          - explicit img width/height, cosmetic here
+#   H013          - alt text is present where it carries meaning
+#   H021/H023     - inline styles and HTML entities used intentionally
+#   H030/H031     - meta description/keywords live in the base template
+#   H029          - method="POST" is valid and used consistently
+#   T002          - hardcoded strings in templates are fine for a single-locale site
+ignore = "H006,H013,H021,H023,H029,H030,H031,T002"
+
+[tool.coverage.run]
+source = ["core", "blog", "dashboard", "showcase", "visitors"]
+omit = [
+    "*/migrations/*",
+    "*/tests.py",
+    "*/apps.py",
+    "manage.py",
+    "config/*",
+]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -37,13 +41,31 @@ jobs:
     - name: Install locked dependencies
       run: uv sync --locked --extra dev
 
+    # djLint runs on pull requests only (see ci.yml) until its ignore list is
+    # tuned; it must not be able to block a deploy on a cosmetic template nit.
     - name: Run quality checks
       run: |
         uv run ruff check .
         uv run ruff format --check .
         uv run mypy .
+        uv run python manage.py check --settings=config.settings.test
         uv run python manage.py check --deploy --settings=config.settings.production
         uv run python manage.py test --settings=config.settings.test
+
+    - name: Set up Node
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+      with:
+        node-version: "20"
+        cache: npm
+
+    - name: Fail if the committed Tailwind output is stale
+      run: |
+        npm ci
+        npm run build:css
+        if ! git diff --quiet -- static/css/tailwind.css; then
+          echo "::error file=static/css/tailwind.css::static/css/tailwind.css is out of date. Run 'npm run build:css' and commit the result."
+          exit 1
+        fi
 
   build:
     needs: quality

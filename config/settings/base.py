@@ -181,8 +181,8 @@ shared_processors: list = [
 ]
 
 structlog.configure(
-    processors=shared_processors
-    + [
+    processors=[
+        *shared_processors,
         structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
     ],
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -196,16 +196,16 @@ LOGGING = {
     "formatters": {
         "json": {
             "()": structlog.stdlib.ProcessorFormatter,
-            "processors": shared_processors
-            + [
+            "processors": [
+                *shared_processors,
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 structlog.processors.JSONRenderer(),
             ],
         },
         "console": {
             "()": structlog.stdlib.ProcessorFormatter,
-            "processors": shared_processors
-            + [
+            "processors": [
+                *shared_processors,
                 structlog.stdlib.ProcessorFormatter.remove_processors_meta,
                 structlog.dev.ConsoleRenderer(colors=True),
             ],

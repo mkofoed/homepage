@@ -5,7 +5,7 @@
 ###########
 
 # pull official base image
-FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650 AS builder
+FROM python:3.14-slim@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6 AS builder
 
 # set work directory
 WORKDIR /usr/src/app
@@ -37,7 +37,7 @@ RUN npm ci --include=dev && npm run build:css
 ################
 # GEOIP FETCH  #
 ################
-FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650 AS geoip
+FROM python:3.14-slim@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6 AS geoip
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=secret,id=maxmind_license_key,required=false \
@@ -56,7 +56,7 @@ RUN --mount=type=secret,id=maxmind_license_key,required=false \
 #########
 
 # pull official base image
-FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650
+FROM python:3.14-slim@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
 RUN mkdir -p /home/app
 
 # create the app user

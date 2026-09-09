@@ -27,9 +27,9 @@
   },
   "homepage": "https://github.com/mkofoed/homepage#readme",
   "devDependencies": {
-    "@tailwindcss/cli": "^4.2.2",
-    "@tailwindcss/typography": "^0.5.19",
-    "daisyui": "^5.5.19",
+    "@tailwindcss/cli": "^4.3.3",
+    "@tailwindcss/typography": "^0.5.20",
+    "daisyui": "^5.7.28",
     "tailwindcss": "^4.2.2"
   }
 }

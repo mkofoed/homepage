@@ -99,8 +99,15 @@ the source of truth.
   static collection, rollout, health check, and rollback trigger.
 - `rollback.sh`: previous-image rollback and health verification.
 - `setup_hetzner.sh`: VM bootstrap.
+- `scripts/setup-branch-protection.sh`: idempotent branch-protection rule for
+  `main`; the required checks must match the job names in `ci.yml`.
+- `.github/workflows/ci.yml`: pull-request gate — lint, template lint, type
+  check, Django checks, tests with coverage, stale-Tailwind detection, and
+  production Compose validation.
 - `.github/workflows/deploy.yml`: quality checks, GHCR image publication,
   SBOM/provenance, and VM deployment.
+- `.github/dependabot.yml`: weekly updates for GitHub Actions SHA pins, uv,
+  npm, and base images.
 
 ## Dependency and instruction files
 
@@ -108,4 +115,11 @@ the source of truth.
 - `package.json` and `package-lock.json`: frontend scripts and locked
   dependencies.
 - `.env.example`: documented configuration placeholders.
+- `.python-version`: the interpreter `uv` selects on the host (3.14, a hard
+  requirement — see `AGENTS.md`).
+- `.pre-commit-config.yaml`: local mirror of the CI gate (ruff, djLint,
+  file hygiene, shellcheck).
+- `.editorconfig`: shared indentation, encoding, and line-ending rules.
 - `AGENTS.md`: repository-specific development and safety instructions.
+- `CONTRIBUTING.md`: branch, quality-gate, and pull-request workflow.
+- `LICENSE`: MIT.

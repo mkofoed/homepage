@@ -557,7 +557,7 @@ requires-dist = [
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.4" },
     { name = "sentry-sdk", specifier = ">=2.53.0" },
     { name = "structlog", specifier = ">=25.0.0" },
-    { name = "types-markdown", marker = "extra == 'dev'", specifier = ">=3.10.2.20260211" },
+    { name = "types-markdown", marker = "extra == 'dev'", specifier = ">=3.10.2.20260712" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.34.0" },
     { name = "whitenoise", specifier = ">=6.12.0" },
 ]
@@ -1267,11 +1267,11 @@ wheels = [
 
 [[package]]
 name = "types-markdown"
-version = "3.10.2.20260211"
+version = "3.10.2.20260712"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6d/2e/35b30a09f6ee8a69142408d3ceb248c4454aa638c0a414d8704a3ef79563/types_markdown-3.10.2.20260211.tar.gz", hash = "sha256:66164310f88c11a58c6c706094c6f8c537c418e3525d33b76276a5fbd66b01ce", size = 19768, upload-time = "2026-02-11T04:19:29.497Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/19/eb/9520ed01687401b47265594955c0a9202a4f547795176de61bff77c8dfda/types_markdown-3.10.2.20260712.tar.gz", hash = "sha256:25aea17282490f35ab6b17a87771abd2f479185aaff8e8f4a0035043f02f2c52", size = 20185, upload-time = "2026-07-12T05:13:53.537Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/54/c9/659fa2df04b232b0bfcd05d2418e683080e91ec68f636f3c0a5a267350e7/types_markdown-3.10.2.20260211-py3-none-any.whl", hash = "sha256:2d94d08587e3738203b3c4479c449845112b171abe8b5cadc9b0c12fcf3e99da", size = 25854, upload-time = "2026-02-11T04:19:28.647Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/ea/a8dc2c8977870d27b8b44c4ba2952d765f9d39626e42d0083c871c1c1ebf/types_markdown-3.10.2.20260712-py3-none-any.whl", hash = "sha256:a551ddedde46e0eaca7059aa3d0e42db71afe2b53d8b58f72f2de63f3284f625", size = 25842, upload-time = "2026-07-12T05:13:52.702Z" },
 ]
 
 [[package]]

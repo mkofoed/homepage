@@ -1,0 +1,127 @@
+# Pre-merge quality gate.
+#
+# deploy.yml runs the same checks on push to `main`, but by then the deploy is
+# already in flight. This workflow runs them on the pull request so a failure is
+# visible before merge. Keep the check list in sync with the `quality` job in
+# deploy.yml — if a check is added there, add it here too.
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Lint, type check, and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      SECRET_KEY: this-is-a-long-random-test-only-secret-key-for-django-checks
+      SQL_USER: test_user
+      SQL_PASSWORD: test_password
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+    - name: Set up Python
+      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      with:
+        python-version: "3.14"
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+      with:
+        version: "0.11.29"
+        enable-cache: true
+        cache-dependency-glob: uv.lock
+
+    - name: Install locked dependencies
+      run: uv sync --locked --extra dev
+
+    - name: Ruff lint
+      run: uv run ruff check --output-format=github .
+
+    - name: Ruff format check
+      run: uv run ruff format --check .
+
+    # djLint is newly introduced and its ignore list in pyproject.toml has not
+    # been tuned against these templates yet. It reports without failing the
+    # build; once `djlint ... --lint` is clean locally, delete continue-on-error.
+    - name: djLint templates
+      continue-on-error: true
+      run: uv run djlint core/templates blog/templates dashboard/templates --lint
+
+    - name: Mypy
+      run: uv run mypy .
+
+    - name: Django checks
+      run: uv run python manage.py check --settings=config.settings.test
+
+    - name: Django deployment checks
+      run: uv run python manage.py check --deploy --settings=config.settings.production
+
+    - name: Test suite with coverage
+      run: |
+        uv run coverage run manage.py test --settings=config.settings.test
+        uv run coverage report
+
+  frontend:
+    name: Tailwind build is committed
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+    - name: Set up Node
+      uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4
+      with:
+        node-version: "20"
+        cache: npm
+
+    - name: Install locked dependencies
+      run: npm ci
+
+    - name: Rebuild Tailwind output
+      run: npm run build:css
+
+    - name: Fail if the committed CSS is stale
+      run: |
+        if ! git diff --quiet -- static/css/tailwind.css; then
+          echo "::error file=static/css/tailwind.css::static/css/tailwind.css is out of date. Run 'npm run build:css' and commit the result."
+          git diff --stat -- static/css/tailwind.css
+          exit 1
+        fi
+
+  compose:
+    name: Production Compose file is valid
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+    - name: Create placeholder env file
+      # Each service declares `env_file: .env`, which docker compose requires
+      # to exist even for `config` validation. .env.example's placeholder
+      # values are never real secrets -- production's .env is written on the
+      # server at deploy time -- but using it (rather than an empty file)
+      # means this check actually validates against the documented contract.
+      run: cp .env.example .env
+
+    - name: Validate docker-compose.prod.yml
+      run: docker compose -f docker-compose.prod.yml config --quiet

@@ -23,9 +23,11 @@ class GeoIpLookupTests(SimpleTestCase):
 
         with TemporaryDirectory() as directory:
             Path(directory, "GeoLite2-City.mmdb").touch()
-            with override_settings(GEOIP_PATH=directory):
-                with patch("visitors.services.geoip.open_database", return_value=reader) as open_database:
-                    location = lookup_ip("203.0.113.10")
+            with (
+                override_settings(GEOIP_PATH=directory),
+                patch("visitors.services.geoip.open_database", return_value=reader) as open_database,
+            ):
+                location = lookup_ip("203.0.113.10")
 
         self.assertIsNotNone(location)
         assert location is not None

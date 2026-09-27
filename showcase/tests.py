@@ -111,6 +111,12 @@ class CalculateEndpointTests(ShowcaseAPITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json())
 
+    def test_a_json_array_body_returns_bad_request(self) -> None:
+        response = self.client.post(reverse("api_calculate"), [1, 2, "add"], format="json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+
     def test_get_is_not_allowed(self) -> None:
         response = self.client.get(reverse("api_calculate"))
 

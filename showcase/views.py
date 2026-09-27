@@ -63,10 +63,14 @@ def echo(request: Request) -> Response:
 @api_view(["POST"])
 def calculate(request: Request) -> Response:
     """Perform a calculation on two numbers."""
+    data = request.data
+    if not isinstance(data, dict):
+        return Response({"error": "Request body must be a JSON object."}, status=400)
+
     try:
-        a: float = float(request.data.get("a", 0))
-        b: float = float(request.data.get("b", 0))
-        operation: str = request.data.get("operation", "add")
+        a: float = float(data.get("a", 0))
+        b: float = float(data.get("b", 0))
+        operation: str = data.get("operation", "add")
 
         from .services.algorithms import calculate_operation
 

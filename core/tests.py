@@ -1,13 +1,17 @@
+import json
 from datetime import timedelta
 from unittest.mock import patch
 
+from asgiref.testing import ApplicationCommunicator
+from channels.routing import URLRouter
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
 from blog.models import Post
+from config.ws_routing import websocket_urlpatterns
 from visitors.models import PageView
 
 
@@ -40,6 +44,12 @@ class HealthCheckTests(TestCase):
 
 
 class VisitorMapDataTests(TestCase):
+    def setUp(self) -> None:
+        cache.clear()
+
+    def tearDown(self) -> None:
+        cache.clear()
+
     def test_map_hides_individual_locations_and_rounds_visible_coordinates(self) -> None:
         timestamp = timezone.now()
         for index in range(3):
@@ -61,6 +71,33 @@ class VisitorMapDataTests(TestCase):
         self.assertEqual(feature["geometry"]["coordinates"], [12.6, 55.7])
         self.assertNotIn("city", feature["properties"])
 
+    def test_map_data_is_served_from_cache_on_repeat_requests(self) -> None:
+        self.client.get(reverse("visitor_map_data"))
+
+        with self.assertNumQueries(0):
+            response = self.client.get(reverse("visitor_map_data"))
+
+        self.assertEqual(response.json(), {"type": "FeatureCollection", "features": []})
+
+    def test_visitor_page_renders_cached_summary(self) -> None:
+        PageView.objects.create(
+            timestamp=timezone.now(),
+            ip_hash="visitor",
+            country_code="DK",
+            country_name="Denmark",
+            latitude=55.6761,
+            longitude=12.5683,
+            path="/",
+        )
+
+        first = self.client.get(reverse("visitor_map"))
+        with self.assertNumQueries(0):
+            second = self.client.get(reverse("visitor_map"))
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.context["total_views"], 1)
+        self.assertEqual(second.context["top_countries"][0]["country_code"], "DK")
+
 
 class RequestLifecycleTests(TestCase):
     def setUp(self) -> None:
@@ -74,7 +111,7 @@ class RequestLifecycleTests(TestCase):
             reverse("request_lifecycle"),
             data='{"correlation_id": "12345678-1234-1234-1234-123456789012"}',
             content_type="application/json",
-            HTTP_X_FORWARDED_FOR="203.0.113.10",
+            HTTP_X_REAL_IP="203.0.113.10",
         )
 
         self.assertEqual(response.status_code, 202)
@@ -99,14 +136,76 @@ class RequestLifecycleTests(TestCase):
             reverse("request_lifecycle"),
             data=payload,
             content_type="application/json",
-            HTTP_X_FORWARDED_FOR="203.0.113.10",
+            HTTP_X_REAL_IP="203.0.113.10",
         )
         second_response = self.client.post(
             reverse("request_lifecycle"),
             data=payload,
             content_type="application/json",
-            HTTP_X_FORWARDED_FOR="203.0.113.10",
+            HTTP_X_REAL_IP="203.0.113.10",
         )
 
         self.assertEqual(first_response.status_code, 202)
         self.assertEqual(second_response.status_code, 429)
+
+    @patch("core.tasks.complete_request_lifecycle.delay")
+    def test_rotating_x_forwarded_for_does_not_bypass_the_throttle(self, mock_delay) -> None:
+        mock_delay.return_value.id = "12345678-1234-1234-1234-123456789012"
+        payload = '{"correlation_id": "12345678-1234-1234-1234-123456789012"}'
+
+        responses = [
+            self.client.post(
+                reverse("request_lifecycle"),
+                data=payload,
+                content_type="application/json",
+                HTTP_X_FORWARDED_FOR=spoofed,
+            )
+            for spoofed in ("198.51.100.1", "198.51.100.2")
+        ]
+
+        self.assertEqual([r.status_code for r in responses], [202, 429])
+
+
+class PresenceConsumerTests(SimpleTestCase):
+    """Drives the consumer over raw ASGI; channels.testing would pull in daphne."""
+
+    def setUp(self) -> None:
+        cache.clear()
+
+    def tearDown(self) -> None:
+        cache.clear()
+
+    async def _connect(self, path: str) -> ApplicationCommunicator:
+        scope = {"type": "websocket", "path": path, "headers": [], "query_string": b"", "subprotocols": []}
+        communicator = ApplicationCommunicator(URLRouter(websocket_urlpatterns), scope)
+        await communicator.send_input({"type": "websocket.connect"})
+        self.assertEqual((await communicator.receive_output())["type"], "websocket.accept")
+        return communicator
+
+    async def _receive_count(self, communicator: ApplicationCommunicator) -> int:
+        message = await communicator.receive_output()
+        return int(json.loads(message["text"])["count"])
+
+    async def test_count_tracks_connects_and_disconnects(self) -> None:
+        first = await self._connect("/ws/presence/dashboard/")
+        self.assertEqual(await self._receive_count(first), 1)
+
+        second = await self._connect("/ws/presence/dashboard/")
+        self.assertEqual(await self._receive_count(second), 2)
+        self.assertEqual(await self._receive_count(first), 2)
+
+        await second.send_input({"type": "websocket.disconnect", "code": 1000})
+        await second.wait()
+        self.assertEqual(await self._receive_count(first), 1)
+
+        await first.send_input({"type": "websocket.disconnect", "code": 1000})
+        await first.wait()
+        self.assertEqual(await cache.aget("presence_count_dashboard"), 0)
+
+    async def test_page_names_that_are_not_valid_group_names_are_rejected(self) -> None:
+        scope = {"type": "websocket", "path": "/ws/presence/not valid!/", "headers": [], "query_string": b""}
+        communicator = ApplicationCommunicator(URLRouter(websocket_urlpatterns), scope)
+        await communicator.send_input({"type": "websocket.connect"})
+
+        with self.assertRaises(ValueError):
+            await communicator.wait()

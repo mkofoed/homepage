@@ -444,3 +444,26 @@ class DashboardViewTests(TestCase):
         response = self.client.get(reverse("dashboard:home"))
 
         self.assertEqual(response.status_code, 200)
+
+    def test_price_chart_tolerates_a_malformed_offset(self) -> None:
+        """A hand-edited query string must not surface as a 500."""
+        response = self.client.get(reverse("dashboard:htmx_price_chart"), {"range": "day", "offset": "abc"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["offset"], 0)
+
+    def test_price_chart_clamps_offsets_to_the_supported_window(self) -> None:
+        url = reverse("dashboard:htmx_price_chart")
+
+        far_past = self.client.get(url, {"range": "year", "offset": "-100000"})
+        far_future = self.client.get(url, {"range": "day", "offset": "999"})
+
+        self.assertEqual(far_past.status_code, 200)
+        self.assertEqual(far_past.context["offset"], -10)
+        self.assertEqual(far_future.context["offset"], 1)
+
+    def test_price_chart_falls_back_to_day_for_an_unknown_range(self) -> None:
+        response = self.client.get(reverse("dashboard:htmx_price_chart"), {"range": "decade"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["active_range"], "day")

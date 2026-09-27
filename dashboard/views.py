@@ -9,6 +9,21 @@ from django.utils import timezone
 from dashboard.services.current_price import get_current_price
 from dashboard.services.price_chart import _to_cph, get_chart_data
 
+# How far back each range may page. Bounds keep pendulum arithmetic in range and stop
+# arbitrary query strings from minting unbounded chart cache keys.
+MAX_PAST_OFFSET = {"day": 3650, "week": 520, "month": 120, "year": 10}
+# Day-ahead prices are published around 13:00, so only one step into the future is useful.
+MAX_FUTURE_OFFSET = 1
+
+
+def _parse_offset(raw: str | None, range_param: str) -> int:
+    """Parse the pagination offset, falling back to 0 and clamping to the supported window."""
+    try:
+        offset = int(raw or 0)
+    except ValueError:
+        return 0
+    return max(-MAX_PAST_OFFSET[range_param], min(offset, MAX_FUTURE_OFFSET))
+
 
 def dashboard_home(request: HttpRequest) -> HttpResponse:
     """Renders the main dashboard skeleton. HTMX loads the dynamic parts."""
@@ -19,15 +34,15 @@ def htmx_price_chart(request: HttpRequest) -> HttpResponse:
     """HTMX endpoint: returns chart data for the requested time range, resolution and offset."""
     range_param = request.GET.get("range", "day")
     resolution = request.GET.get("resolution", "hour")
-    offset = int(request.GET.get("offset", "0"))
 
-    if range_param == "default":
+    if range_param not in MAX_PAST_OFFSET:
         range_param = "day"
     if resolution not in ("quarter", "hour"):
         resolution = "hour"
     # Force daily resolution for longer ranges — hourly detail not useful
     if range_param in ("month", "year"):
         resolution = "day"
+    offset = _parse_offset(request.GET.get("offset"), range_param)
 
     now = timezone.now()
     price_area = request.GET.get("area", "DK1")

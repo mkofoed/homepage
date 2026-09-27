@@ -58,6 +58,8 @@ the source of truth.
 - `middleware.py`: filters eligible page views and queues processing using the
   direct proxy address.
 - `services/geoip.py`: local MaxMind lookup and daily salted IP hashing.
+- `services/stats.py`: cached, k-anonymous aggregates behind the public visitor
+  map page and its GeoJSON endpoint.
 - `tasks.py`: background GeoIP lookup and page-view persistence.
 - `models.py`: approximate location, hashed visitor, path, and device data.
 

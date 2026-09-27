@@ -12,6 +12,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 logger = structlog.get_logger()
 
+PRESENCE_TTL = 3600
+
 
 class PresenceConsumer(AsyncWebsocketConsumer):
     """
@@ -40,14 +42,26 @@ class PresenceConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({"count": event["count"]}))
 
     async def _broadcast_count(self, delta: int):
-        from channels.layers import get_channel_layer
-        from django.core.cache import cache
+        from asgiref.sync import sync_to_async
 
-        layer = get_channel_layer()
-        key = f"presence_count_{self.page}"
-        count = max(0, cache.get(key, 0) + delta)
-        cache.set(key, count, timeout=3600)
-        await layer.group_send(self.group, {"type": "presence.update", "count": count})
+        count = await sync_to_async(_adjust_presence_count)(self.page, delta)
+        await self.channel_layer.group_send(self.group, {"type": "presence.update", "count": count})
+
+
+def _adjust_presence_count(page: str, delta: int) -> int:
+    """Atomically adjust a page's viewer count; runs off the event loop."""
+    from django.core.cache import cache
+
+    key = f"presence_count_{page}"
+    # Redis INCR is atomic, so concurrent connects/disconnects cannot overwrite each other.
+    cache.add(key, 0, timeout=PRESENCE_TTL)
+    count = cache.incr(key, delta)
+    if count < 0:
+        count = 0
+        cache.set(key, count, timeout=PRESENCE_TTL)
+    else:
+        cache.touch(key, timeout=PRESENCE_TTL)
+    return count
 
 
 class PriceTickerConsumer(AsyncWebsocketConsumer):

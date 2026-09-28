@@ -79,6 +79,13 @@ class VisitorMapDataTests(TestCase):
 
         self.assertEqual(response.json(), {"type": "FeatureCollection", "features": []})
 
+    def test_visitor_page_uses_the_keyless_openfreemap_basemap(self) -> None:
+        """CARTO watermarks keyless tiles since September 2026; OpenFreeMap needs no key."""
+        response = self.client.get(reverse("visitor_map"))
+
+        self.assertContains(response, "https://tiles.openfreemap.org/styles/dark")
+        self.assertNotContains(response, "basemaps.cartocdn.com")
+
     def test_visitor_page_renders_cached_summary(self) -> None:
         PageView.objects.create(
             timestamp=timezone.now(),

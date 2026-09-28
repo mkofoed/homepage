@@ -159,12 +159,15 @@
     </div>
 </div>
 
-<!-- Leaflet + MarkerCluster -->
+<!-- Leaflet + MarkerCluster, with an OpenFreeMap vector basemap rendered by MapLibre GL -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.1.4/leaflet-maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 {{ device_counts|json_script:"device-data" }}
 
@@ -174,17 +177,21 @@
     const map = L.map('visitor-map', {
         center: [30, 10],
         zoom: 2,
+        // MarkerCluster needs an explicit maxZoom; the old raster tile layer used to supply it.
+        maxZoom: 18,
         zoomControl: true,
         attributionControl: false,
     });
 
-    // Dark tile layer (CartoDB Dark Matter — no API key needed)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
+    // Dark vector basemap from OpenFreeMap: no API key, no registration, no request cap.
+    // Its tiles, glyphs, and sprites all load from tiles.openfreemap.org (see the nginx CSP).
+    L.maplibreGL({
+        style: 'https://tiles.openfreemap.org/styles/dark',
+        attributionControl: false,
     }).addTo(map);
 
     L.control.attribution({ prefix: false })
-        .addAttribution('© <a href="https://carto.com" style="color:#22d3ee">CARTO</a> © <a href="https://www.openstreetmap.org/copyright" style="color:#22d3ee">OSM</a>')
+        .addAttribution('<a href="https://openfreemap.org" style="color:#22d3ee">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" style="color:#22d3ee">OpenMapTiles</a> Data from <a href="https://www.openstreetmap.org/copyright" style="color:#22d3ee">OpenStreetMap</a>')
         .addTo(map);
 
     // Custom cyan marker

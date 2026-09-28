@@ -15,7 +15,7 @@ from dashboard.models import SpotPrice
 DK_VAT_MULTIPLIER = Decimal("1.25")
 DK_ELAFGIFT = Decimal("0.008")  # Elafgift 2026-2027: 0.8 øre/kWh
 DK_ELSPAREBIDRAG = Decimal("0.006")  # Elsparebidrag: 0.6 øre/kWh
-DK_ENERGINET_TARIFF = Decimal("0.092")  # Energinet system+transmission 2026: 9.2 øre/kWh
+DK_ENERGINET_TARIFF = Decimal("0.115")  # Energinet 2026: nettarif 4.3 + systemtarif 7.2 = 11.5 øre/kWh
 
 # N1 grid tariffs 2026 (ex VAT) — covers Aarhus/most of Jylland
 N1_GRID_TARIFFS = {

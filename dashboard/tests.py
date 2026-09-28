@@ -122,6 +122,10 @@ class TotalPriceTests(SimpleTestCase):
         ) * DK_VAT_MULTIPLIER
         self.assertEqual(total, expected)
 
+    def test_energinet_tariff_matches_the_published_2026_rate(self) -> None:
+        """Energinet's 2026 consumer tariff: nettarif 4.3 + systemtarif 7.2 øre/kWh ex VAT."""
+        self.assertEqual(DK_ENERGINET_TARIFF, Decimal("0.043") + Decimal("0.072"))
+
     def test_a_negative_spot_price_can_still_yield_a_positive_total(self) -> None:
         """Negative day-ahead prices are real; tariffs are charged regardless."""
         timestamp = datetime(2026, 1, 15, 2, 0, tzinfo=UTC)

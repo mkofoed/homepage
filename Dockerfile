@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 
 # Pull official base image
-FROM python:3.14-slim@sha256:71b358f8bff55413f4a6b95af80acb07ab97b5636cd3b869f35c3680d31d1650
+FROM python:3.14-slim@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
 
 # Set work directory
 # Create non-root user
